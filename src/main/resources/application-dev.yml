@@ -1,0 +1,13 @@
+# ---------------------------------------------------------------------------
+# Profile: dev
+# Banco local (Docker Compose ou PostgreSQL local). Credenciais via .env.
+# ---------------------------------------------------------------------------
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/${POSTGRES_DB:campus_living}}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
