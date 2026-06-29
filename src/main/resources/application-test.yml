@@ -1,0 +1,10 @@
+# ---------------------------------------------------------------------------
+# Profile: test
+# A fonte de dados é provida em tempo de execução pelo Testcontainers
+# (PostGIS) via @ServiceConnection — não há credenciais aqui.
+# ---------------------------------------------------------------------------
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
