@@ -24,67 +24,62 @@
     </properties>
 
     <dependencies>
-        <!-- Web / REST -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Persistence (JPA) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- Bean Validation (Spring Validation) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- Health / metrics endpoints (used by Docker/CI and ops) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- OpenAPI / Swagger UI -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc.version}</version>
         </dependency>
 
-        <!-- Loads variables from .env so a single file works for docker compose and local runs -->
         <dependency>
             <groupId>me.paulschwarz</groupId>
             <artifactId>spring-dotenv</artifactId>
             <version>${spring-dotenv.version}</version>
         </dependency>
 
-        <!-- PostgreSQL driver -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-testcontainers</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
