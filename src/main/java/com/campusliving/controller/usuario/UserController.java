@@ -29,5 +29,5 @@ public class UserController {
     @GetMapping("/list")
     public ResponseEntity<?> listUsers(){
         return ResponseEntity.status(HttpStatus.OK).body(userService.listUsers());
-    }
+   }
 }
