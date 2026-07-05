@@ -1,6 +1,5 @@
 package com.campusliving.model.usuario;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
@@ -8,9 +7,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
+import lombok.Data;
 
 
 @Entity
+@Table(name = "users")
 @Data
 @Builder
 public class User {
@@ -57,5 +61,13 @@ public class User {
  
     @JsonProperty("ativo")
     @Column(nullable = false)
-    private boolean ativo;   
+    private boolean ativo;
+
+    public @NotBlank(message = "") boolean getAtivo() {
+        return this.ativo; 
+    }
+
+    public @NotBlank(message = "") boolean getVerificado() {
+        return this.verificado;
+    }   
  }
