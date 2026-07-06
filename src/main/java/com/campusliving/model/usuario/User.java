@@ -9,17 +9,21 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Entity
 @Table(name = "users")
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
-    enum Tipo{
+    public enum Tipo{
         Estudante,
         Locador,
         Misto,
@@ -63,11 +67,16 @@ public class User {
     @Column(nullable = false)
     private boolean ativo;
 
-    public @NotBlank(message = "") boolean getAtivo() {
+    public boolean getAtivo() {
         return this.ativo; 
     }
 
-    public @NotBlank(message = "") boolean getVerificado() {
+    public boolean getVerificado() {
         return this.verificado;
     }   
+
+
+    public String getEmail(){
+        return this.email;
+    }
  }
