@@ -39,6 +39,14 @@ public class UserResponseDTO {
     @NotBlank(message = "")
     private String bio;
 
+    // RF-06: expostos aqui para o cliente conseguir ler o que acabou de
+    // atualizar via PUT /usuarios/:id (ver UserServiceImpl#atualizarPerfil).
+    @JsonProperty("curso")
+    private String curso;
+
+    @JsonProperty("instituicao")
+    private String instituicao;
+
     @JsonProperty("verificado")
     @NotBlank(message = "")
     private boolean verificado;
@@ -54,6 +62,8 @@ public class UserResponseDTO {
         this.email = usuario.getEmail();
         this.telefone = usuario.getTelefone();
         this.bio = usuario.getBio();
+        this.curso = usuario.getCurso();
+        this.instituicao = usuario.getInstituicao();
         this.verificado = usuario.getVerificado();
         this.ativo = usuario.getAtivo();
     }

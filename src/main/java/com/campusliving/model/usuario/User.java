@@ -79,6 +79,16 @@ public class User {
     @Column
     private String bio;
 
+    // RF-06: atualizáveis via PUT /usuarios/:id. Adicionados em
+    // V18__add_curso_instituicao_users.sql — não estavam no ER original.
+    @JsonProperty("curso")
+    @Column(length = 150)
+    private String curso;
+
+    @JsonProperty("instituicao")
+    @Column(length = 150)
+    private String instituicao;
+
     @JsonProperty("verificado")
     @Column(name = "email_verificado", nullable = false)
     private boolean verificado;
