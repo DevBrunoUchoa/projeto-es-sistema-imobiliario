@@ -44,8 +44,14 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # Opcional: sobrescreve as flags de JVM definidas no Dockerfile
+      # (ex.: JAVA_OPTS=-Xmx256m no seu .env) sem precisar rebuildar a imagem.
+      JAVA_OPTS: ${JAVA_OPTS:--XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError}
     ports:
       - "${APP_PORT:-8080}:8080"
+    # O HEALTHCHECK em si vem do Dockerfile (consulta /actuator/health);
+    # aqui só reaproveitamos esse status pra decidir quando o container está
+    # "pronto" em orquestradores que respeitam isso (ex.: `docker compose ps`).
 
 volumes:
   postgres_data:
