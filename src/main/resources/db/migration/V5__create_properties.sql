@@ -13,7 +13,12 @@ CREATE TABLE properties (
     complemento     VARCHAR(100),
     bairro          VARCHAR(100) NOT NULL,
     cidade          VARCHAR(100) NOT NULL DEFAULT 'Campina Grande',
-    estado          CHAR(2)      NOT NULL DEFAULT 'PB',
+    -- VARCHAR (não CHAR fixo): o Hibernate valida o schema comparando o
+    -- código de tipo JDBC do driver (Types.VARCHAR) contra o que a entidade
+    -- Java mapeia para String, e não tem como fazer esse "char(2)" bater sem
+    -- anotação extra (@JdbcTypeCode) só por causa de 2 caracteres fixos —
+    -- não vale a complexidade pra uma sigla de UF que já é sempre 2 letras.
+    estado          VARCHAR(2)   NOT NULL DEFAULT 'PB',
     latitude        DOUBLE PRECISION NOT NULL,
     longitude       DOUBLE PRECISION NOT NULL,
 
