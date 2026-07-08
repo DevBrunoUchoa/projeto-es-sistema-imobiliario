@@ -8,7 +8,7 @@ import com.campusliving.dto.usuario.LoginResponseDTO;
 import com.campusliving.model.usuario.User;
 import com.campusliving.repository.usuario.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +19,7 @@ import java.util.List;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
     @Transactional
