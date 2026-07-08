@@ -1,7 +1,13 @@
 package com.campusliving.model.usuario;
 
 import java.time.OffsetDateTime;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -35,7 +41,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class User implements UserDetails {
 
     /** Precisa bater exatamente com o CHECK constraint de users.tipo_conta. */
     public enum Tipo {
@@ -126,6 +132,45 @@ public class User {
     @Column(name = "ultimo_login")
     private OffsetDateTime ultimoLogin;
 
+    // ===== MÉTODOS DO SPRING SECURITY (UserDetails) =====
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + tipoConta.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return senhaHash;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return verificado && ativo;
+    }
+
+    // ===== GETTERS ADICIONAIS PARA COMPATIBILIDADE =====
+
     public boolean getAtivo() {
         return this.ativo;
     }
@@ -137,4 +182,33 @@ public class User {
     public String getEmail() {
         return this.email;
     }
+
+    public String getRole() {
+        return tipoConta != null ? tipoConta.name() : "ESTUDANTE";
+    }
+
+    public Boolean getEmailVerificado() {
+        return verificado;
+    }
+
+    public String getSenha() {
+        return senhaHash;
+    }
+
+    public boolean isAtivo() {
+        return this.ativo;
+    }
+
+    public boolean isVerificado() {
+        return this.verificado;
+    }
+
+    public String getSenhaHash() {
+        return this.senhaHash;
+    }
+
+    public User.Tipo getTipoConta() {
+        return this.tipoConta;
+    }
+
 }

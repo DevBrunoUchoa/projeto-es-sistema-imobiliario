@@ -13,4 +13,5 @@ spring:
   # fictícios (db/seed/V900__seed_dev.sql). Isso NUNCA roda em test/prod,
   # porque essas duas locations só existem juntas aqui no profile dev.
   flyway:
+    baseline-on-migrate: true
     locations: classpath:db/migration,classpath:db/seed
