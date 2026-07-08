@@ -20,8 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.campusliving.dto.interacao.FavoritoResponseDTO;
+import com.campusliving.dto.roommate.PerfilRoommateResponseDTO;
+import com.campusliving.dto.roommate.PreferenciasRoommateRequestDTO;
 import com.campusliving.dto.usuario.UserPostPutRequestDTO;
 import com.campusliving.dto.usuario.UserUpdateRequestDTO;
+import com.campusliving.service.roommate.RoommateService;
 import com.campusliving.service.usuario.UserService;
 
 import jakarta.validation.Valid;
@@ -48,9 +51,11 @@ import jakarta.validation.Valid;
 public class UserController {
 
     private final UserService userService;
+    private final RoommateService roommateService;
 
-    public UserController(UserService service){
+    public UserController(UserService service, RoommateService roommateService){
         this.userService = service;
+        this.roommateService = roommateService;
     }
 
     @PostMapping()
@@ -134,6 +139,16 @@ public class UserController {
             @RequestHeader(value = "X-User-Id", required = false) UUID requesterId) {
         userService.removerFavorito(id, adId, requesterId);
         return ResponseEntity.noContent().build();
+    }
+
+    // --- T5.8.1: RF-10 / RF-32 -----------------------------------------------
+    @PutMapping("/{id}/preferencias-roommate")
+    public ResponseEntity<?> salvarPreferenciasRoommate(
+            @PathVariable UUID id,
+            @RequestBody PreferenciasRoommateRequestDTO dto,
+            @RequestHeader(value = "X-User-Id", required = false) UUID requesterId) {
+        PerfilRoommateResponseDTO perfil = roommateService.salvarPreferencias(id, dto, requesterId);
+        return ResponseEntity.status(HttpStatus.OK).body(perfil);
     }
 
     // --- T5.4.7: RNF/LEG-02 (LGPD) -------------------------------------------
