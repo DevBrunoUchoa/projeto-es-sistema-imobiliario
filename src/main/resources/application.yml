@@ -9,12 +9,35 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
   jpa:
     open-in-view: false
+    # O Flyway é quem cria/altera tabelas (src/main/resources/db/migration).
+    # O Hibernate NUNCA gera DDL sozinho — "ddl-auto: validate" em todo profile
+    # só confere se as entidades @Entity batem com o schema que o Flyway
+    # aplicou; se alguém adicionar um campo na entidade sem migration
+    # correspondente, a aplicação falha ao subir em vez de alterar a tabela
+    # "silenciosamente".
+    hibernate:
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  # RNF/SEG-05: documentos de verificação de locador (T5.4) limitados a 5MB.
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
 
 server:
   port: ${APP_PORT:8080}
+
+# Diretório onde documentos/uploads são salvos localmente (T5.4/T5.9).
+# Interino: em produção com filesystem efêmero isso NÃO persiste entre
+# deploys/restarts — ver comentário em LocalDiskDocumentStorageService.
+app:
+  uploads:
+    dir: ${UPLOADS_DIR:uploads}
 
 # OpenAPI / Swagger (SpringDoc)
 springdoc:

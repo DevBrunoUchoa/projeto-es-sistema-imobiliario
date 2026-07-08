@@ -6,6 +6,7 @@ import com.campusliving.exception.ProjectException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -53,13 +54,15 @@ public class ErrorHandler {
         return customErrorType;
     }
 
+    // Sem @ResponseStatus fixo de propósito: o status agora vem da própria
+    // exceção (e.getStatus()), já que subclasses de ProjectException podem
+    // representar 404, 403, 409, etc., não só 400.
     @ExceptionHandler(ProjectException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public CustomErrorType onProjectException(ProjectException e) {
-        return defaultCustomErrorTypeConstruct(
-                e.getMessage()
-        );
+    public ResponseEntity<CustomErrorType> onProjectException(ProjectException e) {
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(defaultCustomErrorTypeConstruct(e.getMessage()));
     }
 
 }

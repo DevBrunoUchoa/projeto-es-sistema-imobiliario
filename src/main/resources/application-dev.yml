@@ -8,6 +8,10 @@ spring:
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
   jpa:
-    hibernate:
-      ddl-auto: update
     show-sql: true
+  # Em dev, além das migrations "de verdade", também carrega o seed de dados
+  # fictícios (db/seed/V900__seed_dev.sql). Isso NUNCA roda em test/prod,
+  # porque essas duas locations só existem juntas aqui no profile dev.
+  flyway:
+    baseline-on-migrate: true
+    locations: classpath:db/migration,classpath:db/seed

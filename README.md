@@ -15,8 +15,10 @@ Este repositório contém o **backend** (API REST) do sistema.
 - [Estrutura de pastas](#estrutura-de-pastas)
 - [Pré-requisitos](#pré-requisitos)
 - [Variáveis de ambiente](#variáveis-de-ambiente)
+- [Banco de dados](#banco-de-dados)
 - [Como executar localmente](#como-executar-localmente)
 - [Docker](#docker)
+- [Deploy (produção)](#deploy-produção)
 - [Documentação da API (Swagger)](#documentação-da-api-swagger)
 - [Comandos Maven](#comandos-maven)
 - [Integração contínua (CI)](#integração-contínua-ci)
@@ -130,10 +132,39 @@ cp .env.example .env   # depois edite os valores
 | `SPRING_DATASOURCE_URL`      | sim em `prod`          | URL JDBC do banco                                      |
 | `SPRING_DATASOURCE_USERNAME` | sim em `prod`          | Usuário do banco (profile `prod`)                      |
 | `SPRING_DATASOURCE_PASSWORD` | sim em `prod`          | Senha do banco (profile `prod`)                        |
+| `DB_POOL_MAX_SIZE`           | não (padrão `10`)      | Tamanho máximo do pool HikariCP (só `prod`)             |
+| `DB_POOL_MIN_IDLE`           | não (padrão `2`)       | Conexões ociosas mínimas do pool (só `prod`)            |
+| `JAVA_OPTS`                  | não                    | Flags extras de JVM ao rodar via Docker (ver Dockerfile)|
 
 > No profile `dev`, `SPRING_DATASOURCE_URL` é opcional (assume
 > `localhost:5432`) e o usuário/senha vêm de `POSTGRES_USER`/`POSTGRES_PASSWORD`.
 > No profile `prod` não há valores padrão: a aplicação falha rápido se faltar algo.
+
+## Banco de dados
+
+PostgreSQL 16 + PostGIS 3.4. O schema é gerenciado por **migrations Flyway**
+(`src/main/resources/db/migration/`) — o Hibernate nunca cria/altera tabelas
+sozinho (`ddl-auto: validate` em todos os profiles). Detalhes de convenções e
+o que cada migration faz estão em [`src/main/resources/db/README.md`](src/main/resources/db/README.md).
+
+Pontos-chave:
+
+- **PostGIS** é habilitado via migration (`V1__enable_extensions.sql`), não só
+  pelo script de init do Docker — assim funciona igual em qualquer provedor
+  gerenciado (Supabase, RDS, etc.), não só localmente.
+- Distância até a UFCG usa a coluna geoespacial `properties.geom`, mantida
+  automaticamente em sincronia com latitude/longitude por um trigger.
+- Busca textual de anúncios usa uma coluna `tsvector` gerada pelo próprio
+  Postgres (`ads.search_vector`), indexada com GIN.
+- Regras de negócio que o banco consegue garantir sozinho — nada de anúncio
+  duplicado ativo por imóvel, nada de avaliação duplicada, `audit_logs`
+  append-only — viram `CONSTRAINT`/índice único/trigger, não só validação em
+  Java.
+- Em **dev**, um seed (`db/seed/V900__seed_dev.sql`) popula ~20 imóveis
+  fictícios em bairros reais de Campina Grande-PB. Nunca roda em `test`/`prod`.
+- Em **prod**, a conexão usa HikariCP com `sslmode=require` obrigatório
+  (RNF/SEG-03) e um pool dimensionado para caber no free tier do provedor
+  (`DB_POOL_MAX_SIZE`/`DB_POOL_MIN_IDLE`, ver `.env.example`).
 
 ## Como executar localmente
 
@@ -158,7 +189,8 @@ docker compose up --build        # banco + aplicação
 
 - **`Dockerfile`** — build *multi-stage*: o primeiro estágio compila com Maven/JDK 21
   e o segundo gera uma imagem enxuta apenas com a JRE 21, executando como usuário sem
-  privilégios.
+  privilégios. Inclui `HEALTHCHECK` (consulta `/actuator/health`) e flags de
+  JVM adequadas para container (`JAVA_OPTS`, sobrescrevível em runtime).
 - **`docker-compose.yml`** — orquestra:
   - `db`: PostgreSQL 16 + PostGIS 3.4, com *healthcheck* e volume persistente. A
     extensão PostGIS é habilitada automaticamente na inicialização via
@@ -175,6 +207,49 @@ docker compose logs -f app       # acompanhar logs da aplicação
 docker compose down              # parar (mantém os dados)
 docker compose down -v           # parar e apagar o volume do banco
 ```
+
+## Deploy (produção)
+
+Arquitetura pensada para caber inteiramente em **free tiers** (RNF/ECO-01),
+com um caminho claro de upgrade se o tráfego real justificar:
+
+| Componente | Provedor sugerido | Por quê |
+|---|---|---|
+| Banco de dados | **Supabase** (Postgres + PostGIS) | Já é a peça central da modelagem geoespacial; PostGIS é habilitado com 1 clique; tier grátis não expira (diferente do Postgres free do Render, que expira em 30 dias). |
+| API (este repositório) | **Render** (Web Service, plano free) | Deploy direto do `Dockerfile`, HTTPS automático, sem cartão de crédito. |
+| Frontend | **Vercel** | Fora do escopo deste repositório. |
+
+### Conectando o Render ao Supabase
+
+No painel do Supabase: **Project Settings → Database → Connection string →
+Session pooler**. Copie host, porta (`5432`) e usuário (formato
+`postgres.<project-ref>`) para as variáveis de ambiente do serviço no Render
+(`SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`,
+`SPRING_DATASOURCE_PASSWORD`, `SPRING_PROFILES_ACTIVE=prod`) — nunca num
+arquivo commitado. O porquê de usar especificamente o *session pooler* (e não
+a conexão direta ou o *transaction pooler*) está detalhado em
+[`.env.example`](.env.example).
+
+### O que o free tier realmente aguenta (seja honesto com a banca sobre isso)
+
+"Gratuito" e "suporta grande demanda" puxam em direções opostas — vale deixar
+isso claro no relatório da entrega, não só no código:
+
+- **Supabase free**: banco compartilhado com 500 MB de RAM e 500 MB de
+  armazenamento, até 60 conexões diretas ou 200 conexões via pooler
+  (compartilhadas por todo o projeto, não só por esta API). Para uma turma
+  testando o sistema isso sobra; para tráfego público real, não.
+- **Render free**: a instância "dorme" depois de 15 minutos sem requisições,
+  e o primeiro acesso seguinte leva de 30 a 90 segundos pra responder (*cold
+  start*). Um serviço externo de ping (ex.: UptimeRobot, a cada ~10 min) evita
+  o sono, mas é um contorno, não uma solução real de disponibilidade.
+- **Consequência prática**: o índice GIN de busca textual, o GiST de
+  distância geoespacial e o pool HikariCP dimensionado (T5.2) são o que
+  garante que, dentro desses limites, a aplicação use os recursos disponíveis
+  da forma mais eficiente possível — não existe configuração de banco que
+  faça um plano de 500 MB "aguentar" carga de produção real. Se/quando isso
+  for necessário, o upgrade natural é Supabase Pro (US$ 25/mês) + Render
+  Starter (US$ 7/mês, sem cold start), sem precisar trocar nenhuma tecnologia.
 
 ## Documentação da API (Swagger)
 
