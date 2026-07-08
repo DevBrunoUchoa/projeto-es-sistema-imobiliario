@@ -22,6 +22,13 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (users.isEmpty()) {
             throw new UsernameNotFoundException("Usuário não encontrado com email: " + email);
         }
-        return users.get(0);
+        User user = users.get(0);
+        
+        // Verifica se a conta está ativa
+        if (!user.isAtivo()) {
+            throw new UsernameNotFoundException("Conta desativada: " + email);
+        }
+        
+        return user;
     }
 }

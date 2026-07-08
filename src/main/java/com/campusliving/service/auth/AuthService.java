@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -35,25 +34,34 @@ public class AuthService {
             throw new RuntimeException("Aceite do LGPD é obrigatório");
         }
 
-        String role = request.getRole() != null ? request.getRole() : "ESTUDANTE";
+        // Define role padrão (ESTUDANTE)
+        User.Tipo tipo = User.Tipo.ESTUDANTE;
+        if (request.getRole() != null) {
+            try {
+                tipo = User.Tipo.valueOf(request.getRole().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Role inválida. Valores permitidos: ESTUDANTE, LOCADOR, MISTO, ADMIN");
+            }
+        }
 
         User user = User.builder()
                 .nome(request.getNome())
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getSenha()))
-                .role(role)
+                .senhaHash(passwordEncoder.encode(request.getSenha()))
+                .tipoConta(tipo)
                 .aceiteLgpd(true)
-                .emailVerificado(false)
+                .verificado(false)
+                .ativo(true)
                 .build();
 
         User savedUser = userRepository.save(user);
 
         return CadastroResponseDTO.builder()
-                .id(savedUser.getId()) // UUID
+                .id(savedUser.getId())
                 .nome(savedUser.getNome())
                 .email(savedUser.getEmail())
-                .role(savedUser.getRole())
-                .emailVerificado(savedUser.getEmailVerificado())
+                .role(savedUser.getTipoConta().name())
+                .emailVerificado(savedUser.isVerificado())
                 .mensagem("Usuário cadastrado com sucesso! Verifique seu email para ativar a conta.")
                 .build();
     }
@@ -65,7 +73,11 @@ public class AuthService {
         }
         User user = users.get(0);
 
-        if (!passwordEncoder.matches(request.getSenha(), user.getPassword())) {
+        if (!user.isAtivo()) {
+            throw new RuntimeException("Conta desativada");
+        }
+
+        if (!passwordEncoder.matches(request.getSenha(), user.getSenhaHash())) {
             throw new RuntimeException("Senha inválida");
         }
 
@@ -73,10 +85,10 @@ public class AuthService {
         String refreshToken = jwtService.generateRefreshToken(user);
 
         return LoginResponseDTO.builder()
-                .id(user.getId()) // UUID
+                .id(user.getId())
                 .nome(user.getNome())
                 .email(user.getEmail())
-                .role(user.getRole())
+                .role(user.getTipoConta().name())
                 .mensagem("Login realizado com sucesso!")
                 .jwtToken(jwtToken)
                 .refreshToken(refreshToken)

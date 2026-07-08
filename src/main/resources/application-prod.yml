@@ -5,10 +5,39 @@
 # ---------------------------------------------------------------------------
 spring:
   datasource:
+    # SPRING_DATASOURCE_URL deve apontar para o SESSION POOLER do Supabase
+    # (porta 5432 no host *.pooler.supabase.com), não para a "Direct
+    # connection" nem para o transaction pooler (porta 6543). Motivo completo
+    # comentado em .env.example — resumindo: session pooler resolve o
+    # problema de IPv4 (a maioria dos hosts de app não fala IPv6 de saída)
+    # sem quebrar prepared statements do Hibernate, e o HikariCP abaixo já
+    # cuida do pooling do lado da aplicação.
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      pool-name: CampusLivingHikariPool
+      # Supabase (free tier) limita o total de conexões simultâneas do lado do
+      # servidor bem mais do que um Postgres dedicado — um pool grande demais
+      # aqui derruba OUTROS serviços que compartilham o mesmo banco. Ajuste via
+      # env var se o plano mudar; não aumente "no escuro".
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
+      connection-timeout: 30000   # 30s esperando uma conexão livre do pool
+      idle-timeout: 600000        # 10min: fecha conexões ociosas
+      max-lifetime: 1800000       # 30min: recicla conexões periodicamente
+      validation-timeout: 5000
+      # RNF/SEG-03: TLS obrigatório em qualquer ambiente de produção,
+      # independente do que estiver (ou não) escrito na URL fornecida —
+      # não confiamos que quem colar a SPRING_DATASOURCE_URL vai lembrar de
+      # incluir "?sslmode=require" manualmente.
+      data-source-properties:
+        sslmode: require
   jpa:
     hibernate:
       ddl-auto: validate
     show-sql: false
+
+logging:
+  level:
+    org.flywaydb: INFO

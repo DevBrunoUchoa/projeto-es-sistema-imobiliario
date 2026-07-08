@@ -2,9 +2,11 @@
 # Profile: test
 # A fonte de dados é provida em tempo de execução pelo Testcontainers
 # (PostGIS) via @ServiceConnection — não há credenciais aqui.
+#
+# O Flyway roda as mesmas migrations de produção contra o container efêmero
+# (nada de "create-drop" do Hibernate): assim os testes validam o schema real,
+# não uma versão gerada automaticamente que pode divergir do que sobe em prod.
 # ---------------------------------------------------------------------------
 spring:
   jpa:
-    hibernate:
-      ddl-auto: create-drop
     show-sql: false

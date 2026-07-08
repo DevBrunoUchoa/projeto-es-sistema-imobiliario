@@ -23,5 +23,5 @@ public class CadastroRequestDTO {
     @NotNull(message = "Aceite do LGPD é obrigatório")
     private Boolean aceiteLgpd;
 
-    private String role;
+    private String role; // ESTUDANTE, LOCADOR, MISTO, ADMIN (opcional, default ESTUDANTE)
 }
