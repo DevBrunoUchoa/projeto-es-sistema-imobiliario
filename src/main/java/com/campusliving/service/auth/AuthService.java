@@ -12,6 +12,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -22,7 +25,9 @@ public class AuthService {
 
     @Transactional
     public CadastroResponseDTO cadastrar(CadastroRequestDTO request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
+        // Verifica se email já existe
+        List<User> existingUsers = userRepository.findByEmail(request.getEmail());
+        if (!existingUsers.isEmpty()) {
             throw new RuntimeException("Email já cadastrado");
         }
 
@@ -35,7 +40,7 @@ public class AuthService {
         User user = User.builder()
                 .nome(request.getNome())
                 .email(request.getEmail())
-                .senha(passwordEncoder.encode(request.getSenha()))
+                .password(passwordEncoder.encode(request.getSenha()))
                 .role(role)
                 .aceiteLgpd(true)
                 .emailVerificado(false)
@@ -44,7 +49,7 @@ public class AuthService {
         User savedUser = userRepository.save(user);
 
         return CadastroResponseDTO.builder()
-                .id(savedUser.getId())
+                .id(savedUser.getId()) // UUID
                 .nome(savedUser.getNome())
                 .email(savedUser.getEmail())
                 .role(savedUser.getRole())
@@ -54,10 +59,13 @@ public class AuthService {
     }
 
     public LoginResponseDTO login(LoginRequestDTO request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        List<User> users = userRepository.findByEmail(request.getEmail());
+        if (users.isEmpty()) {
+            throw new RuntimeException("Usuário não encontrado");
+        }
+        User user = users.get(0);
 
-        if (!passwordEncoder.matches(request.getSenha(), user.getSenha())) {
+        if (!passwordEncoder.matches(request.getSenha(), user.getPassword())) {
             throw new RuntimeException("Senha inválida");
         }
 
@@ -65,7 +73,7 @@ public class AuthService {
         String refreshToken = jwtService.generateRefreshToken(user);
 
         return LoginResponseDTO.builder()
-                .id(user.getId())
+                .id(user.getId()) // UUID
                 .nome(user.getNome())
                 .email(user.getEmail())
                 .role(user.getRole())
