@@ -20,9 +20,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Mapeia {@code ads} (V9) — RF-12 a RF-17, RF-21 a RF-25. Entidade "stub":
- * estrutura de dados para o T5.2 ficar completo; publicação/busca/estatísticas
- * ficam para T5.5/T5.6.
+ * Mapeia {@code ads} (V9) — RF-12 a RF-17, RF-21 a RF-25. Publicação/edição/
+ * status/estatísticas implementados no T5.5; busca textual (search_vector)
+ * fica para o T5.6.
  *
  * <p>{@code search_vector} (TSVECTOR gerado pelo próprio Postgres a partir de
  * título+descrição) é DELIBERADAMENTE omitido: o Hibernate não tem um tipo
@@ -43,8 +43,10 @@ public class Anuncio {
         IMOVEL_COMPLETO, VAGA_COMPARTILHADA
     }
 
+    // SUSPENSO adicionado em V20 (T5.5.4/RF-14) — inativação lógica
+    // administrativa, distinta de INATIVO (decisão do próprio locador).
     public enum Status {
-        ATIVO, INATIVO, ALUGADO
+        ATIVO, INATIVO, ALUGADO, SUSPENSO
     }
 
     @JsonProperty("id")

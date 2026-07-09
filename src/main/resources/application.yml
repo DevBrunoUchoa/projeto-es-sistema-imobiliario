@@ -38,6 +38,21 @@ server:
 app:
   uploads:
     dir: ${UPLOADS_DIR:uploads}
+  # T5.5 — integrações externas usadas no cadastro de imóveis (RF-11/RF-16).
+  # URLs configuráveis via variável de ambiente pra facilitar apontar pra um
+  # mock em CI/testes, se algum dia isso virar um problema de flakiness.
+  integrations:
+    viacep:
+      base-url: ${VIACEP_BASE_URL:https://viacep.com.br/ws}
+    nominatim:
+      base-url: ${NOMINATIM_BASE_URL:https://nominatim.openstreetmap.org}
+  # RF-16: coordenadas de referência usadas no cálculo de distância dos
+  # anúncios até a UFCG (campus principal, Bodocongó, Campina Grande-PB).
+  # Aproximadas — ajustável sem precisar recompilar, caso o time queira
+  # apontar pra uma entrada/portaria específica em vez do centro do campus.
+  ufcg:
+    latitude: ${UFCG_LATITUDE:-7.2157}
+    longitude: ${UFCG_LONGITUDE:-35.9099}
 
 # OpenAPI / Swagger (SpringDoc)
 springdoc:
