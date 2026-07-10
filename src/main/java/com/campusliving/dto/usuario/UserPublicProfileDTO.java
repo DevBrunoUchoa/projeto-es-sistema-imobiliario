@@ -1,6 +1,7 @@
 package com.campusliving.dto.usuario;
 
 import java.util.UUID;
+import java.math.BigDecimal;
 
 import com.campusliving.model.usuario.User;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -56,6 +57,15 @@ public class UserPublicProfileDTO {
     @JsonProperty("telefone")
     private String telefone;
 
+    // RF-30/RF-07: reputação do locador, recalculada por trigger (V19).
+    // Exposto aqui conforme o RF-07 lista entre os "dados exibidos (leitura)"
+    // do perfil público.
+    @JsonProperty("notaMedia")
+    private BigDecimal notaMedia;
+
+    @JsonProperty("totalAvaliacoes")
+    private Integer totalAvaliacoes;
+
     public static UserPublicProfileDTO of(User usuario, boolean contatoLiberado) {
         return UserPublicProfileDTO.builder()
                 .id(usuario.getId())
@@ -69,6 +79,8 @@ public class UserPublicProfileDTO {
                 .contatoLiberado(contatoLiberado)
                 .email(contatoLiberado ? usuario.getEmail() : null)
                 .telefone(contatoLiberado ? usuario.getTelefone() : null)
+                .notaMedia(usuario.getNotaMedia())
+                .totalAvaliacoes(usuario.getTotalAvaliacoes())
                 .build();
     }
 }
