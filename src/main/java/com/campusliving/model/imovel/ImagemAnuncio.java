@@ -38,6 +38,10 @@ public class ImagemAnuncio {
     @Column(nullable = false, length = 500)
     private String url;
 
+    @JsonProperty("storagePath")
+    @Column(name = "storage_path", nullable = false, length = 500)
+    private String storagePath;
+
     @JsonProperty("ordem")
     @Column(nullable = false)
     private Integer ordem;
