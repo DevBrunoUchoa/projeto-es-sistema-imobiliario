@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.math.BigDecimal;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -131,6 +132,19 @@ public class User implements UserDetails {
     @JsonProperty("ultimoLogin")
     @Column(name = "ultimo_login")
     private OffsetDateTime ultimoLogin;
+
+    // RF-30: cache de reputação, recalculado pelo trigger
+    // trg_reviews_recalcular_reputacao (V19__add_reputacao_users.sql) a cada
+    // INSERT/UPDATE/DELETE relevante em reviews. insertable/updatable = false
+    // pelo mesmo motivo de dataCriacao/dataAtualizacao: a aplicação nunca
+    // escreve aqui diretamente, só relê do banco depois do trigger rodar.
+    @JsonProperty("notaMedia")
+    @Column(name = "nota_media", nullable = false, insertable = false, updatable = false)
+    private BigDecimal notaMedia;
+
+    @JsonProperty("totalAvaliacoes")
+    @Column(name = "total_avaliacoes", nullable = false, insertable = false, updatable = false)
+    private Integer totalAvaliacoes;
 
     // ===== MÉTODOS DO SPRING SECURITY (UserDetails) =====
 
