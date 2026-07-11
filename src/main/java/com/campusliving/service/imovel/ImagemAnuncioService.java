@@ -59,7 +59,8 @@ public class ImagemAnuncioService {
                         .ordem(Math.toIntExact(existing + i))
                         .principal(existing == 0 && i == 0).build());
             }
-            return imagemRepository.saveAll(entities).stream().map(ImagemAnuncioResponseDTO::new).toList();
+            return imagemRepository.saveAllAndFlush(entities).stream()
+                    .map(ImagemAnuncioResponseDTO::new).toList();
         } catch (RuntimeException e) {
             uploaded.forEach(item -> {
                 try { storageService.delete(item.path()); } catch (RuntimeException ignored) { }

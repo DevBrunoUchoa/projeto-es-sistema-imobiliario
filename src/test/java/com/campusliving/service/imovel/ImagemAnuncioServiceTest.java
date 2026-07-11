@@ -28,7 +28,7 @@ class ImagemAnuncioServiceTest {
         when(anuncioRepository.findById(adId)).thenReturn(Optional.of(ad()));
         when(imagemRepository.countByAdId(adId)).thenReturn(0L);
         when(storageService.upload(any(), any())).thenReturn(new ImageStorageService.StoredImage("path.jpg", "https://image"));
-        when(imagemRepository.saveAll(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(imagemRepository.saveAllAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
         var result = service.upload(adId, List.of(jpeg()), owner);
         assertEquals(1, result.size()); assertEquals("https://image", result.get(0).getUrl());
         assertTrue(result.get(0).isPrincipal());

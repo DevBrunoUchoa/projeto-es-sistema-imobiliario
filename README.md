@@ -266,8 +266,8 @@ bucket público chamado `anuncios` e configure `SUPABASE_URL`,
 - `DELETE /anuncios/{adId}/imagens/{imageId}`: remove a foto.
 
 Cada anúncio aceita até 10 imagens JPEG, PNG ou WEBP, com no máximo 5 MB por
-arquivo. Operações de escrita exigem o `X-User-Id` do locador dono do anúncio,
-seguindo o mecanismo provisório usado nos demais módulos do T5.
+arquivo. A listagem é pública; operações de escrita usam o usuário autenticado
+pelo JWT e exigem que ele seja o locador dono do anúncio.
 
 Com a aplicação em execução:
 
