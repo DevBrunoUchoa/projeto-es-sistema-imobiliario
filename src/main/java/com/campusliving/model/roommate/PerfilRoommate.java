@@ -22,9 +22,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Mapeia {@code roommate_profiles} (V7) — RF-10/RF-32. Entidade "stub":
- * estrutura de dados para o T5.2 ficar completo; o cálculo de compatibilidade
- * e os endpoints de match ficam para o T5.8.
+ * Mapeia {@code roommate_profiles} (V7, V19) — RF-10/RF-32.
  */
 @Entity
 @Table(name = "roommate_profiles")
@@ -87,6 +85,15 @@ public class PerfilRoommate {
     @JsonProperty("ativo")
     @Column(nullable = false)
     private boolean ativo;
+
+    // RF-32: adicionados em V19__add_roommate_profile_visibility.sql.
+    @JsonProperty("jaPossuiCasa")
+    @Column(name = "ja_possui_casa", nullable = false)
+    private boolean jaPossuiCasa;
+
+    @JsonProperty("perfilVisivel")
+    @Column(name = "perfil_visivel", nullable = false)
+    private boolean perfilVisivel;
 
     @JsonProperty("dataAtualizacao")
     @Column(name = "data_atualizacao", nullable = false, insertable = false, updatable = false)
