@@ -182,6 +182,7 @@ Prefixo base: `http://localhost:8080`. Documentação interativa em `/swagger-ui
 | POST | `/interesses` | Autenticado | Registrar interesse/mensagem |
 | POST·GET | `/avaliacoes` · `/avaliacoes/anuncio/{id}` | Autenticado | Avaliar / listar avaliações |
 | POST·GET·PATCH | `/roommates/perfil` · `/roommates/compativeis` · `/roommates/match` | Autenticado | Perfil, compatíveis e matches |
+| GET·PATCH | `/notificacoes` · `/notificacoes/nao-lidas` · `/notificacoes/{id}/lida` | Autenticado | Notificações in-app (polling, RF-39) |
 | POST·GET | `/denuncias` | Autenticado | Denunciar / contar denúncias |
 | GET·PATCH | `/admin/**` | `ADMIN` | Painel, moderação, relatórios, auditoria |
 
