@@ -2,12 +2,15 @@ package com.campusliving.service.imovel;
 
 import com.campusliving.dto.imovel.ImovelRequestDTO;
 import com.campusliving.dto.imovel.ImovelResponseDTO;
+import com.campusliving.exception.ProjectException;
 import com.campusliving.model.imovel.Imovel;
 import com.campusliving.model.usuario.User;
 import com.campusliving.repository.imovel.ImovelRepository;
 import com.campusliving.repository.usuario.UserRepository;
 import com.campusliving.service.audit.AuditLogService;
+import com.campusliving.service.geocoding.GeocodingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,7 @@ public class ImovelService {
     private final ImovelRepository imovelRepository;
     private final UserRepository userRepository;
     private final AuditLogService auditLogService;
+    private final GeocodingService geocodingService;
 
     @Transactional
     public ImovelResponseDTO criarImovel(ImovelRequestDTO request, String email) {
@@ -38,6 +42,20 @@ public class ImovelService {
             throw new RuntimeException("Apenas LOCADOR ou ADMIN podem criar imóveis");
         }
 
+        // RF-16: se o cliente não informou coordenadas, geocodifica o endereço
+        // automaticamente (Nominatim). Coordenadas explícitas têm prioridade.
+        Double latitude = request.getLatitude();
+        Double longitude = request.getLongitude();
+        if (latitude == null || longitude == null) {
+            GeocodingService.Coordenadas coord = geocodingService
+                    .geocodificar(montarEnderecoCompleto(request))
+                    .orElseThrow(() -> new ProjectException(
+                            "Não foi possível localizar o endereço. Informe latitude e longitude.",
+                            HttpStatus.UNPROCESSABLE_ENTITY));
+            latitude = coord.latitude();
+            longitude = coord.longitude();
+        }
+
         // Criar o imóvel
         Imovel imovel = Imovel.builder()
                 .proprietarioId(proprietarioId)
@@ -49,8 +67,8 @@ public class ImovelService {
                 .bairro(request.getBairro())
                 .cidade(request.getCidade())
                 .estado(request.getEstado())
-                .latitude(request.getLatitude())
-                .longitude(request.getLongitude())
+                .latitude(latitude)
+                .longitude(longitude)
                 .ativo(true)
                 .build();
 
@@ -81,5 +99,14 @@ public class ImovelService {
                 .dataCriacao(savedImovel.getDataCriacao())
                 .mensagem("Imóvel criado com sucesso!")
                 .build();
+    }
+
+    private String montarEnderecoCompleto(ImovelRequestDTO request) {
+        return String.join(", ",
+                request.getRua() + ", " + request.getNumero(),
+                request.getBairro(),
+                request.getCidade(),
+                request.getEstado(),
+                request.getCep());
     }
 }

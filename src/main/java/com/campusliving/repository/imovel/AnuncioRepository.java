@@ -17,6 +17,18 @@ public interface AnuncioRepository extends JpaRepository<Anuncio, UUID> {
 
     List<Anuncio> findByImovelIdAndStatus(UUID imovelId, Anuncio.Status status);
 
+    /**
+     * RF-16: distância em linha reta (metros) entre o imóvel e a UFCG, via
+     * PostGIS (ST_Distance em geography). Retorna null se o imóvel não tiver
+     * geometria (endereço não geocodificado).
+     */
+    @Query(value = "SELECT ROUND(ST_Distance(p.geom::geography, "
+            + "ST_SetSRID(ST_MakePoint(:ufcgLon, :ufcgLat), 4326)::geography))::int "
+            + "FROM properties p WHERE p.id = :imovelId AND p.geom IS NOT NULL",
+            nativeQuery = true)
+    Integer calcularDistanciaUfcgMetros(@Param("imovelId") UUID imovelId,
+            @Param("ufcgLat") double ufcgLat, @Param("ufcgLon") double ufcgLon);
+
     List<Anuncio> findByStatus(Anuncio.Status status);
 
     Page<Anuncio> findByStatus(Anuncio.Status status, Pageable pageable);

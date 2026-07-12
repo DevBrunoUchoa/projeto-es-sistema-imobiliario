@@ -220,6 +220,7 @@ cp .env.example .env   # depois edite os valores
 | `MAIL_FROM`                  | não                    | Remetente dos e-mails                                   |
 | `APP_FRONTEND_URL`           | não (padrão localhost) | URL base dos links nos e-mails (verificação/reset)      |
 | `SPRING_MAIL_HOST` / `_PORT` / `_USERNAME` / `_PASSWORD` | sim se `MAIL_ENABLED=true` | Credenciais SMTP (ex.: Brevo) |
+| `GEOCODING_ENABLED` / `NOMINATIM_URL` / `UFCG_LAT` / `UFCG_LON` | não | Geocodificação (Nominatim) e coordenadas da UFCG (RF-16) |
 | `DB_POOL_MAX_SIZE`           | não (padrão `10`)      | Tamanho máximo do pool HikariCP (só `prod`)             |
 | `DB_POOL_MIN_IDLE`           | não (padrão `2`)       | Conexões ociosas mínimas do pool (só `prod`)            |
 | `JAVA_OPTS`                  | não                    | Flags extras de JVM ao rodar via Docker (ver Dockerfile)|
