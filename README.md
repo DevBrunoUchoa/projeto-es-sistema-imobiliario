@@ -13,6 +13,9 @@ Este repositório contém o **backend** (API REST) do sistema.
 - [Tecnologias](#tecnologias)
 - [Arquitetura](#arquitetura)
 - [Estrutura de pastas](#estrutura-de-pastas)
+- [Autenticação e autorização](#autenticação-e-autorização)
+- [Principais funcionalidades](#principais-funcionalidades)
+- [Rotas principais](#rotas-principais)
 - [Pré-requisitos](#pré-requisitos)
 - [Variáveis de ambiente](#variáveis-de-ambiente)
 - [Banco de dados](#banco-de-dados)
@@ -57,52 +60,124 @@ Buscas geográficas (ex.: distância do imóvel até a UFCG) são suportadas pel
 
 ## Arquitetura
 
-O backend segue **Clean Architecture** (RNF/PROC-03), com a regra de dependência
-sempre apontando para o centro — as camadas internas não conhecem as externas:
+O backend é organizado em **camadas** (RNF/PROC-03 permite Clean Architecture
+*ou* camadas), com responsabilidade única por pacote e o fluxo de dependência
+indo sempre de fora para dentro (`controller → service → repository → banco`):
 
-```
-interfaces ──> application ──> domain <── infrastructure
-                                  ▲
-                              (núcleo)
-```
+| Camada        | Pacote                 | Responsabilidade                                              |
+|---------------|------------------------|--------------------------------------------------------------|
+| Apresentação  | `controller`           | Endpoints REST; recebem/validam requisições e delegam        |
+| Aplicação     | `service`              | Regras de negócio e orquestração dos casos de uso            |
+| Persistência  | `repository`           | Spring Data JPA (acesso ao PostgreSQL)                       |
+| Domínio       | `model`                | Entidades `@Entity` mapeadas às tabelas                      |
+| Transporte    | `dto`                  | Objetos de requisição/resposta (não expõem entidades)       |
+| Segurança     | `config.security` / `utilities.security` | Filtro JWT, `SecurityConfig`, `UserDetailsService` |
+| Configuração  | `config`               | OpenAPI, ModelMapper e demais beans                          |
+| Transversais  | `exception`            | Exceções de negócio e tratamento global de erros            |
 
-| Camada           | Responsabilidade                                                        | Pode depender de            |
-|------------------|------------------------------------------------------------------------|-----------------------------|
-| `domain`         | Regras de negócio, entidades, ports (interfaces de repositório)        | (nada)                      |
-| `application`    | Casos de uso; orquestra o domínio                                       | `domain`                    |
-| `infrastructure` | Implementações técnicas: JPA, integrações externas                     | `domain`, `application`     |
-| `interfaces`     | Adaptadores de entrada: controladores REST, DTOs, tratamento de erros  | `application`               |
-| `config`         | Composição da aplicação: beans, OpenAPI, segurança                     | (todas, como composition root) |
-
-Cada camada possui um `package-info.java` documentando seu papel e suas regras de
-dependência.
+> Os pacotes `domain/`, `application/`, `infrastructure/` e `interfaces/` foram
+> criados no T5.1 pensando em Clean Architecture, mas a implementação seguiu o
+> modelo em camadas acima; eles permanecem como placeholders.
 
 ## Estrutura de pastas
 
 ```
 projeto-es-sistema-imobiliario/
-├── .github/workflows/ci.yml         # Pipeline de CI (build + testes)
-├── docker/initdb/                   # Scripts de inicialização do banco (PostGIS)
+├── .github/workflows/              # Pipeline de CI (build + testes)
+├── docker/initdb/                  # Inicialização do banco (PostGIS)
 ├── src/
 │   ├── main/
 │   │   ├── java/com/campusliving/
 │   │   │   ├── CampusLivingApplication.java
-│   │   │   ├── domain/              # Núcleo: regras de negócio
-│   │   │   ├── application/         # Casos de uso
-│   │   │   ├── infrastructure/      # Detalhes técnicos (JPA, integrações)
-│   │   │   ├── interfaces/          # Adaptadores REST (controllers, DTOs)
-│   │   │   └── config/              # Configurações (OpenAPI, etc.)
+│   │   │   ├── controller/         # Endpoints REST (auth, imovel, avaliacao, ...)
+│   │   │   ├── service/            # Regras de negócio por domínio
+│   │   │   ├── repository/         # Spring Data JPA
+│   │   │   ├── model/              # Entidades JPA
+│   │   │   ├── dto/                # Requests/responses
+│   │   │   ├── config/            # Segurança (JWT/OAuth2), OpenAPI, beans
+│   │   │   ├── exception/          # Exceções e handlers
+│   │   │   └── utilities/security/ # SecurityConfig
 │   │   └── resources/
 │   │       ├── application.yml      # Config comum (sem segredos)
-│   │       ├── application-dev.yml
-│   │       ├── application-test.yml
-│   │       └── application-prod.yml
+│   │       ├── application-{dev,test,prod}.yml
+│   │       ├── db/migration/        # Migrations Flyway (V1..V22)
+│   │       └── db/seed/             # Seed de dados (somente dev)
 │   └── test/java/com/campusliving/  # Testes (Testcontainers + PostGIS)
 ├── .env.example                     # Modelo de variáveis de ambiente
 ├── docker-compose.yml               # Banco + aplicação
 ├── Dockerfile                       # Build multi-stage da aplicação
 └── pom.xml
 ```
+
+## Autenticação e autorização
+
+- **Cadastro:** `POST /auth/cadastro` (público) — cria usuário com `tipo_conta`
+  `ESTUDANTE` ou `LOCADOR`; senha com hash **bcrypt (custo 12)** (RNF/SEG-01).
+- **Login:** `POST /auth/login` — valida credenciais e emite **JWT** (validade
+  24h) + **refresh token** (7 dias), RNF/SEG-02. Os tokens são devolvidos em
+  cookies `HttpOnly` (`jwt` e `refresh_token`); o header
+  `Authorization: Bearer <token>` também é aceito como alternativa.
+- **Login social:** Google via OAuth2 em `/oauth2/authorization/google`.
+- **Verificação de e-mail / recuperação de senha:**
+  `GET /auth/verificar-email/{token}`, `POST /auth/forgot-password`,
+  `POST /auth/reset-password`.
+- **Autorização (RBAC, RNF/SEG-04):** papéis `ESTUDANTE`, `LOCADOR`, `MISTO`,
+  `ADMIN`. Rotas `/admin/**` exigem `ADMIN`; criação/edição de imóveis e
+  anúncios exige `LOCADOR` ou `ADMIN`.
+- **Postura padrão:** todas as rotas exigem autenticação, exceto o allowlist
+  público: `/auth/**`, `/oauth2/**`, `/login/**`, `/swagger-ui/**`,
+  `/api-docs/**`, `/actuator/health` e `GET /anuncios/{id}/imagens`.
+
+## Principais funcionalidades
+
+- **Usuários & perfis:** cadastro, edição de perfil, perfil público, verificação
+  de identidade de locador (upload de documento) e selo de verificado, promoção
+  para conta mista (RF-01, RF-06 a RF-09, RF-18).
+- **Imóveis & anúncios:** cadastro de imóvel (CEP de Campina Grande), publicação,
+  edição, inativação lógica (soft delete), upload de até 10 imagens no Supabase
+  Storage (RF-11 a RF-15, RF-19).
+- **Busca:** busca textual (GIN `tsvector`), filtros avançados (preço, distância,
+  mobília, pets, fumantes, alimentação), ordenação, paginação e dados para mapa
+  (RF-21 a RF-25).
+- **Interação:** registro de interesse/mensagem ao locador, favoritos (RF-26 a
+  RF-28).
+- **Avaliações:** nota (1–5) e comentário, resposta do locador, cálculo de nota
+  média (RF-29 a RF-31).
+- **Roommates:** perfil de convivência, listagem de compatíveis, solicitação e
+  resposta de match (RF-32 a RF-35).
+- **Moderação/Admin:** denúncia com ocultação automática a partir de 5 denúncias,
+  painel administrativo, moderação de verificações, logs de auditoria (RF-36,
+  RF-37, RF-40, RF-41).
+
+## Rotas principais
+
+Prefixo base: `http://localhost:8080`. Documentação interativa em `/swagger-ui`.
+
+| Método | Rota | Acesso | Descrição |
+|--------|------|--------|-----------|
+| POST | `/auth/cadastro` | Público | Cadastro de usuário |
+| POST | `/auth/login` | Público | Login (retorna JWT em cookie) |
+| POST | `/auth/forgot-password` · `/auth/reset-password` | Público | Recuperação de senha |
+| GET | `/auth/verificar-email/{token}` | Público | Verificação de e-mail |
+| GET | `/anuncios` | Autenticado¹ | Busca/filtragem/paginação de anúncios |
+| GET | `/anuncios/{id}` · `/anuncios/mapa` | Autenticado¹ | Detalhe / dados de mapa |
+| POST · PUT | `/anuncios` · `/anuncios/{id}` | `LOCADOR`/`ADMIN` | Publicar / editar anúncio |
+| PATCH | `/anuncios/{id}/status` | `LOCADOR`/`ADMIN` | Inativação lógica (soft delete) |
+| POST·GET·DELETE | `/anuncios/{adId}/imagens` | Autenticado (dono) | Upload/listagem/remoção de fotos |
+| POST | `/imoveis` | `LOCADOR`/`ADMIN` | Cadastro de imóvel |
+| GET·PUT·DELETE | `/usuarios/{id}` | Autenticado (dono/ADMIN) | Perfil, edição, exclusão (LGPD) |
+| GET | `/usuarios/{id}/publico` | Autenticado | Perfil público |
+| POST·GET·DELETE | `/usuarios/{id}/favoritos` | Autenticado (dono) | Favoritos |
+| POST | `/interesses` | Autenticado | Registrar interesse/mensagem |
+| POST·GET | `/avaliacoes` · `/avaliacoes/anuncio/{id}` | Autenticado | Avaliar / listar avaliações |
+| POST·GET·PATCH | `/roommates/perfil` · `/roommates/compativeis` · `/roommates/match` | Autenticado | Perfil, compatíveis e matches |
+| POST·GET | `/denuncias` | Autenticado | Denunciar / contar denúncias |
+| GET·PATCH | `/admin/**` | `ADMIN` | Painel, moderação, relatórios, auditoria |
+
+> ¹ As rotas de leitura de anúncios/perfil hoje exigem autenticação. O
+> documento define esses fluxos também para o ator **Visitante** — ver o
+> relatório de auditoria (recomendação de tornar as leituras públicas com
+> mascaramento de contato, RNF/LEG-03).
 
 ## Pré-requisitos
 

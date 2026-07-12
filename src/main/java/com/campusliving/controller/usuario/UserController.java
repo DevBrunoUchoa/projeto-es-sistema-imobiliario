@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -24,27 +24,22 @@ import com.campusliving.dto.roommate.PerfilRoommateResponseDTO;
 import com.campusliving.dto.roommate.PreferenciasRoommateRequestDTO;
 import com.campusliving.dto.usuario.UserPostPutRequestDTO;
 import com.campusliving.dto.usuario.UserUpdateRequestDTO;
+import com.campusliving.model.usuario.User;
 import com.campusliving.service.roommate.RoommateService;
 import com.campusliving.service.usuario.UserService;
 
 import jakarta.validation.Valid;
 
 /**
- * Base renomeada de "/user" (singular) para "/usuarios" (plural) para ficar
- * consistente com o resto das rotas do backlog do T5 (ex.: /imoveis,
- * /anuncios, /interesses) — o "/user" era um placeholder herdado da branch
- * "usuario" inicial.
+ * Base "/usuarios" (plural), consistente com as demais rotas do backlog do T5
+ * (ex.: /imoveis, /anuncios, /interesses).
  *
- * <p><b>Sobre o header {@code X-User-Id}</b>: os endpoints abaixo que exigem
- * "o próprio usuário ou ADMIN" (RF-06, RF-08/09, RF-18, RF-26/27, LGPD)
- * precisam saber quem está fazendo a requisição. Como o T5.3 (login/JWT)
- * ainda não existe neste repositório, usamos por enquanto um header simples
- * enviado pelo cliente para indicar o id do usuário autenticado. Isso é
- * DELIBERADAMENTE temporário e NÃO é seguro sozinho (qualquer cliente pode
- * mandar o header que quiser) — é só um placeholder para poder implementar e
- * testar a REGRA de autorização (dono-ou-admin) sem bloquear o T5.4 esperando
- * o T5.3. Quando o T5.3 existir, troque a origem desse UUID para o
- * SecurityContext (usuário extraído do JWT) e remova o header.</p>
+ * <p><b>Autorização "dono-ou-admin"</b> (RF-06, RF-08/09, RF-18, RF-26/27,
+ * LGPD): os endpoints abaixo precisam saber quem está fazendo a requisição.
+ * Essa identidade é obtida do usuário autenticado no {@code SecurityContext}
+ * (extraído do JWT via {@link AuthenticationPrincipal}) — nunca de um valor
+ * enviado pelo cliente. A regra de negócio (dono-ou-admin) continua no
+ * {@code UserService}, que recebe o id do requerente.</p>
  */
 @RestController
 @RequestMapping("/usuarios")
@@ -56,6 +51,10 @@ public class UserController {
     public UserController(UserService service, RoommateService roommateService){
         this.userService = service;
         this.roommateService = roommateService;
+    }
+
+    private static UUID idDe(User usuarioAutenticado) {
+        return usuarioAutenticado == null ? null : usuarioAutenticado.getId();
     }
 
     @PostMapping()
@@ -81,18 +80,18 @@ public class UserController {
     public ResponseEntity<?> atualizarPerfil(
             @PathVariable UUID id,
             @RequestBody @Valid UserUpdateRequestDTO dto,
-            @RequestHeader(value = "X-User-Id", required = false) UUID requesterId) {
+            @AuthenticationPrincipal User usuarioAutenticado) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(userService.atualizarPerfil(id, dto, requesterId));
+                .body(userService.atualizarPerfil(id, dto, idDe(usuarioAutenticado)));
     }
 
     // --- T5.4.2: RF-07 / RNF-LEG-03 ----------------------------------------
     @GetMapping("/{id}/publico")
     public ResponseEntity<?> getPerfilPublico(
             @PathVariable UUID id,
-            @RequestHeader(value = "X-User-Id", required = false) UUID requesterId) {
+            @AuthenticationPrincipal User usuarioAutenticado) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(userService.getPerfilPublico(id, requesterId));
+                .body(userService.getPerfilPublico(id, idDe(usuarioAutenticado)));
     }
 
     // --- T5.4.3: RF-08 / RF-09 ----------------------------------------------
@@ -100,17 +99,17 @@ public class UserController {
     public ResponseEntity<?> solicitarVerificacao(
             @PathVariable UUID id,
             @RequestPart("documento") MultipartFile documento,
-            @RequestHeader(value = "X-User-Id", required = false) UUID requesterId) {
+            @AuthenticationPrincipal User usuarioAutenticado) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(userService.solicitarVerificacao(id, documento, requesterId));
+                .body(userService.solicitarVerificacao(id, documento, idDe(usuarioAutenticado)));
     }
 
     // --- T5.4.4: RF-18 ------------------------------------------------------
     @PatchMapping("/{id}/conta-mista")
     public ResponseEntity<?> promoverContaMista(
             @PathVariable UUID id,
-            @RequestHeader(value = "X-User-Id", required = false) UUID requesterId) {
-        userService.promoverContaMista(id, requesterId);
+            @AuthenticationPrincipal User usuarioAutenticado) {
+        userService.promoverContaMista(id, idDe(usuarioAutenticado));
         return ResponseEntity.noContent().build();
     }
 
@@ -119,16 +118,16 @@ public class UserController {
     public ResponseEntity<?> adicionarFavorito(
             @PathVariable UUID id,
             @RequestParam UUID adId,
-            @RequestHeader(value = "X-User-Id", required = false) UUID requesterId) {
-        FavoritoResponseDTO favorito = userService.adicionarFavorito(id, adId, requesterId);
+            @AuthenticationPrincipal User usuarioAutenticado) {
+        FavoritoResponseDTO favorito = userService.adicionarFavorito(id, adId, idDe(usuarioAutenticado));
         return ResponseEntity.status(HttpStatus.CREATED).body(favorito);
     }
 
     @GetMapping("/{id}/favoritos")
     public ResponseEntity<?> listarFavoritos(
             @PathVariable UUID id,
-            @RequestHeader(value = "X-User-Id", required = false) UUID requesterId) {
-        List<FavoritoResponseDTO> favoritos = userService.listarFavoritos(id, requesterId);
+            @AuthenticationPrincipal User usuarioAutenticado) {
+        List<FavoritoResponseDTO> favoritos = userService.listarFavoritos(id, idDe(usuarioAutenticado));
         return ResponseEntity.status(HttpStatus.OK).body(favoritos);
     }
 
@@ -136,8 +135,8 @@ public class UserController {
     public ResponseEntity<?> removerFavorito(
             @PathVariable UUID id,
             @PathVariable UUID adId,
-            @RequestHeader(value = "X-User-Id", required = false) UUID requesterId) {
-        userService.removerFavorito(id, adId, requesterId);
+            @AuthenticationPrincipal User usuarioAutenticado) {
+        userService.removerFavorito(id, adId, idDe(usuarioAutenticado));
         return ResponseEntity.noContent().build();
     }
 
@@ -146,8 +145,8 @@ public class UserController {
     public ResponseEntity<?> salvarPreferenciasRoommate(
             @PathVariable UUID id,
             @RequestBody PreferenciasRoommateRequestDTO dto,
-            @RequestHeader(value = "X-User-Id", required = false) UUID requesterId) {
-        PerfilRoommateResponseDTO perfil = roommateService.salvarPreferencias(id, dto, requesterId);
+            @AuthenticationPrincipal User usuarioAutenticado) {
+        PerfilRoommateResponseDTO perfil = roommateService.salvarPreferencias(id, dto, idDe(usuarioAutenticado));
         return ResponseEntity.status(HttpStatus.OK).body(perfil);
     }
 
@@ -155,8 +154,8 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> excluirUsuario(
             @PathVariable UUID id,
-            @RequestHeader(value = "X-User-Id", required = false) UUID requesterId) {
-        userService.excluirUsuario(id, requesterId);
+            @AuthenticationPrincipal User usuarioAutenticado) {
+        userService.excluirUsuario(id, idDe(usuarioAutenticado));
         return ResponseEntity.noContent().build();
     }
 }

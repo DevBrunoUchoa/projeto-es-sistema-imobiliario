@@ -7,28 +7,29 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.campusliving.dto.avaliacao.AvaliacaoRequestDTO;
 import com.campusliving.dto.avaliacao.AvaliacaoResponseDTO;
 import com.campusliving.dto.avaliacao.RespostaLocadorRequestDTO;
+import com.campusliving.model.usuario.User;
 import com.campusliving.service.avaliacao.AvaliacaoService;
 
 import jakarta.validation.Valid;
 
 // --- T5.7: RF-29 / RF-30 / RF-31 --------------------------------------------
-// Ver comentário sobre X-User-Id em UserController: placeholder temporário
-// até o T5.3 (login/JWT) existir. RF-30 (cálculo de média) não tem endpoint
-// próprio de escrita de propósito — é automático via trigger (V19); o valor
-// já sai pronto tanto no perfil público do usuário (UserPublicProfileDTO)
-// quanto embutido em cada item das listagens abaixo.
+// O requerente (avaliador/locador) vem do usuário autenticado no
+// SecurityContext (JWT), nunca de valor enviado pelo cliente. RF-30 (cálculo
+// de média) não tem endpoint próprio de escrita de propósito — é automático
+// via trigger (V19); o valor já sai pronto tanto no perfil público do usuário
+// (UserPublicProfileDTO) quanto embutido em cada item das listagens abaixo.
 @RestController
 @RequestMapping("/avaliacoes")
 public class AvaliacaoController {
@@ -42,7 +43,8 @@ public class AvaliacaoController {
     @PostMapping
     public ResponseEntity<?> publicar(
             @RequestBody @Valid AvaliacaoRequestDTO dto,
-            @RequestHeader(value = "X-User-Id", required = false) UUID avaliadorId) {
+            @AuthenticationPrincipal User usuarioAutenticado) {
+        UUID avaliadorId = usuarioAutenticado == null ? null : usuarioAutenticado.getId();
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(avaliacaoService.publicar(dto, avaliadorId));
@@ -54,7 +56,8 @@ public class AvaliacaoController {
     public ResponseEntity<?> responder(
             @PathVariable("id") UUID avaliacaoId,
             @RequestBody @Valid RespostaLocadorRequestDTO dto,
-            @RequestHeader(value = "X-User-Id", required = false) UUID locadorId) {
+            @AuthenticationPrincipal User usuarioAutenticado) {
+        UUID locadorId = usuarioAutenticado == null ? null : usuarioAutenticado.getId();
         return ResponseEntity
                 .ok(avaliacaoService.responder(avaliacaoId, dto, locadorId));
     }
