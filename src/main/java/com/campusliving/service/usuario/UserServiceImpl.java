@@ -1,6 +1,7 @@
 package com.campusliving.service.usuario;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -15,6 +16,7 @@ import com.campusliving.dto.usuario.UserResponseDTO;
 import com.campusliving.dto.usuario.UserUpdateRequestDTO;
 import com.campusliving.dto.usuario.VerificacaoLocadorResponseDTO;
 import com.campusliving.dto.interacao.FavoritoResponseDTO;
+import com.campusliving.exception.imovel.ImagemInvalidaException;
 import com.campusliving.exception.interacao.AnuncioNaoEncontradoException;
 import com.campusliving.exception.interacao.FavoritoDuplicadoException;
 import com.campusliving.exception.usuario.AcessoNegadoException;
@@ -29,6 +31,7 @@ import com.campusliving.repository.interacao.ContatoRepository;
 import com.campusliving.repository.interacao.FavoritoRepository;
 import com.campusliving.repository.usuario.UserRepository;
 import com.campusliving.repository.usuario.VerificacaoLocadorRepository;
+import com.campusliving.service.imovel.ImageStorageService;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -39,6 +42,7 @@ public class UserServiceImpl implements UserService{
     private final FavoritoRepository favoritoRepository;
     private final ContatoRepository contatoRepository;
     private final DocumentStorageService documentStorageService;
+    private final ImageStorageService imageStorageService;
 
     public UserServiceImpl(
             UserRepository repository,
@@ -46,7 +50,8 @@ public class UserServiceImpl implements UserService{
             VerificacaoLocadorRepository verificacaoLocadorRepository,
             FavoritoRepository favoritoRepository,
             ContatoRepository contatoRepository,
-            DocumentStorageService documentStorageService
+            DocumentStorageService documentStorageService,
+            ImageStorageService imageStorageService
     ){
         this.repository = repository;
         this.modelMapper = model;
@@ -54,6 +59,7 @@ public class UserServiceImpl implements UserService{
         this.favoritoRepository = favoritoRepository;
         this.contatoRepository = contatoRepository;
         this.documentStorageService = documentStorageService;
+        this.imageStorageService = imageStorageService;
     }
 
 	@Override
@@ -106,6 +112,48 @@ public class UserServiceImpl implements UserService{
 
         repository.save(usuario);
         return new UserResponseDTO(usuario);
+    }
+
+    private static final long MAX_FOTO_PERFIL_BYTES = 5L * 1024 * 1024; // RNF/SEG-05
+    private static final List<String> TIPOS_FOTO_PERMITIDOS =
+            List.of("image/jpeg", "image/png", "image/webp");
+
+    @Override
+    public UserResponseDTO atualizarFotoPerfil(UUID id, MultipartFile foto, UUID requesterId) {
+        User usuario = repository.findById(id).orElseThrow(UserNotFoundException::new);
+        exigirDonoOuAdmin(requesterId, id);
+        validarFotoPerfil(foto);
+
+        String caminho = "perfis/" + id + "/" + UUID.randomUUID() + extensaoDe(foto.getContentType());
+        ImageStorageService.StoredImage armazenada = imageStorageService.upload(caminho, foto);
+
+        usuario.setFotoUrl(armazenada.publicUrl());
+        repository.save(usuario);
+        return new UserResponseDTO(usuario);
+    }
+
+    private void validarFotoPerfil(MultipartFile foto) {
+        if (foto == null || foto.isEmpty()) {
+            throw new ImagemInvalidaException("Envie uma imagem para a foto de perfil");
+        }
+        if (foto.getSize() > MAX_FOTO_PERFIL_BYTES) {
+            throw new ImagemInvalidaException("A foto de perfil deve ter no maximo 5 MB");
+        }
+        String tipo = foto.getContentType() == null ? "" : foto.getContentType().toLowerCase(Locale.ROOT);
+        if (!TIPOS_FOTO_PERMITIDOS.contains(tipo)) {
+            throw new ImagemInvalidaException("Formato permitido: JPEG, PNG ou WEBP");
+        }
+    }
+
+    private String extensaoDe(String contentType) {
+        if (contentType == null) {
+            return ".jpg";
+        }
+        return switch (contentType.toLowerCase(Locale.ROOT)) {
+            case "image/png" -> ".png";
+            case "image/webp" -> ".webp";
+            default -> ".jpg";
+        };
     }
 
     @Override

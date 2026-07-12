@@ -116,7 +116,10 @@ projeto-es-sistema-imobiliario/
 - **Login:** `POST /auth/login` — valida credenciais e emite **JWT** (validade
   24h) + **refresh token** (7 dias), RNF/SEG-02. Os tokens são devolvidos em
   cookies `HttpOnly` (`jwt` e `refresh_token`); o header
-  `Authorization: Bearer <token>` também é aceito como alternativa.
+  `Authorization: Bearer <token>` também é aceito como alternativa. A flag
+  `Secure` dos cookies é controlada por `APP_COOKIE_SECURE` (true em produção).
+- **Renovação de token:** `POST /auth/refresh` troca o `refresh_token` (cookie)
+  por um novo par de tokens, sem exigir novo login (RNF/SEG-02).
 - **Login social:** Google via OAuth2 em `/oauth2/authorization/google`.
 - **Verificação de e-mail / recuperação de senha:**
   `GET /auth/verificar-email/{token}`, `POST /auth/forgot-password`,
@@ -157,6 +160,7 @@ Prefixo base: `http://localhost:8080`. Documentação interativa em `/swagger-ui
 |--------|------|--------|-----------|
 | POST | `/auth/cadastro` | Público | Cadastro de usuário |
 | POST | `/auth/login` | Público | Login (retorna JWT em cookie) |
+| POST | `/auth/refresh` | Público (cookie) | Renova o par de tokens via `refresh_token` |
 | POST | `/auth/forgot-password` · `/auth/reset-password` | Público | Recuperação de senha |
 | GET | `/auth/verificar-email/{token}` | Público | Verificação de e-mail |
 | GET | `/anuncios` | Autenticado¹ | Busca/filtragem/paginação de anúncios |
@@ -167,6 +171,7 @@ Prefixo base: `http://localhost:8080`. Documentação interativa em `/swagger-ui
 | POST | `/imoveis` | `LOCADOR`/`ADMIN` | Cadastro de imóvel |
 | GET·PUT·DELETE | `/usuarios/{id}` | Autenticado (dono/ADMIN) | Perfil, edição, exclusão (LGPD) |
 | GET | `/usuarios/{id}/publico` | Autenticado | Perfil público |
+| POST | `/usuarios/{id}/foto` | Autenticado (dono/ADMIN) | Upload da foto de perfil (RF-20) |
 | POST·GET·DELETE | `/usuarios/{id}/favoritos` | Autenticado (dono) | Favoritos |
 | POST | `/interesses` | Autenticado | Registrar interesse/mensagem |
 | POST·GET | `/avaliacoes` · `/avaliacoes/anuncio/{id}` | Autenticado | Avaliar / listar avaliações |
@@ -207,6 +212,8 @@ cp .env.example .env   # depois edite os valores
 | `SPRING_DATASOURCE_URL`      | sim em `prod`          | URL JDBC do banco                                      |
 | `SPRING_DATASOURCE_USERNAME` | sim em `prod`          | Usuário do banco (profile `prod`)                      |
 | `SPRING_DATASOURCE_PASSWORD` | sim em `prod`          | Senha do banco (profile `prod`)                        |
+| `JWT_SECRET`                 | sim em `prod`          | Chave de assinatura JWT (≥ 32 bytes). Sem padrão em `prod` |
+| `APP_COOKIE_SECURE`          | não (padrão `false`/`true` em prod) | Envia cookies de sessão só por HTTPS      |
 | `DB_POOL_MAX_SIZE`           | não (padrão `10`)      | Tamanho máximo do pool HikariCP (só `prod`)             |
 | `DB_POOL_MIN_IDLE`           | não (padrão `2`)       | Conexões ociosas mínimas do pool (só `prod`)            |
 | `JAVA_OPTS`                  | não                    | Flags extras de JVM ao rodar via Docker (ver Dockerfile)|

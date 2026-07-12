@@ -13,10 +13,12 @@ import com.campusliving.service.auth.PasswordResetService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,9 +31,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
+    private static final long JWT_COOKIE_MAX_AGE = 24 * 60 * 60;        // 24h
+    private static final long REFRESH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 dias
+
     private final AuthService authService;
     private final EmailVerificationService emailVerificationService;
     private final PasswordResetService passwordResetService;
+
+    // RNF/SEG-03: em produção (HTTPS) os cookies de sessão são Secure. Em
+    // desenvolvimento (http://localhost) fica false. Controlado por ambiente,
+    // nunca fixo no código.
+    @Value("${app.cookie.secure:false}")
+    private boolean cookieSecure;
 
     @PostMapping("/cadastro")
     public ResponseEntity<CadastroResponseDTO> cadastrar(@Valid @RequestBody CadastroRequestDTO request) {
@@ -45,33 +56,20 @@ public class AuthController {
             HttpServletResponse response
     ) {
         LoginResponseDTO loginResponse = authService.login(request);
+        escreverCookiesDeSessao(response, loginResponse);
+        return ResponseEntity.ok(semTokensNoCorpo(loginResponse));
+    }
 
-        //Criar cookie HttpOnly para o JWT (24h)
-        ResponseCookie jwtCookie = ResponseCookie.from("jwt", loginResponse.getJwtToken())
-                .httpOnly(true)
-                .secure(false) //true em produção (HTTPS)
-                .path("/")
-                .maxAge(24 * 60 * 60) //24h em segundos
-                .sameSite("Lax")
-                .build();
-
-        //Criar cookie HttpOnly para o Refresh Token (7d)
-        ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", loginResponse.getRefreshToken())
-                .httpOnly(true)
-                .secure(false) //true em produção (HTTPS)
-                .path("/")
-                .maxAge(7 * 24 * 60 * 60) //7 dias em segundos
-                .sameSite("Lax")
-                .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-
-        //Remove os tokens do body (não expor)
-        loginResponse.setJwtToken(null);
-        loginResponse.setRefreshToken(null);
-
-        return ResponseEntity.ok(loginResponse);
+    // RNF/SEG-02: troca o refresh token (validade 7d) por um novo par de
+    // tokens sem exigir novo login. Lê o refresh token do cookie HttpOnly.
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponseDTO> refresh(
+            @CookieValue(name = "refresh_token", required = false) String refreshToken,
+            HttpServletResponse response
+    ) {
+        LoginResponseDTO loginResponse = authService.refresh(refreshToken);
+        escreverCookiesDeSessao(response, loginResponse);
+        return ResponseEntity.ok(semTokensNoCorpo(loginResponse));
     }
 
     @GetMapping("/verificar-email/{token}")
@@ -93,5 +91,30 @@ public class AuthController {
     public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequestDTO request) {
         passwordResetService.resetarSenha(request.getToken(), request.getNovaSenha());
         return ResponseEntity.ok("Senha resetada com sucesso!");
+    }
+
+    // --- helpers -----------------------------------------------------------
+
+    private void escreverCookiesDeSessao(HttpServletResponse response, LoginResponseDTO login) {
+        response.addHeader(HttpHeaders.SET_COOKIE,
+                cookieDeSessao("jwt", login.getJwtToken(), JWT_COOKIE_MAX_AGE).toString());
+        response.addHeader(HttpHeaders.SET_COOKIE,
+                cookieDeSessao("refresh_token", login.getRefreshToken(), REFRESH_COOKIE_MAX_AGE).toString());
+    }
+
+    private ResponseCookie cookieDeSessao(String nome, String valor, long maxAgeSegundos) {
+        return ResponseCookie.from(nome, valor)
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path("/")
+                .maxAge(maxAgeSegundos)
+                .sameSite("Lax")
+                .build();
+    }
+
+    private LoginResponseDTO semTokensNoCorpo(LoginResponseDTO login) {
+        login.setJwtToken(null);
+        login.setRefreshToken(null);
+        return login;
     }
 }

@@ -104,6 +104,16 @@ public class UserController {
                 .body(userService.solicitarVerificacao(id, documento, idDe(usuarioAutenticado)));
     }
 
+    // --- RF-20: upload de foto de perfil ------------------------------------
+    @PostMapping(value = "/{id}/foto", consumes = "multipart/form-data")
+    public ResponseEntity<?> atualizarFotoPerfil(
+            @PathVariable UUID id,
+            @RequestPart("foto") MultipartFile foto,
+            @AuthenticationPrincipal User usuarioAutenticado) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.atualizarFotoPerfil(id, foto, idDe(usuarioAutenticado)));
+    }
+
     // --- T5.4.4: RF-18 ------------------------------------------------------
     @PatchMapping("/{id}/conta-mista")
     public ResponseEntity<?> promoverContaMista(

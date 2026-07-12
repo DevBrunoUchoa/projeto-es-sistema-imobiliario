@@ -36,6 +36,11 @@ server:
 # Interino: em produção com filesystem efêmero isso NÃO persiste entre
 # deploys/restarts — ver comentário em LocalDiskDocumentStorageService.
 app:
+  # Cookies de sessão (jwt/refresh) só com flag Secure quando servidos por
+  # HTTPS. Default false para funcionar em http://localhost; sobrescrito para
+  # true no profile prod (RNF/SEG-03).
+  cookie:
+    secure: ${APP_COOKIE_SECURE:false}
   uploads:
     dir: ${UPLOADS_DIR:uploads}
   storage:
