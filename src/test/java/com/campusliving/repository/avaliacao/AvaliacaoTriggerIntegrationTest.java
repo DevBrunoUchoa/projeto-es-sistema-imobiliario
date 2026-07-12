@@ -19,18 +19,6 @@ import com.campusliving.model.avaliacao.Avaliacao;
 import com.campusliving.model.usuario.User;
 import com.campusliving.repository.usuario.UserRepository;
 
-/**
- * Testa o trigger criado em V19__add_reputacao_users.sql contra um Postgres
- * real via Testcontainers — nenhum mock consegue verificar isso, já que a
- * lógica de recálculo de reputação vive inteiramente no banco (ver decisão
- * registrada na conversa: trigger SQL em vez de código Java, para garantir
- * consistência sob concorrência).
- *
- * <p>{@code @Transactional} aqui é só para o JUnit fazer ROLLBACK automático
- * ao final de cada teste (mantém o banco limpo entre execuções) — os
- * triggers do Postgres continuam disparando normalmente dentro da transação
- * aberta pelo teste, então isso não interfere no que estamos verificando.</p>
- */
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
 @ActiveProfiles("test")
@@ -47,14 +35,9 @@ class AvaliacaoTriggerIntegrationTest {
     private UUID locadorId;
     private UUID adId;
 
-    // properties/ads são criados via SQL direto (JdbcTemplate) em vez de via
-    // JPA/repository: isolamos este teste de qualquer detalhe de
-    // implementação dos módulos de imóvel/anúncio (T5.5) — o que importa
-    // aqui é só que exista uma linha válida em "ads" para reviews.ad_id
-    // referenciar, não como o módulo de imóvel constrói esse anúncio.
     @BeforeEach
     void setUp() {
-        User locador = userRepository.save(User.builder()
+        User locador = userRepository.saveAndFlush(User.builder()
                 .nome("Locador Teste")
                 .email("locador-" + UUID.randomUUID() + "@teste.com")
                 .senhaHash("hash-fake")
@@ -105,7 +88,6 @@ class AvaliacaoTriggerIntegrationTest {
                 .avaliadorId(avaliador).avaliadoId(locadorId).adId(adId)
                 .nota((short) 2).comentario("Fraco").contatoPrevio(true).build());
 
-        // Confirma que a média subiu antes de testar a remoção.
         assertThat(userRepository.findById(locadorId).orElseThrow().getTotalAvaliacoes()).isEqualTo(1);
 
         avaliacaoRepository.delete(avaliacao);
@@ -117,8 +99,6 @@ class AvaliacaoTriggerIntegrationTest {
 
     @Test
     void primeiraAvaliacao_notaMediaDeveAssumirExatamenteAPrimeiraNota() {
-        // RF-30, Fluxo Secundário 1: "Primeira avaliação — nota inicial
-        // assume exatamente o valor da primeira nota."
         UUID avaliador = criarEstudante();
 
         assertThat(userRepository.findById(locadorId).orElseThrow().getNotaMedia())
@@ -133,7 +113,7 @@ class AvaliacaoTriggerIntegrationTest {
     }
 
     private UUID criarEstudante() {
-        return userRepository.save(User.builder()
+        return userRepository.saveAndFlush(User.builder()
                 .nome("Estudante Teste")
                 .email("estudante-" + UUID.randomUUID() + "@teste.com")
                 .senhaHash("hash-fake")
