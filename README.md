@@ -131,7 +131,11 @@ projeto-es-sistema-imobiliario/
   anúncios exige `LOCADOR` ou `ADMIN`.
 - **Postura padrão:** todas as rotas exigem autenticação, exceto o allowlist
   público: `/auth/**`, `/oauth2/**`, `/login/**`, `/swagger-ui/**`,
-  `/api-docs/**`, `/actuator/health` e `GET /anuncios/{id}/imagens`.
+  `/api-docs/**`, `/actuator/health` e as **leituras de catálogo** para o
+  Visitante (`GET /anuncios`, `GET /anuncios/{id}`, `GET /anuncios/mapa`,
+  `GET /anuncios/{id}/imagens`, `GET /usuarios/{id}/publico`,
+  `GET /avaliacoes/**`). O contato do locador continua **mascarado** para não
+  autenticados no perfil público (RNF/LEG-03); as escritas seguem protegidas.
 
 ## Principais funcionalidades
 
@@ -165,14 +169,14 @@ Prefixo base: `http://localhost:8080`. Documentação interativa em `/swagger-ui
 | POST | `/auth/refresh` | Público (cookie) | Renova o par de tokens via `refresh_token` |
 | POST | `/auth/forgot-password` · `/auth/reset-password` | Público | Recuperação de senha |
 | GET | `/auth/verificar-email/{token}` | Público | Verificação de e-mail |
-| GET | `/anuncios` | Autenticado¹ | Busca/filtragem/paginação de anúncios |
-| GET | `/anuncios/{id}` · `/anuncios/mapa` | Autenticado¹ | Detalhe / dados de mapa |
+| GET | `/anuncios` | Público | Busca/filtragem/paginação de anúncios |
+| GET | `/anuncios/{id}` · `/anuncios/mapa` | Público | Detalhe / dados de mapa |
 | POST · PUT | `/anuncios` · `/anuncios/{id}` | `LOCADOR`/`ADMIN` | Publicar / editar anúncio |
 | PATCH | `/anuncios/{id}/status` | `LOCADOR`/`ADMIN` | Inativação lógica (soft delete) |
 | POST·GET·DELETE | `/anuncios/{adId}/imagens` | Autenticado (dono) | Upload/listagem/remoção de fotos |
 | POST | `/imoveis` | `LOCADOR`/`ADMIN` | Cadastro de imóvel |
 | GET·PUT·DELETE | `/usuarios/{id}` | Autenticado (dono/ADMIN) | Perfil, edição, exclusão (LGPD) |
-| GET | `/usuarios/{id}/publico` | Autenticado | Perfil público |
+| GET | `/usuarios/{id}/publico` | Público (contato mascarado) | Perfil público |
 | POST | `/usuarios/{id}/foto` | Autenticado (dono/ADMIN) | Upload da foto de perfil (RF-20) |
 | POST·GET·DELETE | `/usuarios/{id}/favoritos` | Autenticado (dono) | Favoritos |
 | POST | `/interesses` | Autenticado | Registrar interesse/mensagem |
@@ -181,10 +185,6 @@ Prefixo base: `http://localhost:8080`. Documentação interativa em `/swagger-ui
 | POST·GET | `/denuncias` | Autenticado | Denunciar / contar denúncias |
 | GET·PATCH | `/admin/**` | `ADMIN` | Painel, moderação, relatórios, auditoria |
 
-> ¹ As rotas de leitura de anúncios/perfil hoje exigem autenticação. O
-> documento define esses fluxos também para o ator **Visitante** — ver o
-> relatório de auditoria (recomendação de tornar as leituras públicas com
-> mascaramento de contato, RNF/LEG-03).
 
 ## Pré-requisitos
 

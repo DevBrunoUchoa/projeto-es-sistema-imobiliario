@@ -57,7 +57,16 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**", "/oauth2/**", "/login/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/anuncios/*/imagens").permitAll()
+                        // Navegação pública do catálogo para o ator "Visitante"
+                        // (RF-15/21/22/23/24/25 e RF-07). São somente leituras
+                        // (GET). Dados de contato do locador seguem mascarados
+                        // para não autenticados no /usuarios/*/publico
+                        // (RNF/LEG-03); os DTOs de anúncio não expõem contato.
+                        // As escritas (POST/PUT/PATCH/DELETE) continuam exigindo
+                        // autenticação/role via .anyRequest() e @PreAuthorize.
+                        .requestMatchers(HttpMethod.GET, "/anuncios", "/anuncios/*", "/anuncios/*/imagens").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/usuarios/*/publico").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/avaliacoes/**").permitAll()
                         .requestMatchers("/denuncias/**").authenticated()
                         .anyRequest().authenticated()
                 )
