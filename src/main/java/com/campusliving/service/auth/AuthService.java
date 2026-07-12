@@ -26,6 +26,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final EmailVerificationService emailVerificationService;
     private final AuditLogService auditLogService;
+    private final com.campusliving.service.email.EmailService emailService;
 
     @Transactional
     public CadastroResponseDTO cadastrar(CadastroRequestDTO request) {
@@ -69,8 +70,10 @@ public class AuthService {
                 savedUser.getId()
         );
 
-        //Gera token de verificação de email
+        //Gera token de verificação e envia por e-mail (RF-05).
+        //O token NÃO é devolvido no corpo da resposta (evita vazamento).
         String token = emailVerificationService.gerarTokenVerificacao(savedUser.getId());
+        emailService.enviarVerificacaoEmail(savedUser.getEmail(), savedUser.getNome(), token);
 
         //Retorna a resposta
         return CadastroResponseDTO.builder()
@@ -79,7 +82,7 @@ public class AuthService {
                 .email(savedUser.getEmail())
                 .role(savedUser.getTipoConta().name())
                 .emailVerificado(savedUser.isVerificado())
-                .mensagem("Usuário cadastrado com sucesso! Token de verificação: " + token)
+                .mensagem("Usuário cadastrado com sucesso! Verifique seu e-mail para ativar a conta.")
                 .build();
     }
 

@@ -31,12 +31,16 @@ class ContatoServiceImplTest {
     private ContatoRepository contatoRepository;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private com.campusliving.repository.imovel.AnuncioRepository anuncioRepository;
+    @Mock
+    private com.campusliving.service.email.EmailService emailService;
 
     private ContatoServiceImpl service;
 
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
-        service = new ContatoServiceImpl(contatoRepository, userRepository);
+        service = new ContatoServiceImpl(contatoRepository, userRepository, anuncioRepository, emailService);
     }
 
     @Test
