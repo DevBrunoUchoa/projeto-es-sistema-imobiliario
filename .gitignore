@@ -49,4 +49,9 @@ Thumbs.db
 # LocalDiskDocumentStorageService). Nunca versionar arquivos de usuário.
 # ---------------------------------------------------------------------------
 /uploads/
-cookies_*.txt
+
+# ---------------------------------------------------------------------------
+# Arquivos locais de teste / lixo (nunca versionar — cookies contêm tokens JWT)
+# ---------------------------------------------------------------------------
+cookies*.txt
+/100ms
