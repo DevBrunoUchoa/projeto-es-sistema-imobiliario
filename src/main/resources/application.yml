@@ -27,7 +27,7 @@ spring:
   servlet:
     multipart:
       max-file-size: 5MB
-      max-request-size: 5MB
+      max-request-size: 55MB
 
 server:
   port: ${APP_PORT:8080}
@@ -38,6 +38,11 @@ server:
 app:
   uploads:
     dir: ${UPLOADS_DIR:uploads}
+  storage:
+    supabase:
+      url: ${SUPABASE_URL:}
+      service-key: ${SUPABASE_SERVICE_ROLE_KEY:}
+      bucket: ${SUPABASE_STORAGE_BUCKET:anuncios}
 
 # OpenAPI / Swagger (SpringDoc)
 springdoc:

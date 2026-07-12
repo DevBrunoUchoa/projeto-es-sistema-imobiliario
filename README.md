@@ -253,6 +253,22 @@ isso claro no relatório da entrega, não só no código:
 
 ## Documentação da API (Swagger)
 
+### Upload de imagens (T5.9)
+
+As imagens dos anúncios ficam no Supabase Storage; o PostgreSQL guarda os
+metadados, a URL pública e o caminho interno necessário para exclusão. Crie um
+bucket público chamado `anuncios` e configure `SUPABASE_URL`,
+`SUPABASE_SERVICE_ROLE_KEY` e `SUPABASE_STORAGE_BUCKET`.
+
+- `POST /anuncios/{adId}/imagens`: multipart no campo `imagens`.
+- `GET /anuncios/{adId}/imagens`: lista as fotos na ordem de exibição.
+- `PATCH /anuncios/{adId}/imagens/{imageId}/principal`: define a capa.
+- `DELETE /anuncios/{adId}/imagens/{imageId}`: remove a foto.
+
+Cada anúncio aceita até 10 imagens JPEG, PNG ou WEBP, com no máximo 5 MB por
+arquivo. A listagem é pública; operações de escrita usam o usuário autenticado
+pelo JWT e exigem que ele seja o locador dono do anúncio.
+
 Com a aplicação em execução:
 
 - **Swagger UI:** http://localhost:8080/swagger-ui
