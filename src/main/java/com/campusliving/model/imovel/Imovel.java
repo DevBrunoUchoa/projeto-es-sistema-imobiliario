@@ -1,4 +1,4 @@
-package com.campusliving.model.imovel;
+ package com.campusliving.model.imovel;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -99,4 +99,20 @@ public class Imovel {
     @JsonProperty("dataCriacao")
     @Column(name = "data_criacao", nullable = false, insertable = false, updatable = false)
     private OffsetDateTime dataCriacao;
+
+    @JsonProperty("mobiliado")
+    @Column(nullable = false)
+    private boolean mobiliado;
+
+    @JsonProperty("permitePets")
+    @Column(name = "permite_pets", nullable = false)
+    private boolean permitePets;
+
+    @JsonProperty("permiteFumantes")
+    @Column(name = "permite_fumantes", nullable = false)
+    private boolean permiteFumantes;
+
+    @JsonProperty("incluiAlimentacao")
+    @Column(name = "inclui_alimentacao", nullable = false)
+    private boolean incluiAlimentacao;
 }
