@@ -185,6 +185,8 @@ Prefixo base: `http://localhost:8080`. Documentação interativa em `/swagger-ui
 | GET·PATCH | `/notificacoes` · `/notificacoes/nao-lidas` · `/notificacoes/{id}/lida` | Autenticado | Notificações in-app (polling, RF-39) |
 | POST·GET | `/denuncias` | Autenticado | Denunciar / contar denúncias |
 | GET·PATCH | `/admin/**` | `ADMIN` | Painel, moderação, relatórios, auditoria |
+| PATCH | `/admin/denuncias/{id}/moderar` | `ADMIN` | Banir anúncio / arquivar denúncia (RF-42) |
+| GET | `/admin/relatorios` · `/admin/relatorios/csv?dias=` | `ADMIN` | Métricas por período + exportação CSV (RF-43) |
 
 
 ## Pré-requisitos
