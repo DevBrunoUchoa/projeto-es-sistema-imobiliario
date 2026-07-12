@@ -1,12 +1,16 @@
 package com.campusliving.repository.usuario;
 
+import com.campusliving.model.usuario.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+@Repository
+public interface UserRepository extends JpaRepository<User, UUID> {
 
-import com.campusliving.model.usuario.User;
-
-public interface UserRepository extends JpaRepository<User, UUID>{
     List<User> findByEmail(String email);
+
+    long countByTipoContaAndVerificado(User.Tipo tipo, boolean verificado);
 }
