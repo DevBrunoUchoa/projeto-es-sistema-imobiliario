@@ -31,6 +31,8 @@ public interface AnuncioRepository extends JpaRepository<Anuncio, UUID> {
 
     List<Anuncio> findByStatus(Anuncio.Status status);
 
+    long countByDataPublicacaoAfter(java.time.OffsetDateTime dataPublicacao);
+
     Page<Anuncio> findByStatus(Anuncio.Status status, Pageable pageable);
 
     long countByStatus(Anuncio.Status status);
