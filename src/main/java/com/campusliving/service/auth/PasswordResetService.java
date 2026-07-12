@@ -22,12 +22,16 @@ public class PasswordResetService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuditLogService auditLogService;
+    private final com.campusliving.service.email.EmailService emailService;
 
     @Transactional
-    public String gerarTokenReset(String email) {
+    public void gerarTokenReset(String email) {
         List<User> users = userRepository.findByEmail(email);
         if (users.isEmpty()) {
-            throw new RuntimeException("Usuário não encontrado com este email");
+            // Não revela se o e-mail existe (evita enumeração de contas):
+            // apenas encerra silenciosamente. O controller responde a mesma
+            // mensagem genérica em ambos os casos.
+            return;
         }
 
         User user = users.get(0);
@@ -52,7 +56,9 @@ public class PasswordResetService {
                 user.getId()
         );
 
-        return token;
+        // RF-04: envia o link de redefinição por e-mail (não devolve o token
+        // na resposta HTTP).
+        emailService.enviarResetSenha(user.getEmail(), user.getNome(), token);
     }
 
     @Transactional

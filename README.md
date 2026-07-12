@@ -123,7 +123,9 @@ projeto-es-sistema-imobiliario/
 - **Login social:** Google via OAuth2 em `/oauth2/authorization/google`.
 - **Verificação de e-mail / recuperação de senha:**
   `GET /auth/verificar-email/{token}`, `POST /auth/forgot-password`,
-  `POST /auth/reset-password`.
+  `POST /auth/reset-password`. Os links vão por **e-mail** (SMTP configurável
+  via `SPRING_MAIL_*` + `MAIL_ENABLED`); sem SMTP, o link é apenas logado. O
+  token **nunca** é devolvido no corpo da resposta.
 - **Autorização (RBAC, RNF/SEG-04):** papéis `ESTUDANTE`, `LOCADOR`, `MISTO`,
   `ADMIN`. Rotas `/admin/**` exigem `ADMIN`; criação/edição de imóveis e
   anúncios exige `LOCADOR` ou `ADMIN`.
@@ -214,6 +216,10 @@ cp .env.example .env   # depois edite os valores
 | `SPRING_DATASOURCE_PASSWORD` | sim em `prod`          | Senha do banco (profile `prod`)                        |
 | `JWT_SECRET`                 | sim em `prod`          | Chave de assinatura JWT (≥ 32 bytes). Sem padrão em `prod` |
 | `APP_COOKIE_SECURE`          | não (padrão `false`/`true` em prod) | Envia cookies de sessão só por HTTPS      |
+| `MAIL_ENABLED`               | não (padrão `false`)   | Liga o envio real de e-mail (senão, loga o link)        |
+| `MAIL_FROM`                  | não                    | Remetente dos e-mails                                   |
+| `APP_FRONTEND_URL`           | não (padrão localhost) | URL base dos links nos e-mails (verificação/reset)      |
+| `SPRING_MAIL_HOST` / `_PORT` / `_USERNAME` / `_PASSWORD` | sim se `MAIL_ENABLED=true` | Credenciais SMTP (ex.: Brevo) |
 | `DB_POOL_MAX_SIZE`           | não (padrão `10`)      | Tamanho máximo do pool HikariCP (só `prod`)             |
 | `DB_POOL_MIN_IDLE`           | não (padrão `2`)       | Conexões ociosas mínimas do pool (só `prod`)            |
 | `JAVA_OPTS`                  | não                    | Flags extras de JVM ao rodar via Docker (ver Dockerfile)|

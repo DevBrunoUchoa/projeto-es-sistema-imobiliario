@@ -83,8 +83,10 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO request) {
-        String token = passwordResetService.gerarTokenReset(request.getEmail());
-        return ResponseEntity.ok("Token de reset gerado com sucesso! Token: " + token);
+        // Sempre responde a mesma mensagem, exista o e-mail ou não (evita
+        // enumeração de contas). O link vai por e-mail, nunca no corpo.
+        passwordResetService.gerarTokenReset(request.getEmail());
+        return ResponseEntity.ok("Se o e-mail estiver cadastrado, enviaremos um link de redefinição.");
     }
 
     @PostMapping("/reset-password")
