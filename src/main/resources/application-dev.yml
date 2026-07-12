@@ -24,3 +24,7 @@ spring:
             scope:
               - email
               - profile
+# Chave de assinatura JWT. Em dev há um valor padrão inseguro só para não
+# travar o ambiente local; em produção NÃO existe padrão (ver application-prod).
+jwt:
+  secret: ${JWT_SECRET:dev-only-insecure-secret-change-me-0123456789abcdef0123456789abcdef}

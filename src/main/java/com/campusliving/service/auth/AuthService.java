@@ -5,10 +5,12 @@ import com.campusliving.dto.usuario.CadastroRequestDTO;
 import com.campusliving.dto.usuario.CadastroResponseDTO;
 import com.campusliving.dto.usuario.LoginRequestDTO;
 import com.campusliving.dto.usuario.LoginResponseDTO;
+import com.campusliving.exception.ProjectException;
 import com.campusliving.model.usuario.User;
 import com.campusliving.repository.usuario.UserRepository;
 import com.campusliving.service.audit.AuditLogService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,6 +117,41 @@ public class AuthService {
                 .mensagem("Login realizado com sucesso!")
                 .jwtToken(jwtToken)
                 .refreshToken(refreshToken)
+                .build();
+    }
+
+    // RNF/SEG-02: renova o par de tokens a partir de um refresh token válido
+    // (validade máxima 7 dias). Falhas de token retornam 401, não 500.
+    public LoginResponseDTO refresh(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new ProjectException("Refresh token ausente", HttpStatus.UNAUTHORIZED);
+        }
+
+        final String email;
+        try {
+            email = jwtService.extractUsername(refreshToken);
+        } catch (Exception e) {
+            throw new ProjectException("Refresh token inválido", HttpStatus.UNAUTHORIZED);
+        }
+
+        List<User> users = userRepository.findByEmail(email);
+        if (users.isEmpty()) {
+            throw new ProjectException("Refresh token inválido", HttpStatus.UNAUTHORIZED);
+        }
+        User user = users.get(0);
+
+        if (!user.isAtivo() || !jwtService.isTokenValid(refreshToken, user)) {
+            throw new ProjectException("Refresh token expirado ou revogado", HttpStatus.UNAUTHORIZED);
+        }
+
+        return LoginResponseDTO.builder()
+                .id(user.getId())
+                .nome(user.getNome())
+                .email(user.getEmail())
+                .role(user.getTipoConta().name())
+                .mensagem("Token renovado com sucesso!")
+                .jwtToken(jwtService.generateToken(user))
+                .refreshToken(jwtService.generateRefreshToken(user))
                 .build();
     }
 }

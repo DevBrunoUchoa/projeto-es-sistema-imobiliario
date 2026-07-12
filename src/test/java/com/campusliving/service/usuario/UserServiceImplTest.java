@@ -57,6 +57,8 @@ class UserServiceImplTest {
     private ContatoRepository contatoRepository;
     @Mock
     private DocumentStorageService documentStorageService;
+    @Mock
+    private com.campusliving.service.imovel.ImageStorageService imageStorageService;
 
     private UserServiceImpl service;
 
@@ -75,7 +77,8 @@ class UserServiceImplTest {
                 verificacaoLocadorRepository,
                 favoritoRepository,
                 contatoRepository,
-                documentStorageService
+                documentStorageService,
+                imageStorageService
         );
 
         donoId = UUID.randomUUID();

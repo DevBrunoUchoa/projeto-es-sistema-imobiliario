@@ -41,3 +41,11 @@ spring:
 logging:
   level:
     org.flywaydb: INFO
+
+# RNF/SEG-02/03: em produção não há valores padrão. A aplicação falha ao
+# subir se JWT_SECRET não for fornecido, e os cookies de sessão exigem HTTPS.
+jwt:
+  secret: ${JWT_SECRET}
+app:
+  cookie:
+    secure: ${APP_COOKIE_SECURE:true}
