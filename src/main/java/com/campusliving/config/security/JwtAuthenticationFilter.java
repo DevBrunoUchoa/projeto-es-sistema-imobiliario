@@ -6,6 +6,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,6 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Override
     protected void doFilterInternal(
@@ -30,12 +33,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        
+
         // Rotas públicas - não verificar token
         String path = request.getServletPath();
-        if (path.startsWith("/auth/") || 
-            path.startsWith("/swagger-ui/") || 
-            path.startsWith("/api-docs/") || 
+        if (path.startsWith("/auth/") ||
+            path.startsWith("/swagger-ui/") ||
+            path.startsWith("/api-docs/") ||
             path.equals("/actuator/health")) {
             filterChain.doFilter(request, response);
             return;
@@ -62,9 +65,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (jwt == null) {
+            log.info("JWT não encontrado no cookie ou header");
             filterChain.doFilter(request, response);
             return;
         }
+
+        log.info("JWT encontrado: {}", jwt.substring(0, Math.min(jwt.length(), 20)) + "...");
 
         try {
             final String userEmail = jwtService.extractUsername(jwt);
@@ -78,12 +84,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             null,
                             userDetails.getAuthorities()
                     );
+
+                    log.info("Usuário autenticado: {} - Roles: {}", userDetails.getUsername(), userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
         } catch (Exception e) {
-            // Token inválido - continua sem autenticação
+            log.error("Erro ao validar JWT: {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);
