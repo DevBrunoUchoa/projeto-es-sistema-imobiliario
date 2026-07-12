@@ -19,3 +19,8 @@ spring:
             client-secret: test
 jwt:
   secret: ${JWT_SECRET:test-only-secret-0123456789abcdef0123456789abcdef0123456789}
+
+# Testes não fazem chamadas HTTP externas de geocodificação.
+app:
+  geocoding:
+    enabled: false
