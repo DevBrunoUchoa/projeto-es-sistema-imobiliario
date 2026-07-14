@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EstudanteLar — Moradia para Estudantes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-mark">E</div>
+        <span class="logo-text">Estudante<strong>Lar</strong></span>
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a href="#properties" class="nav-link">Alugar</a>
+        <a href="criar-anuncio.html" class="nav-link">Anunciar</a>
+        <a href="roommates.html" class="nav-link">Roommates</a>
+        <a href="#como-funciona" class="nav-link">Como funciona</a>
+        <div class="nav-actions">
+          <a href="login.html" class="btn-ghost">Entrar</a>
+          <a href="cadastro.html" class="btn-primary-sm">Cadastrar</a>
+        </div>
+      </div>
+      <button class="nav-mobile-toggle" id="mobileToggle" aria-label="Abrir menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-blobs">
+      <div class="blob b1"></div>
+      <div class="blob b2"></div>
+      <div class="blob b3"></div>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-pulse"></span>
+        <span>+2.400 imóveis disponíveis agora</span>
+      </div>
+
+      <h1 class="hero-title">
+        Encontre sua <em>moradia</em><br>
+        próxima à universidade
+      </h1>
+      <p class="hero-sub">
+        Quartos, studios e apartamentos para estudantes.<br>
+        Transparente, seguro e sem burocracia.
+      </p>
+
+      <!-- Search bar -->
+      <div class="search-bar" id="searchBar">
+        <div class="sb-field">
+          <label class="sb-label">Local</label>
+          <input type="text" id="searchInput" class="sb-input" placeholder="Cidade, bairro ou universidade...">
+        </div>
+        <div class="sb-divider"></div>
+        <div class="sb-field">
+          <label class="sb-label">Tipo</label>
+          <select id="typeFilter" class="sb-select">
+            <option value="">Todos os tipos</option>
+            <option value="studio">Studio</option>
+            <option value="kitnet">Kitnet</option>
+            <option value="shared">Compartilhado</option>
+            <option value="apartment">Apartamento</option>
+            <option value="room">Quarto</option>
+          </select>
+        </div>
+        <div class="sb-divider"></div>
+        <div class="sb-field">
+          <label class="sb-label">Preço máx.</label>
+          <select id="priceFilter" class="sb-select">
+            <option value="9999">Qualquer valor</option>
+            <option value="500">Até R$ 500</option>
+            <option value="800">Até R$ 800</option>
+            <option value="1200">Até R$ 1.200</option>
+            <option value="1800">Até R$ 1.800</option>
+          </select>
+        </div>
+        <button class="sb-btn" id="searchBtn" aria-label="Buscar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </div>
+
+      <!-- Quick filter chips -->
+      <div class="quick-filters">
+        <button class="qf-chip" data-filter="pet_friendly">
+          <i class="fa-solid fa-paw"></i> Pet friendly
+        </button>
+        <button class="qf-chip" data-filter="shared">
+          <i class="fa-solid fa-users"></i> Compartilhado
+        </button>
+        <button class="qf-chip" data-filter="furnished">
+          <i class="fa-solid fa-couch"></i> Mobiliado
+        </button>
+        <button class="qf-chip" data-filter="wifi">
+          <i class="fa-solid fa-wifi"></i> Wi-Fi incluso
+        </button>
+        <button class="qf-chip" data-filter="parking">
+          <i class="fa-solid fa-square-parking"></i> Estacionamento
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-n">12k+</span>
+        <span class="stat-l">Estudantes</span>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="stat-item">
+        <span class="stat-n">2.4k</span>
+        <span class="stat-l">Imóveis</span>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="stat-item">
+        <span class="stat-n">98%</span>
+        <span class="stat-l">Satisfação</span>
+      </div>
+      <div class="stat-sep"></div>
+      <div class="stat-item">
+        <span class="stat-n">50+</span>
+        <span class="stat-l">Universidades</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PROPERTIES ===== -->
+  <section class="props-section" id="properties">
+    <div class="container">
+      <div class="props-header">
+        <div>
+          <h2 class="section-title">Imóveis disponíveis</h2>
+          <p class="result-count" id="resultCount">Carregando...</p>
+        </div>
+        <div class="props-actions">
+          <button class="btn-filter-toggle" id="filterToggle">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Filtros</span>
+            <span class="filter-count" id="filterCount" style="display:none">0</span>
+          </button>
+          <select class="sort-select" id="sortSelect">
+            <option value="price_asc">Menor preço</option>
+            <option value="price_desc">Maior preço</option>
+            <option value="distance">Mais próximo</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="props-grid" id="propertiesGrid">
+        <!-- Cards injetados pelo script.js -->
+      </div>
+
+      <div class="no-results" id="noResults" style="display:none">
+        <div class="no-results-emoji">🔍</div>
+        <h3>Nenhum imóvel encontrado</h3>
+        <p>Tente ajustar os filtros para ver mais opções.</p>
+        <button class="btn-primary" onclick="resetFilters()">Limpar filtros</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== COMO FUNCIONA ===== -->
+  <section class="hiw-section" id="como-funciona">
+    <div class="container">
+      <div class="hiw-header">
+        <p class="section-eyebrow">Simples assim</p>
+        <h2 class="section-title">Como funciona</h2>
+      </div>
+      <div class="hiw-grid">
+        <div class="hiw-card">
+          <div class="hiw-icon-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+          <span class="hiw-step-num">01</span>
+          <h3>Busque seu imóvel</h3>
+          <p>Use os filtros para encontrar o lugar ideal próximo à sua universidade, dentro do seu orçamento.</p>
+        </div>
+        <div class="hiw-connector"></div>
+        <div class="hiw-card">
+          <div class="hiw-icon-wrap">
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+          <span class="hiw-step-num">02</span>
+          <h3>Agende uma visita</h3>
+          <p>Entre em contato diretamente com o proprietário e agende uma visita presencial ou por vídeo.</p>
+        </div>
+        <div class="hiw-connector"></div>
+        <div class="hiw-card">
+          <div class="hiw-icon-wrap">
+            <i class="fa-solid fa-file-signature"></i>
+          </div>
+          <span class="hiw-step-num">03</span>
+          <h3>Feche o contrato</h3>
+          <p>Assine de forma digital, segura e sem burocracia. Tudo verificado pela EstudanteLar.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA BANNER ===== -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-inner">
+        <div class="cta-deco"></div>
+        <div class="cta-text">
+          <span class="cta-eyebrow">Para proprietários</span>
+          <h2>Tem um imóvel para alugar?</h2>
+          <p>Anuncie grátis e alcance milhares de estudantes buscando moradia próxima à universidade.</p>
+        </div>
+        <div class="cta-actions">
+          <a href="criar-anuncio.html" class="btn-white" style="text-decoration:none">
+            <i class="fa-solid fa-plus"></i> Anunciar imóvel
+          </a>
+          <a href="#como-funciona" class="btn-outline-white" style="text-decoration:none">Saber mais</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="nav-logo footer-logo">
+            <div class="logo-mark">E</div>
+            <span class="logo-text">Estudante<strong>Lar</strong></span>
+          </a>
+          <p>A plataforma de moradia feita para a comunidade universitária brasileira.</p>
+          <div class="footer-social">
+            <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Plataforma</h4>
+          <ul>
+            <li><a href="#">Buscar imóveis</a></li>
+            <li><a href="#">Anunciar</a></li>
+            <li><a href="#">Como funciona</a></li>
+            <li><a href="#">Preços</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Suporte</h4>
+          <ul>
+            <li><a href="#">Central de ajuda</a></li>
+            <li><a href="#">Fale conosco</a></li>
+            <li><a href="#">Política de privacidade</a></li>
+            <li><a href="#">Termos de uso</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Empresa</h4>
+          <ul>
+            <li><a href="#">Sobre nós</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Carreiras</a></li>
+            <li><a href="#">Imprensa</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 EstudanteLar. Todos os direitos reservados.</p>
+        <p>Feito com <i class="fa-solid fa-heart" style="color:var(--terracotta)"></i> para estudantes brasileiros</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== FILTER PANEL ===== -->
+  <div class="filter-overlay" id="filterOverlay"></div>
+  <aside class="filter-panel" id="filterPanel" aria-label="Filtros avançados">
+    <div class="fp-header">
+      <h3>Filtros avançados</h3>
+      <button class="fp-close" id="filterClose" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="fp-body">
+      <!-- Preço -->
+      <div class="fp-group">
+        <label class="fp-label">Faixa de preço</label>
+        <div class="price-inputs">
+          <div class="price-input-wrap">
+            <span class="pi-prefix">R$</span>
+            <input type="number" id="minPrice" placeholder="Mínimo" min="0" max="9999" value="">
+          </div>
+          <span class="price-dash">—</span>
+          <div class="price-input-wrap">
+            <span class="pi-prefix">R$</span>
+            <input type="number" id="maxPrice" placeholder="Máximo" min="0" max="9999" value="">
+          </div>
+        </div>
+      </div>
+
+      <!-- Distância -->
+      <div class="fp-group">
+        <label class="fp-label">
+          Distância da universidade
+          <span class="fp-label-val" id="distanceDisplay">até 5 km</span>
+        </label>
+        <input type="range" id="distanceRange" class="range-input" min="0.5" max="5" step="0.1" value="5">
+        <div class="range-marks">
+          <span>0.5 km</span>
+          <span>5 km</span>
+        </div>
+      </div>
+
+      <!-- Tipo -->
+      <div class="fp-group">
+        <label class="fp-label">Tipo</label>
+        <div class="toggle-group" id="typeToggleGroup">
+          <button class="tg-btn active" data-value="">Todos</button>
+          <button class="tg-btn" data-value="shared">Compartilhado</button>
+          <button class="tg-btn" data-value="complete">Completo</button>
+        </div>
+      </div>
+
+      <!-- Gênero -->
+      <div class="fp-group">
+        <label class="fp-label">Gênero</label>
+        <div class="toggle-group" id="genderToggleGroup">
+          <button class="tg-btn active" data-value="any">Qualquer</button>
+          <button class="tg-btn" data-value="female">Feminino</button>
+          <button class="tg-btn" data-value="male">Masculino</button>
+        </div>
+      </div>
+
+      <!-- Comodidades -->
+      <div class="fp-group">
+        <label class="fp-label">Comodidades</label>
+        <div class="fp-checks">
+          <label class="fp-check-item">
+            <input type="checkbox" id="fPet">
+            <span class="check-box"></span>
+            <i class="fa-solid fa-paw"></i> Pet friendly
+          </label>
+          <label class="fp-check-item">
+            <input type="checkbox" id="fSmoking">
+            <span class="check-box"></span>
+            <i class="fa-solid fa-smoking"></i> Aceita fumantes
+          </label>
+          <label class="fp-check-item">
+            <input type="checkbox" id="fFurnished">
+            <span class="check-box"></span>
+            <i class="fa-solid fa-couch"></i> Mobiliado
+          </label>
+          <label class="fp-check-item">
+            <input type="checkbox" id="fWifi">
+            <span class="check-box"></span>
+            <i class="fa-solid fa-wifi"></i> Wi-Fi incluso
+          </label>
+          <label class="fp-check-item">
+            <input type="checkbox" id="fParking">
+            <span class="check-box"></span>
+            <i class="fa-solid fa-square-parking"></i> Estacionamento
+          </label>
+          <label class="fp-check-item">
+            <input type="checkbox" id="fAC">
+            <span class="check-box"></span>
+            <i class="fa-solid fa-snowflake"></i> Ar-condicionado
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="fp-footer">
+      <button class="btn-ghost-sm" onclick="resetFilters()">Limpar tudo</button>
+      <button class="btn-primary" id="applyFiltersBtn">
+        Aplicar filtros
+      </button>
+    </div>
+  </aside>
+
+  <script src="script.js"></script>
+</body>
+</html>

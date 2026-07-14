@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Perfil — EstudanteLar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+
+<nav class="navbar scrolled">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-mark">E</div>
+      <span class="logo-text">Estudante<strong>Lar</strong></span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html" class="nav-link">Alugar</a>
+      <a href="criar-anuncio.html" class="nav-link">Anunciar</a>
+      <a href="roommates.html" class="nav-link">Roommates</a>
+      <a href="mensagens.html" class="nav-link">Mensagens</a>
+      <div class="nav-actions">
+        <a href="favoritos.html" class="btn-ghost">❤ Favoritos</a>
+        <a href="perfil.html" class="btn-primary-sm">João S.</a>
+      </div>
+    </div>
+    <button class="sidebar-mobile-btn" id="sidebarToggle" aria-label="Menu da conta">
+      <i class="fa-solid fa-user"></i>
+    </button>
+    <button class="nav-mobile-toggle" id="mobileToggle" aria-label="Abrir menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="dash-layout">
+
+    <!-- Sidebar -->
+    <aside class="dash-sidebar">
+      <span class="dash-sidebar-title">Conta</span>
+      <a href="perfil.html" class="sidebar-link active"><i class="fa-solid fa-user"></i> Meu perfil</a>
+      <a href="meus-anuncios.html" class="sidebar-link"><i class="fa-solid fa-house-chimney"></i> Meus anúncios</a>
+      <a href="favoritos.html" class="sidebar-link"><i class="fa-solid fa-heart"></i> Favoritos</a>
+      <a href="mensagens.html" class="sidebar-link"><i class="fa-solid fa-comments"></i> Mensagens <span class="badge">3</span></a>
+      <a href="avaliacoes.html" class="sidebar-link"><i class="fa-solid fa-star"></i> Avaliações</a>
+      <span class="dash-sidebar-title">Roommate</span>
+      <a href="roommates.html" class="sidebar-link"><i class="fa-solid fa-users"></i> Encontrar roommate</a>
+      <span class="dash-sidebar-title">Preferências</span>
+      <a href="#seguranca" class="sidebar-link"><i class="fa-solid fa-shield-halved"></i> Segurança</a>
+      <a href="#notificacoes" class="sidebar-link"><i class="fa-solid fa-bell"></i> Notificações</a>
+      <span class="dash-sidebar-title" style="margin-top:auto"></span>
+      <a href="login.html" class="sidebar-link" style="color:#f87171"><i class="fa-solid fa-right-from-bracket"></i> Sair</a>
+    </aside>
+
+    <!-- Conteúdo -->
+    <main class="dash-main">
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('dados',this)">Meus dados</button>
+        <button class="tab-btn" onclick="showTab('preferencias',this)">Preferências</button>
+        <button class="tab-btn" onclick="showTab('verificacao',this)">Verificação</button>
+        <button class="tab-btn" onclick="showTab('seguranca',this)">Segurança</button>
+      </div>
+
+      <!-- Tab: Meus dados -->
+      <div id="tab-dados">
+        <!-- Avatar -->
+        <div class="profile-avatar-section">
+          <div class="avatar-wrap">
+            <div class="avatar-img">JS</div>
+            <button class="avatar-edit" title="Alterar foto"><i class="fa-solid fa-camera"></i></button>
+          </div>
+          <div class="avatar-info">
+            <h3>João Silva</h3>
+            <p>Estudante de Ciência da Computação · UFCG</p>
+            <div class="verified-badge"><i class="fa-solid fa-circle-check"></i> E-mail verificado</div>
+          </div>
+          <div style="margin-left:auto">
+            <button class="btn-sm btn-outline"><i class="fa-solid fa-eye" style="margin-right:6px"></i>Ver perfil público</button>
+          </div>
+        </div>
+
+        <!-- Dados pessoais -->
+        <div class="card-section">
+          <div class="card-section-title">
+            Dados pessoais
+            <div class="title-actions">
+              <button class="btn-sm btn-outline" id="editBtn" onclick="toggleEdit()"><i class="fa-solid fa-pen" style="margin-right:5px"></i>Editar</button>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Nome</label>
+              <input type="text" class="form-input" value="João" disabled id="inputNome">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sobrenome</label>
+              <input type="text" class="form-input" value="Silva" disabled id="inputSobre">
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-mail</label>
+              <input type="email" class="form-input" value="joao.silva@ccc.ufcg.edu.br" disabled id="inputEmail">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Telefone / WhatsApp</label>
+              <input type="tel" class="form-input" value="(83) 9 9876-5432" disabled id="inputTel">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Curso</label>
+              <input type="text" class="form-input" value="Ciência da Computação" disabled id="inputCurso">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Universidade</label>
+              <input type="text" class="form-input" value="Universidade Federal" disabled id="inputUniv">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:14px">
+            <label class="form-label">Bio</label>
+            <textarea class="form-textarea" disabled id="inputBio" style="min-height:80px">Estudante de computação em Campina Grande, procuro moradia tranquila e bem localizada. Gosto de manter o ambiente organizado.</textarea>
+          </div>
+          <div id="saveRow" style="display:none;margin-top:16px;display:flex;gap:10px;justify-content:flex-end">
+            <button class="btn-sm btn-outline" onclick="cancelEdit()">Cancelar</button>
+            <button class="btn-sm btn-primary" onclick="saveEdit()"><i class="fa-solid fa-check" style="margin-right:5px"></i>Salvar</button>
+          </div>
+        </div>
+
+        <!-- Endereço -->
+        <div class="card-section">
+          <div class="card-section-title">Endereço atual</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">CEP</label>
+              <input type="text" class="form-input" placeholder="58400-000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cidade</label>
+              <input type="text" class="form-input" placeholder="Campina Grande">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bairro</label>
+              <input type="text" class="form-input" placeholder="Centro">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Estado</label>
+              <select class="form-select">
+                <option>PB</option><option>PE</option><option>RN</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Preferências -->
+      <div id="tab-preferencias" style="display:none">
+        <div class="card-section">
+          <div class="card-section-title">Preferências de moradia</div>
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <div class="form-group">
+              <label class="form-label">Faixa de preço</label>
+              <div style="display:flex;gap:12px;align-items:center">
+                <div class="price-input-wrap" style="flex:1"><span class="pi-prefix">R$</span><input type="number" placeholder="Min" class="form-input" style="border:none;background:transparent;padding:0"></div>
+                <span style="color:var(--text-3);font-weight:600">—</span>
+                <div class="price-input-wrap" style="flex:1"><span class="pi-prefix">R$</span><input type="number" placeholder="Max" class="form-input" style="border:none;background:transparent;padding:0"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tipo de imóvel preferido</label>
+              <div class="toggle-group">
+                <button class="tg-btn active">Compartilhado</button>
+                <button class="tg-btn">Studio</button>
+                <button class="tg-btn">Kitnet</button>
+                <button class="tg-btn">Apartamento</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Comodidades essenciais</label>
+              <div class="fp-checks">
+                <label class="fp-check-item"><input type="checkbox" checked><span class="check-box"></span><i class="fa-solid fa-wifi"></i> Wi-Fi incluso</label>
+                <label class="fp-check-item"><input type="checkbox"><span class="check-box"></span><i class="fa-solid fa-couch"></i> Mobiliado</label>
+                <label class="fp-check-item"><input type="checkbox" checked><span class="check-box"></span><i class="fa-solid fa-paw"></i> Pet friendly</label>
+                <label class="fp-check-item"><input type="checkbox"><span class="check-box"></span><i class="fa-solid fa-square-parking"></i> Estacionamento</label>
+              </div>
+            </div>
+            <button class="btn-full">Salvar preferências</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Verificação -->
+      <div id="tab-verificacao" style="display:none">
+        <div class="card-section">
+          <div class="card-section-title">Verificação de identidade</div>
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <div class="alert alert-info">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>Usuários verificados têm mais credibilidade e recebem mais respostas de proprietários.</span>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;background:var(--bg-2);border-radius:var(--r-sm);border:1px solid var(--border)">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:40px;height:40px;border-radius:var(--r-sm);background:rgba(34,197,94,.1);color:#22c55e;display:grid;place-items:center;font-size:18px"><i class="fa-solid fa-envelope"></i></div>
+                  <div><div style="font-weight:600;font-size:14px;color:var(--text-1)">E-mail</div><div style="font-size:12px;color:var(--text-3)">joao.silva@ccc.ufcg.edu.br</div></div>
+                </div>
+                <span class="verified-badge"><i class="fa-solid fa-check"></i> Verificado</span>
+              </div>
+
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;background:var(--bg-2);border-radius:var(--r-sm);border:1px solid var(--border)">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:40px;height:40px;border-radius:var(--r-sm);background:var(--primary-tint);color:var(--primary);display:grid;place-items:center;font-size:18px"><i class="fa-solid fa-id-card"></i></div>
+                  <div><div style="font-weight:600;font-size:14px;color:var(--text-1)">Documento de identidade</div><div style="font-size:12px;color:var(--text-3)">RG ou CNH</div></div>
+                </div>
+                <button class="btn-sm btn-primary">Verificar</button>
+              </div>
+
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;background:var(--bg-2);border-radius:var(--r-sm);border:1px solid var(--border)">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:40px;height:40px;border-radius:var(--r-sm);background:var(--primary-tint);color:var(--primary);display:grid;place-items:center;font-size:18px"><i class="fa-brands fa-whatsapp"></i></div>
+                  <div><div style="font-weight:600;font-size:14px;color:var(--text-1)">Telefone</div><div style="font-size:12px;color:var(--text-3)">(83) 9 9876-5432</div></div>
+                </div>
+                <button class="btn-sm btn-outline">Verificar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Segurança -->
+      <div id="tab-seguranca" style="display:none">
+        <div class="card-section">
+          <div class="card-section-title">Alterar senha</div>
+          <div style="display:flex;flex-direction:column;gap:14px;max-width:440px">
+            <div class="form-group">
+              <label class="form-label">Senha atual</label>
+              <div class="input-icon-wrap">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" class="form-input" placeholder="Sua senha atual">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nova senha</label>
+              <div class="input-icon-wrap">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" class="form-input" placeholder="Mínimo 8 caracteres">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirmar nova senha</label>
+              <div class="input-icon-wrap">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" class="form-input" placeholder="Repita a nova senha">
+              </div>
+            </div>
+            <button class="btn-full" style="margin-top:4px">Alterar senha</button>
+          </div>
+        </div>
+        <div class="card-section">
+          <div class="card-section-title" style="color:#f87171">Zona de perigo</div>
+          <p style="font-size:14px;color:var(--text-2);margin-bottom:16px;line-height:1.6">Ao excluir sua conta, todos os seus dados, anúncios e histórico serão permanentemente removidos.</p>
+          <button class="btn-sm btn-danger" style="padding:10px 20px;font-size:13px"><i class="fa-solid fa-trash" style="margin-right:6px"></i>Excluir minha conta</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+function showTab(tab, btn) {
+  ['dados','preferencias','verificacao','seguranca'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = 'none';
+  });
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).style.display = 'block';
+  btn.classList.add('active');
+}
+let editing = false;
+function toggleEdit() {
+  editing = !editing;
+  ['inputNome','inputSobre','inputEmail','inputTel','inputCurso','inputUniv','inputBio'].forEach(id => {
+    document.getElementById(id).disabled = !editing;
+  });
+  document.getElementById('editBtn').innerHTML = editing ? '<i class="fa-solid fa-xmark" style="margin-right:5px"></i>Cancelar' : '<i class="fa-solid fa-pen" style="margin-right:5px"></i>Editar';
+  document.getElementById('saveRow').style.display = editing ? 'flex' : 'none';
+}
+function cancelEdit() { if(editing) toggleEdit(); }
+function saveEdit() {
+  editing = false;
+  ['inputNome','inputSobre','inputEmail','inputTel','inputCurso','inputUniv','inputBio'].forEach(id => {
+    document.getElementById(id).disabled = true;
+  });
+  document.getElementById('editBtn').innerHTML = '<i class="fa-solid fa-pen" style="margin-right:5px"></i>Editar';
+  document.getElementById('saveRow').style.display = 'none';
+}
+document.querySelectorAll('.tg-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const group = this.closest('.toggle-group');
+    group.querySelectorAll('.tg-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<script src="pages-init.js"></script>
+</body>
+</html>

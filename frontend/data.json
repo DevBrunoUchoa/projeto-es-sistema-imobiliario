@@ -1,0 +1,566 @@
+{
+  "properties": [
+    {
+      "id": 1,
+      "title": "Studio moderno — perto da UFCG",
+      "type": "studio",
+      "typeLabel": "Studio",
+      "price": 750,
+      "images": [
+        "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=900&q=80",
+        "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=900&q=80",
+        "https://images.unsplash.com/photo-1554995207-c18c203602cb?w=900&q=80"
+      ],
+      "description": "Studio completamente mobiliado com cozinha americana equipada, banheiro privativo e bancada de trabalho ergonômica. Prédio com portaria 24h, câmeras de segurança e lavanderia coletiva. Internet fibra óptica de 200 Mbps inclusa. Excelente para estudantes da UFCG que buscam praticidade e autonomia, a apenas 8 minutos a pé do campus.",
+      "address": "Rua Manoel Tavares, 320 — Bodocongó, Campina Grande — PB",
+      "distance_university": 0.7,
+      "travel_time": { "walking": 8, "bus": 4, "car": 3, "bike": 4 },
+      "features": {
+        "pet_friendly": true,
+        "smoking": false,
+        "shared": false,
+        "furnished": true,
+        "wifi": true,
+        "parking": false,
+        "laundry": true,
+        "air_conditioning": true
+      },
+      "gender": "any",
+      "available": true,
+      "rooms": 1,
+      "bathrooms": 1,
+      "area": 32,
+      "floor": 3,
+      "landlord": {
+        "name": "Ana Luiza Costa",
+        "type": "comum",
+        "typeLabel": "Proprietária",
+        "phone": "(83) 99872-4561",
+        "rating": 4.9,
+        "reviews": 23,
+        "avatar": "https://i.pravatar.cc/100?img=47",
+        "member_since": "2021"
+      },
+      "nearby": {
+        "universities": [
+          { "name": "UFCG — Campus Universitário", "distance": 0.7, "walking": 8 }
+        ],
+        "markets": [
+          { "name": "Hiper Muffato Campina Grande", "distance": 0.4, "walking": 5 },
+          { "name": "Mercado Bem Barato", "distance": 0.7, "walking": 9 }
+        ],
+        "gyms": [
+          { "name": "Smart Fit Campina Grande", "distance": 0.5, "walking": 6 }
+        ],
+        "bus_stops": [
+          { "name": "Terminal Central de Campina Grande", "distance": 0.3, "walking": 4 }
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "title": "Quarto feminino compartilhado — UEPB",
+      "type": "shared",
+      "typeLabel": "Compartilhado",
+      "price": 370,
+      "images": [
+        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=900&q=80",
+        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=900&q=80",
+        "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=900&q=80"
+      ],
+      "description": "Quarto individual em apartamento compartilhado com mais 2 estudantes. Ambiente tranquilo, bem conservado e próximo ao campus. Áreas comuns incluem sala de estar, cozinha equipada e banheiro compartilhado. Água e luz inclusas no valor. Somente para estudantes do sexo feminino. Ótima localização, a 11 minutos caminhando da UEPB.",
+      "address": "Rua Baraúnas, 415 — Bodocongó, Campina Grande — PB",
+      "distance_university": 0.9,
+      "travel_time": { "walking": 11, "bus": 5, "car": 4, "bike": 5 },
+      "features": {
+        "pet_friendly": false,
+        "smoking": false,
+        "shared": true,
+        "furnished": true,
+        "wifi": true,
+        "parking": false,
+        "laundry": true,
+        "air_conditioning": false
+      },
+      "gender": "female",
+      "available": true,
+      "rooms": 1,
+      "bathrooms": 1,
+      "area": 14,
+      "floor": 2,
+      "landlord": {
+        "name": "Carla Mendes",
+        "type": "comum",
+        "typeLabel": "Proprietária",
+        "phone": "(83) 98765-3210",
+        "rating": 4.7,
+        "reviews": 15,
+        "avatar": "https://i.pravatar.cc/100?img=25",
+        "member_since": "2022"
+      },
+      "nearby": {
+        "universities": [
+          { "name": "UEPB — Campus I Campina Grande", "distance": 0.9, "walking": 11 }
+        ],
+        "markets": [
+          { "name": "Atacadão Campina Grande", "distance": 0.5, "walking": 6 }
+        ],
+        "gyms": [
+          { "name": "Academia Studio Fit", "distance": 0.4, "walking": 5 }
+        ],
+        "bus_stops": [
+          { "name": "Ponto Rua Baraúnas", "distance": 0.1, "walking": 1 }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "title": "Kitnet completa — próxima à Facisa",
+      "type": "kitnet",
+      "typeLabel": "Kitnet",
+      "price": 580,
+      "images": [
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=900&q=80",
+        "https://images.unsplash.com/photo-1505873242700-f289a29e1e0f?w=900&q=80",
+        "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=900&q=80"
+      ],
+      "description": "Kitnet compacta, funcional e completamente independente. Cozinha equipada com fogão e geladeira, banheiro privativo e área de serviço. Portão eletrônico e câmeras de segurança. Vizinhança tranquila no Bairro Universitário, a 1,8 km da Facisa com linha de ônibus direta para o campus.",
+      "address": "Rua Manoel Cardoso Palhano, 88 — Bairro Universitário, Campina Grande — PB",
+      "distance_university": 1.8,
+      "travel_time": { "walking": 22, "bus": 9, "car": 5, "bike": 9 },
+      "features": {
+        "pet_friendly": false,
+        "smoking": true,
+        "shared": false,
+        "furnished": true,
+        "wifi": true,
+        "parking": false,
+        "laundry": false,
+        "air_conditioning": false
+      },
+      "gender": "any",
+      "available": true,
+      "rooms": 1,
+      "bathrooms": 1,
+      "area": 25,
+      "floor": 1,
+      "landlord": {
+        "name": "Roberto Almeida",
+        "type": "locador",
+        "typeLabel": "Locador",
+        "phone": "(83) 99341-8872",
+        "rating": 4.5,
+        "reviews": 8,
+        "avatar": "https://i.pravatar.cc/100?img=12",
+        "member_since": "2023"
+      },
+      "nearby": {
+        "universities": [
+          { "name": "Facisa — Faculdade de Ciências Sociais Aplicadas", "distance": 1.8, "walking": 22 }
+        ],
+        "markets": [
+          { "name": "Supermercado Bem Barato", "distance": 0.3, "walking": 4 }
+        ],
+        "gyms": [
+          { "name": "Academia X-Treino", "distance": 0.8, "walking": 10 }
+        ],
+        "bus_stops": [
+          { "name": "Ponto Bairro Universitário", "distance": 0.1, "walking": 1 }
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "title": "Vaga masculina compartilhada — Uninassau JP",
+      "type": "shared",
+      "typeLabel": "Compartilhado",
+      "price": 480,
+      "images": [
+        "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=900&q=80",
+        "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900&q=80",
+        "https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=900&q=80"
+      ],
+      "description": "Quarto individual em apartamento dividido com mais 2 estudantes do sexo masculino. Ambiente descontraído, com sala ampla, varanda e cozinha bem equipada. Aceita pets pequenos. Localizado a apenas 600m da Uninassau — João Pessoa, ideal para quem quer chegar rápido às aulas.",
+      "address": "Rua Vigário Gomes, 470 — Tambauzinho, João Pessoa — PB",
+      "distance_university": 0.6,
+      "travel_time": { "walking": 8, "bus": 4, "car": 2, "bike": 3 },
+      "features": {
+        "pet_friendly": true,
+        "smoking": false,
+        "shared": true,
+        "furnished": true,
+        "wifi": true,
+        "parking": false,
+        "laundry": true,
+        "air_conditioning": false
+      },
+      "gender": "male",
+      "available": true,
+      "rooms": 1,
+      "bathrooms": 1,
+      "area": 12,
+      "floor": 5,
+      "landlord": {
+        "name": "Felipe Saraiva",
+        "type": "comum",
+        "typeLabel": "Proprietário",
+        "phone": "(83) 97654-3321",
+        "rating": 4.6,
+        "reviews": 11,
+        "avatar": "https://i.pravatar.cc/100?img=8",
+        "member_since": "2022"
+      },
+      "nearby": {
+        "universities": [
+          { "name": "Uninassau — Unidade João Pessoa", "distance": 0.6, "walking": 8 }
+        ],
+        "markets": [
+          { "name": "Atacadão João Pessoa", "distance": 0.5, "walking": 6 }
+        ],
+        "gyms": [
+          { "name": "Smart Fit João Pessoa", "distance": 0.4, "walking": 5 }
+        ],
+        "bus_stops": [
+          { "name": "Terminal de Integração do Bessa", "distance": 0.3, "walking": 4 }
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "title": "Studio luxo — coração da Vila Olímpia",
+      "type": "studio",
+      "typeLabel": "Studio",
+      "price": 1250,
+      "images": [
+        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900&q=80",
+        "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=900&q=80",
+        "https://images.unsplash.com/photo-1615529162924-f8605388461d?w=900&q=80"
+      ],
+      "description": "Studio alto padrão, completamente decorado e equipado. Cozinha compacta planejada, área de trabalho integrada, banheiro com box e chuveiro de design. Condomínio com academia, lavanderia, coworking e segurança 24h. Vaga de garagem inclusa. Ideal para estudantes da FGV e ESPM que buscam conforto e localização privilegiada.",
+      "address": "Rua Funchal, 418 — Vila Olímpia, São Paulo — SP",
+      "distance_university": 0.3,
+      "travel_time": { "walking": 4, "bus": 3, "car": 2, "bike": 2 },
+      "features": {
+        "pet_friendly": true,
+        "smoking": false,
+        "shared": false,
+        "furnished": true,
+        "wifi": true,
+        "parking": true,
+        "laundry": true,
+        "air_conditioning": true
+      },
+      "gender": "any",
+      "available": true,
+      "rooms": 1,
+      "bathrooms": 1,
+      "area": 38,
+      "floor": 8,
+      "landlord": {
+        "name": "Imobiliária Ágatha & Rocha",
+        "type": "imobiliaria",
+        "typeLabel": "Imobiliária · CRECI 38.421",
+        "phone": "(11) 3090-5500",
+        "rating": 4.8,
+        "reviews": 187,
+        "avatar": "https://i.pravatar.cc/100?img=60",
+        "member_since": "2019"
+      },
+      "nearby": {
+        "universities": [
+          { "name": "FGV — EAESP", "distance": 0.3, "walking": 4 },
+          { "name": "ESPM São Paulo", "distance": 0.8, "walking": 10 }
+        ],
+        "markets": [
+          { "name": "Santa Luzia Empório", "distance": 0.2, "walking": 3 }
+        ],
+        "gyms": [
+          { "name": "Bodytech Vila Olímpia", "distance": 0.1, "walking": 2 }
+        ],
+        "bus_stops": [
+          { "name": "Estação Vila Olímpia (CPTM)", "distance": 0.4, "walking": 5 }
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "title": "Quarto individual aconchegante — UFMG",
+      "type": "room",
+      "typeLabel": "Quarto",
+      "price": 550,
+      "images": [
+        "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=900&q=80",
+        "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=900&q=80",
+        "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=900&q=80"
+      ],
+      "description": "Quarto individual em casa familiar, com cama de solteiro, guarda-roupa, mesa de estudos e ventilador. Uso compartilhado de cozinha, banheiro e área de serviço. Ambiente calmo e seguro, ideal para quem estuda. Aceita pets de pequeno porte. Inclui água, luz e Wi-Fi no valor mensal.",
+      "address": "Rua Laplace, 192 — Pampulha, Belo Horizonte — MG",
+      "distance_university": 1.5,
+      "travel_time": { "walking": 18, "bus": 8, "car": 5, "bike": 7 },
+      "features": {
+        "pet_friendly": true,
+        "smoking": false,
+        "shared": false,
+        "furnished": true,
+        "wifi": true,
+        "parking": false,
+        "laundry": true,
+        "air_conditioning": false
+      },
+      "gender": "any",
+      "available": true,
+      "rooms": 1,
+      "bathrooms": 1,
+      "area": 11,
+      "floor": 0,
+      "landlord": {
+        "name": "Sônia Pinheiro",
+        "type": "comum",
+        "typeLabel": "Proprietária",
+        "phone": "(31) 98811-2244",
+        "rating": 5.0,
+        "reviews": 6,
+        "avatar": "https://i.pravatar.cc/100?img=34",
+        "member_since": "2023"
+      },
+      "nearby": {
+        "universities": [
+          { "name": "UFMG — Campus Pampulha", "distance": 1.5, "walking": 18 }
+        ],
+        "markets": [
+          { "name": "Super Nosso Pampulha", "distance": 0.4, "walking": 5 }
+        ],
+        "gyms": [
+          { "name": "Academia FitLife", "distance": 0.7, "walking": 9 }
+        ],
+        "bus_stops": [
+          { "name": "Ponto Lagoa da Pampulha", "distance": 0.2, "walking": 2 }
+        ]
+      }
+    },
+    {
+      "id": 7,
+      "title": "Apartamento 2 quartos — UFSC Trindade",
+      "type": "apartment",
+      "typeLabel": "Apartamento",
+      "price": 1800,
+      "images": [
+        "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=900&q=80",
+        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=900&q=80",
+        "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=900&q=80"
+      ],
+      "description": "Apartamento espaçoso com 2 quartos, sala de estar, cozinha americana e 2 banheiros. Totalmente mobiliado e equipado, com ar-condicionado nos quartos, varanda gourmet e 1 vaga de garagem. Condomínio com piscina, churrasqueira e portaria 24h. Excelente para dividir entre 2 estudantes (R$ 900 por pessoa).",
+      "address": "Rua Lauro Linhares, 1290 — Trindade, Florianópolis — SC",
+      "distance_university": 2.8,
+      "travel_time": { "walking": 34, "bus": 12, "car": 7, "bike": 13 },
+      "features": {
+        "pet_friendly": false,
+        "smoking": false,
+        "shared": false,
+        "furnished": true,
+        "wifi": true,
+        "parking": true,
+        "laundry": true,
+        "air_conditioning": true
+      },
+      "gender": "any",
+      "available": true,
+      "rooms": 2,
+      "bathrooms": 2,
+      "area": 68,
+      "floor": 4,
+      "landlord": {
+        "name": "Corretor Paulo Neves",
+        "type": "corretor",
+        "typeLabel": "Corretor · CRECI 52.114-F",
+        "phone": "(48) 99100-7823",
+        "rating": 4.7,
+        "reviews": 42,
+        "avatar": "https://i.pravatar.cc/100?img=3",
+        "member_since": "2020"
+      },
+      "nearby": {
+        "universities": [
+          { "name": "UFSC — Campus Trindade", "distance": 2.8, "walking": 34 }
+        ],
+        "markets": [
+          { "name": "Angeloni Trindade", "distance": 0.5, "walking": 6 }
+        ],
+        "gyms": [
+          { "name": "Smart Fit Trindade", "distance": 0.3, "walking": 4 }
+        ],
+        "bus_stops": [
+          { "name": "Terminal TICEN", "distance": 0.8, "walking": 10 }
+        ]
+      }
+    },
+    {
+      "id": 8,
+      "title": "Vaga compartilhada mista — UFC Benfica",
+      "type": "shared",
+      "typeLabel": "Compartilhado",
+      "price": 380,
+      "images": [
+        "https://images.unsplash.com/photo-1536376072261-38c75010e6c9?w=900&q=80",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=900&q=80",
+        "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=900&q=80"
+      ],
+      "description": "Vaga em apartamento compartilhado com mais 3 estudantes. Quarto mobiliado com cama, mesa e armário. Cozinha coletiva bem equipada e banheiro compartilhado. Valor econômico, ideal para estudantes que buscam economizar sem abrir mão da localização. Contas inclusas. IMÓVEL ATUALMENTE ALUGADO.",
+      "address": "Av. da Universidade, 2853 — Benfica, Fortaleza — CE",
+      "distance_university": 0.9,
+      "travel_time": { "walking": 11, "bus": 6, "car": 4, "bike": 5 },
+      "features": {
+        "pet_friendly": false,
+        "smoking": false,
+        "shared": true,
+        "furnished": true,
+        "wifi": true,
+        "parking": false,
+        "laundry": false,
+        "air_conditioning": false
+      },
+      "gender": "any",
+      "available": false,
+      "rooms": 1,
+      "bathrooms": 1,
+      "area": 10,
+      "floor": 1,
+      "landlord": {
+        "name": "Lucas Monteiro",
+        "type": "comum",
+        "typeLabel": "Proprietário",
+        "phone": "(85) 98832-0011",
+        "rating": 4.3,
+        "reviews": 9,
+        "avatar": "https://i.pravatar.cc/100?img=15",
+        "member_since": "2023"
+      },
+      "nearby": {
+        "universities": [
+          { "name": "UFC — Campus do Benfica", "distance": 0.9, "walking": 11 }
+        ],
+        "markets": [
+          { "name": "Atacadão Benfica", "distance": 0.4, "walking": 5 }
+        ],
+        "gyms": [
+          { "name": "Academia Max Pump", "distance": 0.5, "walking": 6 }
+        ],
+        "bus_stops": [
+          { "name": "Ponto Av. da Universidade", "distance": 0.1, "walking": 1 }
+        ]
+      }
+    },
+    {
+      "id": 9,
+      "title": "Studio decorado feminino — UNIFESP",
+      "type": "studio",
+      "typeLabel": "Studio",
+      "price": 980,
+      "images": [
+        "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900&q=80",
+        "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=900&q=80",
+        "https://images.unsplash.com/photo-1615529162924-f8605388461d?w=900&q=80"
+      ],
+      "description": "Studio charmoso e bem decorado, exclusivo para mulheres. Ambiente acolhedor com cozinha planejada, banheiro moderno e iluminação natural. Andar alto com vista para o parque. Condomínio tranquilo e seguro com portaria. Aceita pet de pequeno porte. Internet de 200 Mbps inclusa.",
+      "address": "Rua Botucatu, 720 — Vila Clementino, São Paulo — SP",
+      "distance_university": 1.1,
+      "travel_time": { "walking": 14, "bus": 6, "car": 4, "bike": 6 },
+      "features": {
+        "pet_friendly": true,
+        "smoking": false,
+        "shared": false,
+        "furnished": true,
+        "wifi": true,
+        "parking": false,
+        "laundry": true,
+        "air_conditioning": true
+      },
+      "gender": "female",
+      "available": true,
+      "rooms": 1,
+      "bathrooms": 1,
+      "area": 30,
+      "floor": 7,
+      "landlord": {
+        "name": "Mariana Figueiredo",
+        "type": "locador",
+        "typeLabel": "Locadora",
+        "phone": "(11) 99012-5544",
+        "rating": 4.8,
+        "reviews": 31,
+        "avatar": "https://i.pravatar.cc/100?img=56",
+        "member_since": "2020"
+      },
+      "nearby": {
+        "universities": [
+          { "name": "UNIFESP — Campus São Paulo", "distance": 1.1, "walking": 14 }
+        ],
+        "markets": [
+          { "name": "Carrefour Vila Clementino", "distance": 0.3, "walking": 4 }
+        ],
+        "gyms": [
+          { "name": "Smart Fit Vila Mariana", "distance": 0.5, "walking": 6 }
+        ],
+        "bus_stops": [
+          { "name": "Estação Santa Cruz (Metrô)", "distance": 0.6, "walking": 8 }
+        ]
+      }
+    },
+    {
+      "id": 10,
+      "title": "Kitnet econômica — próxima à UFRJ",
+      "type": "kitnet",
+      "typeLabel": "Kitnet",
+      "price": 620,
+      "images": [
+        "https://images.unsplash.com/photo-1505873242700-f289a29e1e0f?w=900&q=80",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=900&q=80",
+        "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=900&q=80"
+      ],
+      "description": "Kitnet compacta e econômica, ideal para estudantes que buscam independência com custo reduzido. Cozinha com fogão e geladeira, banheiro privativo e armário embutido. Aceita fumantes. Prédio com interfone. Ônibus direto para o campus da UFRJ a 1,8 km.",
+      "address": "Rua Professor Hernani Melo, 77 — São Cristóvão, Rio de Janeiro — RJ",
+      "distance_university": 1.8,
+      "travel_time": { "walking": 22, "bus": 9, "car": 6, "bike": 9 },
+      "features": {
+        "pet_friendly": false,
+        "smoking": true,
+        "shared": false,
+        "furnished": true,
+        "wifi": true,
+        "parking": false,
+        "laundry": false,
+        "air_conditioning": false
+      },
+      "gender": "male",
+      "available": true,
+      "rooms": 1,
+      "bathrooms": 1,
+      "area": 22,
+      "floor": 2,
+      "landlord": {
+        "name": "Jorge Cavalcanti",
+        "type": "locador",
+        "typeLabel": "Locador",
+        "phone": "(21) 98887-6654",
+        "rating": 4.2,
+        "reviews": 7,
+        "avatar": "https://i.pravatar.cc/100?img=20",
+        "member_since": "2022"
+      },
+      "nearby": {
+        "universities": [
+          { "name": "UFRJ — Cidade Universitária", "distance": 1.8, "walking": 22 }
+        ],
+        "markets": [
+          { "name": "Supermercado Prezunic", "distance": 0.4, "walking": 5 }
+        ],
+        "gyms": [
+          { "name": "Academia Nação Fitness", "distance": 0.8, "walking": 10 }
+        ],
+        "bus_stops": [
+          { "name": "Ponto São Cristóvão", "distance": 0.1, "walking": 1 }
+        ]
+      }
+    }
+  ]
+}
