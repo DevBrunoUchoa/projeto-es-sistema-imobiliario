@@ -116,17 +116,26 @@ projeto-es-sistema-imobiliario/
 - **Login:** `POST /auth/login` — valida credenciais e emite **JWT** (validade
   24h) + **refresh token** (7 dias), RNF/SEG-02. Os tokens são devolvidos em
   cookies `HttpOnly` (`jwt` e `refresh_token`); o header
-  `Authorization: Bearer <token>` também é aceito como alternativa.
+  `Authorization: Bearer <token>` também é aceito como alternativa. A flag
+  `Secure` dos cookies é controlada por `APP_COOKIE_SECURE` (true em produção).
+- **Renovação de token:** `POST /auth/refresh` troca o `refresh_token` (cookie)
+  por um novo par de tokens, sem exigir novo login (RNF/SEG-02).
 - **Login social:** Google via OAuth2 em `/oauth2/authorization/google`.
 - **Verificação de e-mail / recuperação de senha:**
   `GET /auth/verificar-email/{token}`, `POST /auth/forgot-password`,
-  `POST /auth/reset-password`.
+  `POST /auth/reset-password`. Os links vão por **e-mail** (SMTP configurável
+  via `SPRING_MAIL_*` + `MAIL_ENABLED`); sem SMTP, o link é apenas logado. O
+  token **nunca** é devolvido no corpo da resposta.
 - **Autorização (RBAC, RNF/SEG-04):** papéis `ESTUDANTE`, `LOCADOR`, `MISTO`,
   `ADMIN`. Rotas `/admin/**` exigem `ADMIN`; criação/edição de imóveis e
   anúncios exige `LOCADOR` ou `ADMIN`.
 - **Postura padrão:** todas as rotas exigem autenticação, exceto o allowlist
   público: `/auth/**`, `/oauth2/**`, `/login/**`, `/swagger-ui/**`,
-  `/api-docs/**`, `/actuator/health` e `GET /anuncios/{id}/imagens`.
+  `/api-docs/**`, `/actuator/health` e as **leituras de catálogo** para o
+  Visitante (`GET /anuncios`, `GET /anuncios/{id}`, `GET /anuncios/mapa`,
+  `GET /anuncios/{id}/imagens`, `GET /usuarios/{id}/publico`,
+  `GET /avaliacoes/**`). O contato do locador continua **mascarado** para não
+  autenticados no perfil público (RNF/LEG-03); as escritas seguem protegidas.
 
 ## Principais funcionalidades
 
@@ -157,27 +166,28 @@ Prefixo base: `http://localhost:8080`. Documentação interativa em `/swagger-ui
 |--------|------|--------|-----------|
 | POST | `/auth/cadastro` | Público | Cadastro de usuário |
 | POST | `/auth/login` | Público | Login (retorna JWT em cookie) |
+| POST | `/auth/refresh` | Público (cookie) | Renova o par de tokens via `refresh_token` |
 | POST | `/auth/forgot-password` · `/auth/reset-password` | Público | Recuperação de senha |
 | GET | `/auth/verificar-email/{token}` | Público | Verificação de e-mail |
-| GET | `/anuncios` | Autenticado¹ | Busca/filtragem/paginação de anúncios |
-| GET | `/anuncios/{id}` · `/anuncios/mapa` | Autenticado¹ | Detalhe / dados de mapa |
+| GET | `/anuncios` | Público | Busca/filtragem/paginação de anúncios |
+| GET | `/anuncios/{id}` · `/anuncios/mapa` | Público | Detalhe / dados de mapa |
 | POST · PUT | `/anuncios` · `/anuncios/{id}` | `LOCADOR`/`ADMIN` | Publicar / editar anúncio |
 | PATCH | `/anuncios/{id}/status` | `LOCADOR`/`ADMIN` | Inativação lógica (soft delete) |
 | POST·GET·DELETE | `/anuncios/{adId}/imagens` | Autenticado (dono) | Upload/listagem/remoção de fotos |
 | POST | `/imoveis` | `LOCADOR`/`ADMIN` | Cadastro de imóvel |
 | GET·PUT·DELETE | `/usuarios/{id}` | Autenticado (dono/ADMIN) | Perfil, edição, exclusão (LGPD) |
-| GET | `/usuarios/{id}/publico` | Autenticado | Perfil público |
+| GET | `/usuarios/{id}/publico` | Público (contato mascarado) | Perfil público |
+| POST | `/usuarios/{id}/foto` | Autenticado (dono/ADMIN) | Upload da foto de perfil (RF-20) |
 | POST·GET·DELETE | `/usuarios/{id}/favoritos` | Autenticado (dono) | Favoritos |
 | POST | `/interesses` | Autenticado | Registrar interesse/mensagem |
 | POST·GET | `/avaliacoes` · `/avaliacoes/anuncio/{id}` | Autenticado | Avaliar / listar avaliações |
 | POST·GET·PATCH | `/roommates/perfil` · `/roommates/compativeis` · `/roommates/match` | Autenticado | Perfil, compatíveis e matches |
+| GET·PATCH | `/notificacoes` · `/notificacoes/nao-lidas` · `/notificacoes/{id}/lida` | Autenticado | Notificações in-app (polling, RF-39) |
 | POST·GET | `/denuncias` | Autenticado | Denunciar / contar denúncias |
 | GET·PATCH | `/admin/**` | `ADMIN` | Painel, moderação, relatórios, auditoria |
+| PATCH | `/admin/denuncias/{id}/moderar` | `ADMIN` | Banir anúncio / arquivar denúncia (RF-42) |
+| GET | `/admin/relatorios` · `/admin/relatorios/csv?dias=` | `ADMIN` | Métricas por período + exportação CSV (RF-43) |
 
-> ¹ As rotas de leitura de anúncios/perfil hoje exigem autenticação. O
-> documento define esses fluxos também para o ator **Visitante** — ver o
-> relatório de auditoria (recomendação de tornar as leituras públicas com
-> mascaramento de contato, RNF/LEG-03).
 
 ## Pré-requisitos
 
@@ -207,6 +217,13 @@ cp .env.example .env   # depois edite os valores
 | `SPRING_DATASOURCE_URL`      | sim em `prod`          | URL JDBC do banco                                      |
 | `SPRING_DATASOURCE_USERNAME` | sim em `prod`          | Usuário do banco (profile `prod`)                      |
 | `SPRING_DATASOURCE_PASSWORD` | sim em `prod`          | Senha do banco (profile `prod`)                        |
+| `JWT_SECRET`                 | sim em `prod`          | Chave de assinatura JWT (≥ 32 bytes). Sem padrão em `prod` |
+| `APP_COOKIE_SECURE`          | não (padrão `false`/`true` em prod) | Envia cookies de sessão só por HTTPS      |
+| `MAIL_ENABLED`               | não (padrão `false`)   | Liga o envio real de e-mail (senão, loga o link)        |
+| `MAIL_FROM`                  | não                    | Remetente dos e-mails                                   |
+| `APP_FRONTEND_URL`           | não (padrão localhost) | URL base dos links nos e-mails (verificação/reset)      |
+| `SPRING_MAIL_HOST` / `_PORT` / `_USERNAME` / `_PASSWORD` | sim se `MAIL_ENABLED=true` | Credenciais SMTP (ex.: Brevo) |
+| `GEOCODING_ENABLED` / `NOMINATIM_URL` / `UFCG_LAT` / `UFCG_LON` | não | Geocodificação (Nominatim) e coordenadas da UFCG (RF-16) |
 | `DB_POOL_MAX_SIZE`           | não (padrão `10`)      | Tamanho máximo do pool HikariCP (só `prod`)             |
 | `DB_POOL_MIN_IDLE`           | não (padrão `2`)       | Conexões ociosas mínimas do pool (só `prod`)            |
 | `JAVA_OPTS`                  | não                    | Flags extras de JVM ao rodar via Docker (ver Dockerfile)|

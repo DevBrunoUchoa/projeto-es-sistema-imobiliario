@@ -13,4 +13,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByEmail(String email);
 
     long countByTipoContaAndVerificado(User.Tipo tipo, boolean verificado);
+
+    long countByDataCriacaoAfter(java.time.OffsetDateTime dataCriacao);
 }

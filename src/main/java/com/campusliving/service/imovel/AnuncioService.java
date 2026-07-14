@@ -15,6 +15,7 @@ import com.campusliving.repository.imovel.ImovelRepository;
 import com.campusliving.repository.usuario.UserRepository;
 import com.campusliving.service.audit.AuditLogService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,10 +35,21 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AnuncioService {
 
+    // Velocidades médias para aproximar o tempo a partir da distância em linha
+    // reta (RF-16): ~5 km/h a pé (~83 m/min) e ~18 km/h de ônibus (~300 m/min).
+    private static final double METROS_POR_MIN_PE = 83.0;
+    private static final double METROS_POR_MIN_ONIBUS = 300.0;
+
     private final AnuncioRepository anuncioRepository;
     private final ImovelRepository imovelRepository;
     private final UserRepository userRepository;
     private final AuditLogService auditLogService;
+
+    @Value("${app.geocoding.ufcg-lat:-7.21528}")
+    private double ufcgLat;
+
+    @Value("${app.geocoding.ufcg-lon:-35.90894}")
+    private double ufcgLon;
 
     @Transactional
     public AnuncioResponseDTO publicarAnuncio(AnuncioRequestDTO request, String email) {
@@ -71,6 +83,13 @@ public class AnuncioService {
             throw new RuntimeException("Já existe um anúncio ativo para este imóvel");
         }
 
+        // RF-16 (RNF/PER-04): distância até a UFCG pré-computada na publicação,
+        // via PostGIS. Sem geometria (endereço não geocodificado) -> fallback.
+        Integer distanciaUfcg = anuncioRepository.calcularDistanciaUfcgMetros(imovelId, ufcgLat, ufcgLon);
+        boolean geoFallback = (distanciaUfcg == null);
+        Integer tempoPeMin = geoFallback ? null : Math.max(1, (int) Math.round(distanciaUfcg / METROS_POR_MIN_PE));
+        Integer tempoOnibusMin = geoFallback ? null : Math.max(1, (int) Math.round(distanciaUfcg / METROS_POR_MIN_ONIBUS));
+
         // 6. Criar o anúncio
         Anuncio anuncio = Anuncio.builder()
                 .imovelId(imovelId)
@@ -87,7 +106,10 @@ public class AnuncioService {
                 .visualizacoes(0)
                 .dataPublicacao(OffsetDateTime.now())
                 .destaque(false)
-                .geoFallback(false)
+                .distanciaUfcgMetros(distanciaUfcg)
+                .tempoPeMin(tempoPeMin)
+                .tempoOnibusMin(tempoOnibusMin)
+                .geoFallback(geoFallback)
                 .build();
 
         Anuncio savedAnuncio = anuncioRepository.save(anuncio);

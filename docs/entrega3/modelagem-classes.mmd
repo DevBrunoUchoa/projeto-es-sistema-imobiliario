@@ -1,0 +1,114 @@
+classDiagram
+    class User {
+        +UUID id
+        +String nome
+        +String email
+        +String senhaHash
+        +TipoConta tipoConta
+        +boolean verificado
+        +boolean ativo
+        +String fotoUrl
+        +BigDecimal notaMedia
+        +int totalAvaliacoes
+    }
+    class Imovel {
+        +UUID id
+        +UUID proprietarioId
+        +TipoImovel tipo
+        +String cep
+        +String bairro
+        +String cidade
+        +Double latitude
+        +Double longitude
+        +boolean mobiliado
+    }
+    class Anuncio {
+        +UUID id
+        +UUID imovelId
+        +UUID locadorId
+        +String titulo
+        +TipoOferta tipoOferta
+        +BigDecimal precoAluguel
+        +StatusAnuncio status
+        +Integer distanciaUfcgMetros
+        +Integer tempoPeMin
+        +Integer visualizacoes
+    }
+    class ImagemAnuncio {
+        +UUID id
+        +UUID anuncioId
+        +String url
+        +boolean principal
+    }
+    class Avaliacao {
+        +UUID id
+        +UUID avaliadorId
+        +UUID avaliadoId
+        +UUID adId
+        +short nota
+        +String comentario
+        +String respostaLocador
+    }
+    class Contato {
+        +UUID id
+        +UUID estudanteId
+        +UUID adId
+        +String mensagem
+        +Status status
+    }
+    class Favorito {
+        +UUID usuarioId
+        +UUID anuncioId
+    }
+    class PerfilRoommate {
+        +UUID usuarioId
+        +boolean fumante
+        +boolean aceitaPets
+        +HorarioDormir horarioDormir
+        +NivelBarulho nivelBarulho
+        +boolean perfilVisivel
+    }
+    class RoommateMatch {
+        +UUID id
+        +UUID solicitanteId
+        +UUID destinatarioId
+        +StatusMatch status
+    }
+    class Notificacao {
+        +UUID id
+        +UUID userId
+        +Tipo tipo
+        +String titulo
+        +boolean lida
+    }
+    class Denuncia {
+        +UUID id
+        +UUID denuncianteId
+        +TipoAlvo tipoAlvo
+        +UUID alvoId
+        +Motivo motivo
+        +StatusDenuncia status
+        +int contadorDenuncias
+    }
+    class VerificacaoLocador {
+        +UUID id
+        +UUID locadorId
+        +String documentoUrl
+        +StatusVerif status
+    }
+
+    User "1" --> "0..*" Imovel : possui
+    Imovel "1" --> "0..*" Anuncio : anunciado_em
+    User "1" --> "0..*" Anuncio : locador
+    Anuncio "1" --> "0..*" ImagemAnuncio : tem
+    User "1" --> "0..*" Avaliacao : escreve
+    Anuncio "1" --> "0..*" Avaliacao : recebe
+    User "1" --> "0..*" Contato : registra
+    Anuncio "1" --> "0..*" Contato : alvo
+    User "1" --> "0..*" Favorito : favorita
+    Anuncio "1" --> "0..*" Favorito : favoritado
+    User "1" --> "0..1" PerfilRoommate : define
+    User "1" --> "0..*" RoommateMatch : solicita
+    User "1" --> "0..*" Notificacao : recebe
+    User "1" --> "0..*" Denuncia : denuncia
+    User "1" --> "0..1" VerificacaoLocador : solicita
