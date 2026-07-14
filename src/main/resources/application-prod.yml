@@ -49,3 +49,11 @@ jwt:
 app:
   cookie:
     secure: ${APP_COOKIE_SECURE:true}
+# Em produção a aplicação roda atrás de um proxy TLS (ex.: Render), que termina
+# o HTTPS e repassa a requisição por HTTP com o header X-Forwarded-Proto=https.
+# Sem isto, o Spring "acha" que a requisição é HTTP e gera URLs erradas —
+# quebrando o redirect do OAuth2 (login Google) e a coerência dos cookies
+# Secure. "framework" faz o Spring honrar os cabeçalhos X-Forwarded-* do proxy.
+# (RNF/SEG-03. O HSTS já vem habilitado por padrão pelo Spring Security sobre HTTPS.)
+server:
+  forward-headers-strategy: framework
