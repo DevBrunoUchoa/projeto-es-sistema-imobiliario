@@ -178,6 +178,50 @@
                     </excludes>
                 </configuration>
             </plugin>
+
+            <!-- Cobertura de testes (JUnit 5 + JaCoCo). Relatório em
+                 target/site/jacoco/ (html/csv/xml) gerado na fase de test. -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Análise estática de estilo (Checkstyle, convenções da Sun).
+                 Gera relatório (checkstyle:checkstyle) sem quebrar o build. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.6.0</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>10.21.4</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <configLocation>sun_checks.xml</configLocation>
+                    <includeTestSourceDirectory>false</includeTestSourceDirectory>
+                    <failOnViolation>false</failOnViolation>
+                    <consoleOutput>false</consoleOutput>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
