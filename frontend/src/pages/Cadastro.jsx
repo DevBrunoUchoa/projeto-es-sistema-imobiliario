@@ -7,6 +7,7 @@ import { authApi } from '../api/authApi';
 const roles = [
   { key:'ESTUDANTE', icon:'fa-graduation-cap', title:'Estudante', text:'Busco moradia próxima à universidade' },
   { key:'LOCADOR', icon:'fa-house', title:'Locador', text:'Tenho imóvel e quero anunciar' },
+  { key:'MISTO', icon:'fa-house-user', title:'Misto', text:'Quero buscar moradia e também anunciar imóveis' },
 ];
 
 export default function Cadastro() {
@@ -31,10 +32,361 @@ export default function Cadastro() {
     finally { setLoading(false); }
   }
 
-  return <div className="auth-screen"><AuthVisual cadastro/><div className="auth-panel"><div className="auth-form-box" style={{maxWidth:480}}>
-    <div className="step-progress">{[1,2,3].map((n)=><div key={n} className={`step-item ${step===n?'active':''} ${step>n?'done':''}`}><div className="step-dot">{n===3?<i className="fa-solid fa-check"/>:n}</div><span className="step-label">{n===1?'Tipo de conta':n===2?'Seus dados':'Concluído'}</span></div>)}</div>
-    {step===1 && <div style={{display:'flex',flexDirection:'column'}}><h2>Criar conta</h2><p className="auth-sub">Qual é o seu perfil?</p><div className="type-cards" style={{marginTop:4}}>{roles.map((item)=><button type="button" key={item.key} className={`type-card ${role===item.key?'selected':''}`} onClick={()=>setRole(item.key)}><div className="type-card-icon"><i className={`fa-solid ${item.icon}`}/></div><strong>{item.title}</strong><span>{item.text}</span></button>)}</div><button className="btn-full" style={{marginTop:24}} onClick={()=>setStep(2)}>Continuar <i className="fa-solid fa-arrow-right"/></button><p className="auth-footer">Já tem conta? <Link to="/login">Entrar</Link></p></div>}
-    {step===2 && <form onSubmit={submit} style={{display:'flex',flexDirection:'column',gap:18}}><div><h2>Seus dados</h2><p className="auth-sub">Preencha as informações abaixo</p></div><button type="button" onClick={()=>setStep(1)} style={{background:'none',border:0,textAlign:'left',cursor:'pointer',color:'var(--text-2)'}}><i className="fa-solid fa-arrow-left"/> Voltar</button><Alert>{error}</Alert><div className="form-grid"><div className="form-group"><label className="form-label">Nome</label><input className="form-input" required value={form.nome} onChange={(e)=>setForm({...form,nome:e.target.value})}/></div><div className="form-group"><label className="form-label">Sobrenome</label><input className="form-input" required value={form.sobrenome} onChange={(e)=>setForm({...form,sobrenome:e.target.value})}/></div></div><div className="form-group"><label className="form-label">E-mail</label><input className="form-input" type="email" required value={form.email} onChange={(e)=>setForm({...form,email:e.target.value})}/></div><div className="form-group"><label className="form-label">Senha</label><div className="input-icon-wrap"><i className="fa-solid fa-lock input-icon"/><input className="form-input" type={showPassword?'text':'password'} required value={form.senha} onChange={(e)=>setForm({...form,senha:e.target.value})}/><button className="input-eye" type="button" onClick={()=>setShowPassword(!showPassword)}><i className={`fa-solid ${showPassword?'fa-eye-slash':'fa-eye'}`}/></button></div></div><div className="form-group"><label className="form-label">Confirmar senha</label><input className="form-input" type="password" required value={form.confirmarSenha} onChange={(e)=>setForm({...form,confirmarSenha:e.target.value})}/></div><label className="fp-check-item"><input type="checkbox" checked={form.aceiteLgpd} onChange={(e)=>setForm({...form,aceiteLgpd:e.target.checked})}/><span className="check-box"/><span>Aceito os Termos de Uso e a Política de Privacidade</span></label><button className="btn-full" disabled={loading}>{loading?'Criando conta...':'Criar conta'}</button></form>}
-    {step===3 && <div style={{textAlign:'center',display:'flex',flexDirection:'column',gap:20,alignItems:'center'}}><div style={{fontSize:48,color:'#22c55e'}}><i className="fa-solid fa-circle-check"/></div><div><h2>Conta criada!</h2><p className="auth-sub">Confirme o e-mail e entre com seus dados.</p></div><Link to="/login" className="btn-full" style={{textDecoration:'none'}}>Ir para o login</Link></div>}
-  </div></div></div>;
+  return (
+    <div className="auth-screen">
+      <AuthVisual cadastro />
+
+      <div className="auth-panel">
+        <div
+          className="auth-form-box"
+          style={{
+            maxWidth: 480,
+          }}
+        >
+          <div className="step-progress">
+            {[1, 2, 3].map((stepNumber) => (
+              <div
+                key={stepNumber}
+                className={[
+                  "step-item",
+                  step === stepNumber ? "active" : "",
+                  step > stepNumber ? "done" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                <div className="step-dot">
+                  {stepNumber === 3 ? (
+                    <i className="fa-solid fa-check" />
+                  ) : (
+                    stepNumber
+                  )}
+                </div>
+
+                <span className="step-label">
+                  {stepNumber === 1 && "Tipo de conta"}
+                  {stepNumber === 2 && "Seus dados"}
+                  {stepNumber === 3 && "Concluído"}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {step === 1 && (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <h2>Criar conta</h2>
+
+              <p className="auth-sub">
+                Qual é o seu perfil?
+              </p>
+
+              <div
+                className="type-cards"
+                style={{
+                  marginTop: 4,
+                }}
+              >
+                {roles.map((item) => (
+                  <button
+                    key={item.key}
+                    type="button"
+                    className={[
+                      "type-card",
+                      role === item.key ? "selected" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                    onClick={() => setRole(item.key)}
+                  >
+                    <div className="type-card-icon">
+                      <i
+                        className={`fa-solid ${item.icon}`}
+                      />
+                    </div>
+
+                    <strong>{item.title}</strong>
+
+                    <span>{item.text}</span>
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                className="btn-full"
+                style={{
+                  marginTop: 24,
+                }}
+                onClick={() => setStep(2)}
+              >
+                Continuar
+                <i className="fa-solid fa-arrow-right" />
+              </button>
+
+              <p className="auth-footer">
+                Já tem conta?{" "}
+                <Link to="/login">
+                  Entrar
+                </Link>
+              </p>
+            </div>
+          )}
+
+          {step === 2 && (
+            <form
+              onSubmit={submit}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 18,
+              }}
+            >
+              <div>
+                <h2>Seus dados</h2>
+
+                <p className="auth-sub">
+                  Preencha as informações abaixo
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                style={{
+                  background: "none",
+                  border: 0,
+                  color: "var(--text-2)",
+                  cursor: "pointer",
+                  textAlign: "left",
+                }}
+              >
+                <i className="fa-solid fa-arrow-left" />
+                Voltar
+              </button>
+
+              <Alert>
+                {error}
+              </Alert>
+
+              <div className="form-grid">
+                <div className="form-group">
+                  <label
+                    className="form-label"
+                    htmlFor="nome"
+                  >
+                    Nome
+                  </label>
+
+                  <input
+                    id="nome"
+                    className="form-input"
+                    type="text"
+                    required
+                    value={form.nome}
+                    onChange={(event) =>
+                      setForm({
+                        ...form,
+                        nome: event.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label
+                    className="form-label"
+                    htmlFor="sobrenome"
+                  >
+                    Sobrenome
+                  </label>
+
+                  <input
+                    id="sobrenome"
+                    className="form-input"
+                    type="text"
+                    required
+                    value={form.sobrenome}
+                    onChange={(event) =>
+                      setForm({
+                        ...form,
+                        sobrenome: event.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label
+                  className="form-label"
+                  htmlFor="email"
+                >
+                  E-mail
+                </label>
+
+                <input
+                  id="email"
+                  className="form-input"
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={(event) =>
+                    setForm({
+                      ...form,
+                      email: event.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label
+                  className="form-label"
+                  htmlFor="senha"
+                >
+                  Senha
+                </label>
+
+                <div className="input-icon-wrap">
+                  <i className="fa-solid fa-lock input-icon" />
+
+                  <input
+                    id="senha"
+                    className="form-input"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={form.senha}
+                    onChange={(event) =>
+                      setForm({
+                        ...form,
+                        senha: event.target.value,
+                      })
+                    }
+                  />
+
+                  <button
+                    className="input-eye"
+                    type="button"
+                    aria-label={
+                      showPassword
+                        ? "Ocultar senha"
+                        : "Mostrar senha"
+                    }
+                    onClick={() =>
+                      setShowPassword((currentValue) => !currentValue)
+                    }
+                  >
+                    <i
+                      className={[
+                        "fa-solid",
+                        showPassword
+                          ? "fa-eye-slash"
+                          : "fa-eye",
+                      ].join(" ")}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label
+                  className="form-label"
+                  htmlFor="confirmarSenha"
+                >
+                  Confirmar senha
+                </label>
+
+                <input
+                  id="confirmarSenha"
+                  className="form-input"
+                  type="password"
+                  required
+                  value={form.confirmarSenha}
+                  onChange={(event) =>
+                    setForm({
+                      ...form,
+                      confirmarSenha: event.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              <label className="fp-check-item">
+                <input
+                  type="checkbox"
+                  checked={form.aceiteLgpd}
+                  onChange={(event) =>
+                    setForm({
+                      ...form,
+                      aceiteLgpd: event.target.checked,
+                    })
+                  }
+                />
+
+                <span className="check-box" />
+
+                <span>
+                  Aceito os Termos de Uso e a Política de Privacidade
+                </span>
+              </label>
+
+              <button
+                className="btn-full"
+                type="submit"
+                disabled={loading}
+              >
+                {loading
+                  ? "Criando conta..."
+                  : "Criar conta"}
+              </button>
+            </form>
+          )}
+
+          {step === 3 && (
+            <div
+              style={{
+                alignItems: "center",
+                display: "flex",
+                flexDirection: "column",
+                gap: 20,
+                textAlign: "center",
+              }}
+            >
+              <div
+                style={{
+                  color: "#22c55e",
+                  fontSize: 48,
+                }}
+              >
+                <i className="fa-solid fa-circle-check" />
+              </div>
+
+              <div>
+                <h2>Conta criada!</h2>
+
+                <p className="auth-sub">
+                  Confirme o e-mail e entre com seus dados.
+                </p>
+              </div>
+
+              <Link
+                to="/login"
+                className="btn-full"
+                style={{
+                  textDecoration: "none",
+                }}
+              >
+                Ir para o login
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }

@@ -237,7 +237,7 @@
 
 /* ---- User type cards ---- */
 .type-cards {
-  display: grid;
+  display:grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
