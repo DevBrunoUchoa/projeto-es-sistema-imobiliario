@@ -1,0 +1,24 @@
+button.type-card { width: 100%; text-align: left; font-family: inherit; }
+.topbar { min-height: 72px; padding: 0 32px; display:flex; align-items:center; justify-content:space-between; background:var(--bg-1); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; }
+.brand { display:flex; align-items:center; gap:10px; }
+.page-content { max-width: 1040px; margin:0 auto; padding:36px 24px 72px; }
+.page-header { margin-bottom:24px; }
+.page-header h1 { font-family:var(--font-display); color:var(--text-1); font-size:36px; }
+.page-header p { color:var(--text-2); margin-top:6px; }
+.field-help { color:var(--text-3); font-size:11px; margin-top:5px; }
+.alert-success { background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25); color:#15803d; }
+.btn-sm i, .btn-full i { margin-right:6px; }
+@media (max-width: 760px) { .auth-visual { display:none; } .auth-panel { width:100%; } .topbar { padding:0 16px; } .page-content { padding:24px 16px 48px; } .profile-avatar-section { align-items:flex-start; } }
+
+/* Home React additions */
+.home-nav-links { margin-left: 32px; }
+.nav-link-disabled { opacity: .45; cursor: not-allowed; }
+.profile-nav-link { display:flex; align-items:center; gap:10px; padding:6px 10px; border-radius:var(--r-sm); transition:background .2s; }
+.profile-nav-link:hover { background:var(--card); }
+.profile-nav-avatar { width:34px; height:34px; border-radius:50%; display:grid; place-items:center; background:var(--primary); color:var(--white); font-weight:700; box-shadow:0 4px 14px rgba(123,105,248,.3); }
+.profile-nav-copy { display:flex; flex-direction:column; line-height:1.1; }
+.profile-nav-copy small { color:var(--text-3); font-size:10px; }
+.profile-nav-copy strong { color:var(--text-1); font-size:13px; max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.mock-pill { display:inline-flex; align-items:center; gap:7px; padding:8px 12px; border-radius:var(--r-full); color:var(--accent); background:var(--accent-tint); border:1px solid rgba(242,134,80,.22); font-size:12px; font-weight:600; }
+@media (max-width: 900px) { .home-nav-links { display:none; } .nav-container { gap:12px; } }
+@media (max-width: 620px) { .profile-nav-copy, .nav-actions > .btn-ghost { display:none; } .hero-stats { padding:16px 8px; } .stat-item { padding:0 14px; } }

@@ -1,0 +1,49 @@
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Alert from '../components/Alert';
+import { userApi } from '../api/userApi';
+import { useAuth } from '../contexts/AuthContext';
+
+const emptyProfile = { nome:'', email:'', telefone:'', curso:'', instituicao:'', bio:'', verificado:false };
+
+export default function Perfil() {
+  const { user, updateLocalUser, clearLocalSession } = useAuth();
+  const [profile, setProfile] = useState(emptyProfile);
+  const [draft, setDraft] = useState(emptyProfile);
+  const [editing, setEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState({type:'',text:''});
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const controller = new AbortController();
+    userApi.buscar(user.id, { signal: controller.signal })
+      .then((data)=>{ const normalized={...emptyProfile,...data}; setProfile(normalized); setDraft(normalized); })
+      .catch((err)=>{ if(err.name!=='AbortError') setMessage({type:'error',text:err.status===401||err.status===403?'Sua sessão expirou. Entre novamente.':err.message}); })
+      .finally(()=>setLoading(false));
+    return ()=>controller.abort();
+  }, [user.id]);
+
+  const initials = useMemo(()=>profile.nome?.split(/\s+/).filter(Boolean).slice(0,2).map(p=>p[0]).join('').toUpperCase() || 'U',[profile.nome]);
+
+  async function save() {
+    setSaving(true); setMessage({type:'',text:''});
+    try {
+      const updated = await userApi.atualizar(user.id, { nome:draft.nome.trim(), bio:draft.bio, curso:draft.curso, instituicao:draft.instituicao });
+      const next={...profile,...updated}; setProfile(next); setDraft(next); setEditing(false); updateLocalUser({nome:next.nome}); setMessage({type:'success',text:'Perfil atualizado com sucesso.'});
+    } catch(err){ setMessage({type:'error',text:err.message}); }
+    finally{ setSaving(false); }
+  }
+
+  function logoutLocal() { clearLocalSession(); navigate('/login', {replace:true}); }
+
+  if (loading) return <main className="page-content"><p>Carregando perfil...</p></main>;
+
+  return <div className="app-shell"><header className="topbar"><div className="brand"><div className="logo-mark">E</div><span className="logo-text">Estudante<strong>Lar</strong></span></div><button className="btn-sm btn-outline" onClick={logoutLocal}><i className="fa-solid fa-arrow-right-from-bracket"/> Sair da interface</button></header><main className="page-content profile-page">
+    <div className="page-header"><div><h1>Meu perfil</h1><p>Gerencie os dados vinculados à sua conta.</p></div></div>
+    <Alert type={message.type==='success'?'success':'error'}>{message.text}</Alert>
+    <div className="profile-avatar-section"><div className="avatar-wrap"><div className="avatar-img">{initials}</div></div><div className="avatar-info"><h3>{profile.nome}</h3><p>{profile.curso || 'Curso não informado'} · {profile.instituicao || 'Instituição não informada'}</p>{profile.verificado && <div className="verified-badge"><i className="fa-solid fa-circle-check"/> Verificado</div>}</div></div>
+    <div className="card-section"><div className="card-section-title">Dados pessoais <div className="title-actions"><button className="btn-sm btn-outline" onClick={()=>{setEditing(!editing);setDraft(profile);}}><i className={`fa-solid ${editing?'fa-xmark':'fa-pen'}`}/> {editing?'Cancelar':'Editar'}</button></div></div><div className="form-grid"><div className="form-group"><label className="form-label">Nome completo</label><input className="form-input" disabled={!editing} value={draft.nome || ''} onChange={(e)=>setDraft({...draft,nome:e.target.value})}/></div><div className="form-group"><label className="form-label">E-mail</label><input className="form-input" disabled value={profile.email || user.email || ''}/><small className="field-help">O backend não oferece alteração de e-mail nesta rota.</small></div><div className="form-group"><label className="form-label">Telefone</label><input className="form-input" disabled value={profile.telefone || ''} placeholder="Não informado"/><small className="field-help">Somente leitura no contrato atual.</small></div><div className="form-group"><label className="form-label">Curso</label><input className="form-input" disabled={!editing} value={draft.curso || ''} onChange={(e)=>setDraft({...draft,curso:e.target.value})}/></div><div className="form-group"><label className="form-label">Instituição</label><input className="form-input" disabled={!editing} value={draft.instituicao || ''} onChange={(e)=>setDraft({...draft,instituicao:e.target.value})}/></div><div className="form-group"><label className="form-label">Tipo da conta</label><input className="form-input" disabled value={user.role || ''}/></div></div><div className="form-group" style={{marginTop:14}}><label className="form-label">Bio</label><textarea className="form-textarea" disabled={!editing} value={draft.bio || ''} onChange={(e)=>setDraft({...draft,bio:e.target.value})}/></div>{editing && <div style={{display:'flex',gap:10,justifyContent:'flex-end',marginTop:16}}><button className="btn-sm btn-outline" onClick={()=>{setEditing(false);setDraft(profile);}}>Cancelar</button><button className="btn-sm btn-primary" disabled={saving||!draft.nome.trim()} onClick={save}>{saving?'Salvando...':'Salvar alterações'}</button></div>}</div>
+  </main></div>;
+}
