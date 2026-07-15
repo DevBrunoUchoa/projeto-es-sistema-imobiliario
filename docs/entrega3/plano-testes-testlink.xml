@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Plano de Testes — Campus Living / UniStay (Entrega 3)
+  Formato de importação do TestLink (Test Suite com Test Cases).
+  importance: 1=baixa 2=média 3=alta | execution_type: 1=manual 2=automatizado
+-->
+<testsuite name="Campus Living - Plano de Testes">
+  <details><![CDATA[Casos de teste derivados dos Requisitos Funcionais, organizados por pilar: Autenticação/Segurança, Usuário/Perfil, Imóveis/Anúncios, Avaliações, Roommates e Moderação/Admin.]]></details>
+
+  <!-- ===================== AUTENTICAÇÃO E SEGURANÇA ===================== -->
+  <testcase name="CT-01 Cadastro de usuário válido (RF-01)">
+    <summary><![CDATA[Verifica o cadastro com dados válidos e aceite de LGPD.]]></summary>
+    <preconditions><![CDATA[E-mail não cadastrado.]]></preconditions>
+    <importance>3</importance>
+    <execution_type>1</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[POST /auth/cadastro com nome, e-mail válido, senha (>=8), tipo_conta e aceite_lgpd=true.]]></actions><expectedresults><![CDATA[HTTP 201; usuário criado; e-mail de verificação disparado; token NÃO retornado no corpo.]]></expectedresults><execution_type>1</execution_type></step>
+    </steps>
+  </testcase>
+
+  <testcase name="CT-02 Cadastro com e-mail duplicado (RF-01)">
+    <summary><![CDATA[Impede cadastro com e-mail já existente.]]></summary>
+    <preconditions><![CDATA[E-mail já cadastrado.]]></preconditions>
+    <importance>3</importance>
+    <execution_type>1</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[POST /auth/cadastro com e-mail existente.]]></actions><expectedresults><![CDATA[Cadastro rejeitado com mensagem de e-mail já em uso.]]></expectedresults><execution_type>1</execution_type></step>
+    </steps>
+  </testcase>
+
+  <testcase name="CT-03 Cadastro sem aceite de LGPD (RF-01/RNF-LEG-01)">
+    <summary><![CDATA[Aceite de LGPD é obrigatório.]]></summary>
+    <preconditions><![CDATA[-]]></preconditions>
+    <importance>2</importance>
+    <execution_type>1</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[POST /auth/cadastro com aceite_lgpd=false.]]></actions><expectedresults><![CDATA[Cadastro rejeitado.]]></expectedresults><execution_type>1</execution_type></step>
+    </steps>
+  </testcase>
+
+  <testcase name="CT-04 Login e emissão de JWT (RF-02)">
+    <summary><![CDATA[Login válido retorna cookies de sessão.]]></summary>
+    <preconditions><![CDATA[Usuário cadastrado e ativo.]]></preconditions>
+    <importance>3</importance>
+    <execution_type>1</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[POST /auth/login com e-mail e senha corretos.]]></actions><expectedresults><![CDATA[HTTP 200; cookies HttpOnly jwt (24h) e refresh_token (7d); tokens não expostos no corpo.]]></expectedresults><execution_type>1</execution_type></step>
+    </steps>
+  </testcase>
+
+  <testcase name="CT-05 Login com senha incorreta (RF-02)">
+    <summary><![CDATA[Credenciais inválidas negam acesso.]]></summary>
+    <preconditions><![CDATA[Usuário cadastrado.]]></preconditions>
+    <importance>3</importance>
+    <execution_type>1</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[POST /auth/login com senha errada.]]></actions><expectedresults><![CDATA[Acesso negado; token não emitido.]]></expectedresults><execution_type>1</execution_type></step>
+    </steps>
+  </testcase>
+
+  <testcase name="CT-06 Acesso a rota protegida sem token (RNF-SEG-04)">
+    <summary><![CDATA[Rotas protegidas exigem autenticação.]]></summary>
+    <preconditions><![CDATA[Sem sessão.]]></preconditions>
+    <importance>3</importance>
+    <execution_type>2</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[POST /anuncios sem token de autenticação.]]></actions><expectedresults><![CDATA[Requisição bloqueada (401/403), não 2xx.]]></expectedresults><execution_type>2</execution_type></step>
+    </steps>
+  </testcase>
+
+  <!-- ===================== USUÁRIO / PERFIL ===================== -->
+  <testcase name="CT-07 Edição de perfil pelo próprio usuário (RF-06)">
+    <summary><![CDATA[O dono edita o próprio perfil.]]></summary>
+    <preconditions><![CDATA[Usuário autenticado.]]></preconditions>
+    <importance>2</importance>
+    <execution_type>1</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[PUT /usuarios/{id} com o próprio id (via JWT) alterando bio/telefone.]]></actions><expectedresults><![CDATA[HTTP 200; dados atualizados.]]></expectedresults><execution_type>1</execution_type></step>
+    </steps>
+  </testcase>
+
+  <testcase name="CT-08 Edição de perfil de terceiro é bloqueada (RF-06/segurança)">
+    <summary><![CDATA[Autorização dono-ou-admin baseada no JWT.]]></summary>
+    <preconditions><![CDATA[Dois usuários distintos autenticados.]]></preconditions>
+    <importance>3</importance>
+    <execution_type>1</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[Usuário A (JWT) tenta PUT /usuarios/{id_de_B}.]]></actions><expectedresults><![CDATA[Acesso negado (403).]]></expectedresults><execution_type>1</execution_type></step>
+    </steps>
+  </testcase>
+
+  <testcase name="CT-09 Perfil público mascara contato para visitante (RF-07/RNF-LEG-03)">
+    <summary><![CDATA[Telefone/e-mail do locador só para quem tem vínculo.]]></summary>
+    <preconditions><![CDATA[Locador com anúncio.]]></preconditions>
+    <importance>3</importance>
+    <execution_type>1</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[GET /usuarios/{id}/publico sem autenticação.]]></actions><expectedresults><![CDATA[Perfil exibido com contato mascarado.]]></expectedresults><execution_type>1</execution_type></step>
+    </steps>
+  </testcase>
+
+  <!-- ===================== IMÓVEIS E ANÚNCIOS ===================== -->
+  <testcase name="CT-10 Cadastro de imóvel com geocodificação (RF-11/RF-16)">
+    <summary><![CDATA[Sem coordenadas, o sistema geocodifica o endereço.]]></summary>
+    <preconditions><![CDATA[Locador autenticado; endereço de Campina Grande.]]></preconditions>
+    <importance>3</importance>
+    <execution_type>1</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[POST /imoveis sem latitude/longitude.]]></actions><expectedresults><![CDATA[Imóvel salvo com lat/lon obtidos por geocodificação; geom sincronizado.]]></expectedresults><execution_type>1</execution_type></step>
+    </steps>
+  </testcase>
+
+  <testcase name="CT-11 Publicação de anúncio calcula distância à UFCG (RF-12/RF-16)">
+    <summary><![CDATA[A distância é pré-computada na publicação.]]></summary>
+    <preconditions><![CDATA[Imóvel geocodificado do locador.]]></preconditions>
+    <importance>3</importance>
+    <execution_type>2</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[POST /anuncios para o imóvel.]]></actions><expectedresults><![CDATA[Anúncio ATIVO com distancia_ufcg_metros preenchida (PostGIS).]]></expectedresults><execution_type>2</execution_type></step>
+    </steps>
+  </testcase>
+
+  <testcase name="CT-12 Impedir 2º anúncio ativo por imóvel (RF-12)">
+    <summary><![CDATA[Não pode haver dois anúncios ATIVOS para o mesmo imóvel.]]></summary>
+    <preconditions><![CDATA[Imóvel com anúncio ATIVO.]]></preconditions>
+    <importance>2</importance>
+    <execution_type>1</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[POST /anuncios para o mesmo imóvel.]]></actions><expectedresults><![CDATA[Operação bloqueada com sugestão de editar o existente.]]></expectedresults><execution_type>1</execution_type></step>
+    </steps>
+  </testcase>
+
+  <testcase name="CT-13 Busca com filtros de preço e distância (RF-22/RF-23/RF-24)">
+    <summary><![CDATA[Filtragem, ordenação e paginação de anúncios.]]></summary>
+    <preconditions><![CDATA[Anúncios cadastrados.]]></preconditions>
+    <importance>3</importance>
+    <execution_type>1</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[GET /anuncios?precoMax=700&distanciaMaxMetros=2000&sortBy=distancia_asc]]></actions><expectedresults><![CDATA[Retorna somente anúncios dentro dos filtros, ordenados por distância, paginados.]]></expectedresults><execution_type>1</execution_type></step>
+    </steps>
+  </testcase>
+
+  <!-- ===================== AVALIAÇÕES ===================== -->
+  <testcase name="CT-14 Avaliar exige vínculo prévio (RF-29)">
+    <summary><![CDATA[Só avalia quem registrou interesse no anúncio.]]></summary>
+    <preconditions><![CDATA[Estudante SEM interesse no anúncio.]]></preconditions>
+    <importance>2</importance>
+    <execution_type>1</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[POST /avaliacoes para um anúncio sem contato prévio.]]></actions><expectedresults><![CDATA[Avaliação rejeitada.]]></expectedresults><execution_type>1</execution_type></step>
+    </steps>
+  </testcase>
+
+  <!-- ===================== ROOMMATES ===================== -->
+  <testcase name="CT-15 Bloquear auto-match (RF-34)">
+    <summary><![CDATA[Não é possível solicitar conexão consigo mesmo.]]></summary>
+    <preconditions><![CDATA[Estudante autenticado.]]></preconditions>
+    <importance>2</importance>
+    <execution_type>2</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[POST /roommates/match com destinatario_id = próprio id.]]></actions><expectedresults><![CDATA[Operação bloqueada.]]></expectedresults><execution_type>2</execution_type></step>
+    </steps>
+  </testcase>
+
+  <!-- ===================== MODERAÇÃO / ADMIN ===================== -->
+  <testcase name="CT-16 Ocultação automática por 5 denúncias (RF-37)">
+    <summary><![CDATA[Anúncio é ocultado ao atingir 5 denúncias.]]></summary>
+    <preconditions><![CDATA[Anúncio ativo com 4 denúncias.]]></preconditions>
+    <importance>2</importance>
+    <execution_type>2</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[Registrar a 5ª denúncia (POST /denuncias).]]></actions><expectedresults><![CDATA[Anúncio deixa de aparecer nas buscas públicas.]]></expectedresults><execution_type>2</execution_type></step>
+    </steps>
+  </testcase>
+
+  <testcase name="CT-17 Painel admin negado a não-admin (RF-40/RNF-SEG-04)">
+    <summary><![CDATA[Rotas /admin exigem papel ADMIN.]]></summary>
+    <preconditions><![CDATA[Usuário comum autenticado.]]></preconditions>
+    <importance>3</importance>
+    <execution_type>2</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[GET /admin/usuarios com token de usuário comum.]]></actions><expectedresults><![CDATA[Acesso negado (403).]]></expectedresults><execution_type>2</execution_type></step>
+    </steps>
+  </testcase>
+
+  <testcase name="CT-18 Admin bane anúncio denunciado (RF-42)">
+    <summary><![CDATA[Ação de moderação inativa o anúncio e resolve a denúncia.]]></summary>
+    <preconditions><![CDATA[Denúncia de anúncio pendente; admin autenticado.]]></preconditions>
+    <importance>2</importance>
+    <execution_type>1</execution_type>
+    <steps>
+      <step><step_number>1</step_number><actions><![CDATA[PATCH /admin/denuncias/{id}/moderar com acao=BANIR_ANUNCIO.]]></actions><expectedresults><![CDATA[Anúncio fica INATIVO; denúncia RESOLVIDA; registro de resolvido_por.]]></expectedresults><execution_type>1</execution_type></step>
+    </steps>
+  </testcase>
+
+</testsuite>
