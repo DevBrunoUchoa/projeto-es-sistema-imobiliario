@@ -66,6 +66,8 @@
 
       <div class="divider">ou</div>
 
+      <div id="loginAlert" class="alert alert-error" style="display:none;margin-bottom:2px"></div>
+
       <form id="loginForm" onsubmit="handleLogin(event)">
         <div style="display:flex;flex-direction:column;gap:16px">
           <div class="form-group">
@@ -88,14 +90,7 @@
               </button>
             </div>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:-4px">
-            <label class="fp-check-item" style="padding:8px 12px;flex:1">
-              <input type="checkbox">
-              <span class="check-box"></span>
-              <span style="font-size:13px">Lembrar de mim</span>
-            </label>
-          </div>
-          <button type="submit" class="btn-full">Entrar</button>
+          <button type="submit" class="btn-full" id="btnEntrar">Entrar</button>
         </div>
       </form>
 
@@ -118,9 +113,85 @@ function togglePass(id, btn) {
     icon.className = 'fa-solid fa-eye';
   }
 }
-function handleLogin(e) {
+
+/* ============================================================
+   Integração com o backend — POST /auth/login
+   (rota relativa: passa pelo proxy /auth/* do server.js, que já
+   existe desde a integração do cadastro — evita o problema de
+   CORS que o backend não tem configurado)
+
+   O JWT e o refresh token são gravados pelo backend em cookies
+   httpOnly (jwt / refresh_token) — o navegador guarda e reenvia
+   isso sozinho em requisições futuras à mesma origem. O front
+   nunca tem acesso a esses tokens, só ao restante dos dados do
+   usuário (id, nome, email, role) devolvidos no corpo.
+   ============================================================ */
+const LOGIN_ENDPOINT = '/auth/login';
+
+function showLoginError(message) {
+  const box = document.getElementById('loginAlert');
+  box.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><span>${message}</span>`;
+  box.style.display = 'flex';
+}
+
+function hideLoginError() {
+  const box = document.getElementById('loginAlert');
+  box.style.display = 'none';
+  box.innerHTML = '';
+}
+
+async function handleLogin(e) {
   e.preventDefault();
-  window.location.href = 'perfil.html';
+  hideLoginError();
+
+  const email = document.getElementById('email').value.trim();
+  const senha = document.getElementById('senha').value;
+
+  if (!email || !senha) {
+    showLoginError('Preencha e-mail e senha.');
+    return;
+  }
+
+  const btn = document.getElementById('btnEntrar');
+  const textoOriginal = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Entrando...';
+
+  try {
+    const res = await fetch(LOGIN_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include', 
+      body: JSON.stringify({ email, senha }),
+    });
+
+    let data = null;
+    try { data = await res.json(); } catch (_) { /* corpo vazio ou não-JSON */ }
+
+    if (res.ok) {
+      sessionStorage.setItem('usuarioLogado', JSON.stringify({
+        id: data.id,
+        nome: data.nome,
+        email: data.email,
+        role: data.role,
+      }));
+      window.location.href = 'perfil.html';
+      return;
+    }
+
+    if (res.status === 400 && data && Array.isArray(data.errors) && data.errors.length) {
+      showLoginError(data.errors.join(' '));
+      return;
+    }
+
+    showLoginError((data && data.message) || 'E-mail ou senha inválidos.');
+  } catch (err) {
+    console.error('Erro ao chamar /auth/login:', err);
+    showLoginError('Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = textoOriginal;
+  }
 }
 </script>
 </body>

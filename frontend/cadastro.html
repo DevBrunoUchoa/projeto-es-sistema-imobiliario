@@ -101,38 +101,25 @@
           <i class="fa-solid fa-arrow-left"></i> Voltar
         </button>
 
+        <div id="cadastroAlert" class="alert alert-error" style="display:none;margin-bottom:2px"></div>
+
         <div style="display:flex;flex-direction:column;gap:14px">
           <div class="form-grid">
             <div class="form-group">
-              <label class="form-label">Nome</label>
-              <input type="text" class="form-input" placeholder="João">
+              <label class="form-label" for="nome">Nome</label>
+              <input type="text" id="nome" name="nome" class="form-input" placeholder="João">
             </div>
             <div class="form-group">
-              <label class="form-label">Sobrenome</label>
-              <input type="text" class="form-input" placeholder="Silva">
+              <label class="form-label" for="sobrenome">Sobrenome</label>
+              <input type="text" id="sobrenome" name="sobrenome" class="form-input" placeholder="Silva">
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label">E-mail</label>
+            <label class="form-label" for="email">E-mail</label>
             <div class="input-icon-wrap">
               <i class="fa-solid fa-envelope input-icon"></i>
-              <input type="email" class="form-input" placeholder="seu@email.com">
+              <input type="email" id="email" name="email" class="form-input" placeholder="seu@email.com">
             </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Telefone / WhatsApp</label>
-            <div class="input-icon-wrap">
-              <i class="fa-brands fa-whatsapp input-icon"></i>
-              <input type="tel" class="form-input" placeholder="(83) 9 9999-9999">
-            </div>
-          </div>
-          <div class="form-group" id="creci-field" style="display:none">
-            <label class="form-label">CRECI</label>
-            <div class="input-icon-wrap">
-              <i class="fa-solid fa-id-card input-icon"></i>
-              <input type="text" class="form-input" placeholder="CRECI-PB 00000-F">
-            </div>
-            <span class="form-hint">Número do seu registro no CRECI</span>
           </div>
           <div class="form-group">
             <label class="form-label">Senha</label>
@@ -151,11 +138,11 @@
             </div>
           </div>
           <label class="fp-check-item" style="padding:10px 14px">
-            <input type="checkbox" required>
+            <input type="checkbox" id="aceiteTermos" required>
             <span class="check-box"></span>
             <span style="font-size:13px">Aceito os <a href="#" style="color:var(--primary)">Termos de Uso</a> e a <a href="#" style="color:var(--primary)">Política de Privacidade</a></span>
           </label>
-          <button class="btn-full" onclick="goStep(3)">Criar conta</button>
+          <button class="btn-full" id="btnCriarConta" onclick="submitCadastro()">Criar conta</button>
         </div>
       </div>
 
@@ -199,8 +186,6 @@ function goStep(n) {
   if (n === 2) {
     document.getElementById('step2').style.flexDirection = 'column';
     document.getElementById('step2').style.gap = '20px';
-    const creci = document.getElementById('creci-field');
-    creci.style.display = (selectedType === 'corretor' || selectedType === 'imobiliaria') ? 'flex' : 'none';
   }
   document.getElementById('step3').style.display = n === 3 ? 'flex' : 'none';
   if (n === 3) document.getElementById('step3').style.flexDirection = 'column';
@@ -217,6 +202,109 @@ function togglePass(id, btn) {
   const icon = btn.querySelector('i');
   input.type = input.type === 'password' ? 'text' : 'password';
   icon.className = input.type === 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+}
+
+const CADASTRO_ENDPOINT = '/auth/cadastro';
+
+const ROLE_MAP = {
+  estudante: 'ESTUDANTE',
+  locador: 'LOCADOR',
+  corretor: 'LOCADOR',
+  imobiliaria: 'LOCADOR',
+};
+
+function showCadastroError(message) {
+  const box = document.getElementById('cadastroAlert');
+  box.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><span>${message}</span>`;
+  box.style.display = 'flex';
+}
+
+function hideCadastroError() {
+  const box = document.getElementById('cadastroAlert');
+  box.style.display = 'none';
+  box.innerHTML = '';
+}
+
+function validateStep2() {
+  const nome = document.getElementById('nome').value.trim();
+  const sobrenome = document.getElementById('sobrenome').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const senha = document.getElementById('novaSenha').value;
+  const confirmarSenha = document.getElementById('confirmarSenha').value;
+  const aceite = document.getElementById('aceiteTermos').checked;
+
+  if (!nome || !sobrenome) return 'Preencha nome e sobrenome.';
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Informe um e-mail válido.';
+  if (senha.length < 8) return 'A senha deve ter no mínimo 8 caracteres.';
+  if (senha !== confirmarSenha) return 'As senhas não coincidem.';
+  if (!aceite) return 'É preciso aceitar os Termos de Uso e a Política de Privacidade.';
+  return null;
+}
+
+async function submitCadastro() {
+  hideCadastroError();
+
+  const erro = validateStep2();
+  if (erro) {
+    showCadastroError(erro);
+    return;
+  }
+
+  const nome = document.getElementById('nome').value.trim();
+  const sobrenome = document.getElementById('sobrenome').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const senha = document.getElementById('novaSenha').value;
+  const aceiteLgpd = document.getElementById('aceiteTermos').checked;
+
+  const payload = {
+    nome: `${nome} ${sobrenome}`.trim(),
+    email,
+    senha,
+    aceiteLgpd,
+    role: ROLE_MAP[selectedType] || 'ESTUDANTE',
+  };
+
+  const btn = document.getElementById('btnCriarConta');
+  const textoOriginal = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Criando conta...';
+
+  try {
+    const res = await fetch(CADASTRO_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    let data = null;
+    try { data = await res.json(); } catch (_) { /* corpo vazio ou não-JSON */ }
+
+    if (res.ok) {
+      goStep(3);
+      return;
+    }
+
+    if (res.status === 400 && data && Array.isArray(data.errors) && data.errors.length) {
+      showCadastroError(data.errors.join(' '));
+      return;
+    }
+
+    if (res.status === 409) {
+      showCadastroError((data && data.message) || 'Este e-mail já está cadastrado.');
+      return;
+    }
+
+    showCadastroError(
+      (data && data.message) ||
+      'Não foi possível concluir o cadastro. Verifique se o e-mail já está em uso ou tente novamente mais tarde.'
+    );
+  } catch (e) {
+    console.error('Erro ao chamar /auth/cadastro:', e);
+    showCadastroError('Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = textoOriginal;
+  }
 }
 </script>
 </body>
