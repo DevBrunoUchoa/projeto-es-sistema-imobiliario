@@ -97,6 +97,9 @@ public class UserServiceImpl implements UserService{
         if (dto.getBio() != null) {
             usuario.setBio(dto.getBio());
         }
+        if (dto.getTelefone() != null) {
+            usuario.setTelefone(dto.getTelefone());
+        }
         if (dto.getCurso() != null) {
             usuario.setCurso(dto.getCurso());
         }

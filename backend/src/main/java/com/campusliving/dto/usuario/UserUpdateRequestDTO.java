@@ -28,6 +28,10 @@ public class UserUpdateRequestDTO {
     @JsonProperty("bio")
     private String bio;
 
+    @JsonProperty("telefone")
+    @Size(max = 20, message = "Telefone deve ter no maximo 20 caracteres")
+    private String telefone;
+
     @JsonProperty("curso")
     @Size(max = 150, message = "Curso deve ter no maximo 150 caracteres")
     private String curso;
