@@ -123,6 +123,7 @@ export default function MeusAnuncios() {
                   <div className="listing-actions">
                     <span className="listing-price">R$ {formatMoeda(anuncio.precoAluguel)}/mês</span>
                     <div style={{ display: 'flex', gap: 6 }}>
+                      <Link to={`/editar-anuncio/${anuncio.id}`} className="btn-sm btn-outline" title="Editar"><i className="fa-solid fa-pen" /></Link>
                       {anuncio.status !== 'ALUGADO' && (
                         <button
                           className="btn-sm btn-outline"
