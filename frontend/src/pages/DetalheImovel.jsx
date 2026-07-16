@@ -1,15 +1,25 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Header from '../components/Header';
+import { useAuth } from '../contexts/AuthContext';
 import { anuncioApi } from '../api/anuncioApi';
+import { userApi } from '../api/userApi';
+import { contatoApi } from '../api/contatoApi';
 import { TIPO_OFERTA_LABELS, TIPO_IMOVEL_LABELS, formatMoeda } from '../utils/anuncio';
 
 export default function DetalheImovel() {
   const { id } = useParams();
+  const { user } = useAuth();
   const [anuncio, setAnuncio] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lightboxIndex, setLightboxIndex] = useState(null);
+
+  const [locador, setLocador] = useState(null);
+  const [mensagem, setMensagem] = useState('');
+  const [enviando, setEnviando] = useState(false);
+  const [interesseEnviado, setInteresseEnviado] = useState(false);
+  const [contatoErro, setContatoErro] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -19,6 +29,28 @@ export default function DetalheImovel() {
       .catch(() => setError('Não encontramos esse imóvel. Ele pode ter sido removido ou o link está incorreto.'))
       .finally(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    if (!anuncio?.locadorId) return;
+    userApi.publico(anuncio.locadorId).then(setLocador).catch(() => {});
+  }, [anuncio?.locadorId]);
+
+  async function enviarInteresse(event) {
+    event.preventDefault();
+    if (!mensagem.trim()) return;
+    setEnviando(true);
+    setContatoErro(null);
+    try {
+      await contatoApi.registrarInteresse({ adId: anuncio.id, mensagem });
+      setInteresseEnviado(true);
+      setMensagem('');
+      userApi.publico(anuncio.locadorId).then(setLocador).catch(() => {});
+    } catch (err) {
+      setContatoErro(err.message);
+    } finally {
+      setEnviando(false);
+    }
+  }
 
   useEffect(() => {
     if (lightboxIndex === null || !anuncio?.imagens?.length) return;
@@ -193,12 +225,57 @@ export default function DetalheImovel() {
                   <p className="sidebar-tagline">Aluguel R$ {formatMoeda(anuncio.precoAluguel)} + condomínio R$ {formatMoeda(anuncio.precoCondominio)} + IPTU R$ {formatMoeda(anuncio.precoIptu)}</p>
                 </div>
                 <div className="sidebar-body">
-                  <button className="btn-contact" type="button" disabled title="Mensagens ainda não integradas nesta versão">
-                    <i className="fa-brands fa-whatsapp" /> Entrar em contato
-                  </button>
-                  <p className="sidebar-note">
-                    <i className="fa-solid fa-circle-info" /> O contato direto com o anunciante ainda não está disponível nesta versão.
-                  </p>
+                  {locador && (
+                    <div className="sidebar-landlord">
+                      {locador.fotoUrl
+                        ? <img className="landlord-avatar" src={locador.fotoUrl} alt={locador.nome} />
+                        : <div className="landlord-avatar-fallback">{locador.nome?.charAt(0)?.toUpperCase() ?? '?'}</div>}
+                      <div>
+                        <p className="landlord-name">{locador.nome}{locador.verificado && <i className="fa-solid fa-circle-check" style={{ color: 'var(--forest)', marginLeft: 6, fontSize: 12 }} title="Verificado" />}</p>
+                        <p className="landlord-type">{locador.curso ? `${locador.curso}${locador.instituicao ? ` · ${locador.instituicao}` : ''}` : 'Locador'}</p>
+                        {locador.notaMedia != null && (
+                          <div className="landlord-rating">
+                            <i className="fa-solid fa-star" /> {Number(locador.notaMedia).toFixed(1)}
+                            <span style={{ color: 'var(--text-3)', fontWeight: 400 }}>({locador.totalAvaliacoes ?? 0} avaliações)</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {anuncio.locadorId === user?.id ? (
+                    <p className="sidebar-note"><i className="fa-solid fa-circle-info" /> Este é o seu anúncio.</p>
+                  ) : !user ? (
+                    <Link to="/login" className="btn-contact" style={{ textDecoration: 'none', display: 'flex' }}>
+                      <i className="fa-brands fa-whatsapp" /> Entrar para contatar
+                    </Link>
+                  ) : locador?.contatoLiberado ? (
+                    <>
+                      {locador.telefone && (
+                        <div className="contact-info-row">
+                          <div className="contact-info-icon"><i className="fa-solid fa-phone" /></div>
+                          <div><p className="contact-info-label">Telefone / WhatsApp</p><p className="contact-info-val">{locador.telefone}</p></div>
+                        </div>
+                      )}
+                      {locador.email && (
+                        <div className="contact-info-row">
+                          <div className="contact-info-icon"><i className="fa-solid fa-envelope" /></div>
+                          <div><p className="contact-info-label">E-mail</p><p className="contact-info-val">{locador.email}</p></div>
+                        </div>
+                      )}
+                      <p className="sidebar-note"><i className="fa-solid fa-circle-check" /> Contato liberado — você já demonstrou interesse neste anúncio.</p>
+                    </>
+                  ) : interesseEnviado ? (
+                    <p className="contact-success"><i className="fa-solid fa-circle-check" /> Interesse enviado! O locador foi notificado por e-mail.</p>
+                  ) : (
+                    <form className="contact-form" onSubmit={enviarInteresse}>
+                      <textarea value={mensagem} onChange={(e) => setMensagem(e.target.value)} placeholder="Escreva uma mensagem pro locador (ex: horários pra visitar, dúvidas sobre o imóvel...)" required />
+                      {contatoErro && <p className="sidebar-note" style={{ color: '#991b1b' }}>{contatoErro}</p>}
+                      <button className="btn-contact" type="submit" disabled={enviando}>
+                        <i className="fa-brands fa-whatsapp" /> {enviando ? 'Enviando...' : 'Enviar interesse'}
+                      </button>
+                    </form>
+                  )}
                 </div>
               </div>
             </aside>

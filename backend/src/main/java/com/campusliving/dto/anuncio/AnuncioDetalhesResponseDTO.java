@@ -13,6 +13,7 @@ import java.util.UUID;
 public class AnuncioDetalhesResponseDTO {
     // Dados do anúncio
     private UUID id;
+    private UUID locadorId;
     private String titulo;
     private String tipoOferta;
     private BigDecimal precoAluguel;

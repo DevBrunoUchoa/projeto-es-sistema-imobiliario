@@ -12,6 +12,7 @@ function toQueryString(params) {
 
 export const anuncioApi = {
   listar: (params = {}) => apiRequest(`/anuncios${toQueryString(params)}`),
+  meus: () => apiRequest('/anuncios/meus'),
   detalhes: (id) => apiRequest(`/anuncios/${id}`),
   criar: (payload) => apiRequest('/anuncios', { method: 'POST', body: payload }),
   atualizar: (id, payload) => apiRequest(`/anuncios/${id}`, { method: 'PUT', body: payload }),

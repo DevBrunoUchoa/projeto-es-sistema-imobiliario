@@ -1395,6 +1395,91 @@
 .sidebar-tagline { font-size: 13px; color: var(--text-3); }
 .sidebar-body { padding: 20px 28px; }
 
+.sidebar-landlord {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: var(--cream);
+  border-radius: var(--r-md);
+  margin-bottom: 20px;
+}
+.landlord-avatar {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--white);
+  box-shadow: var(--shadow-xs);
+}
+.landlord-avatar-fallback {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--forest-light);
+  color: var(--forest);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 18px;
+}
+.landlord-name { font-size: 15px; font-weight: 700; color: var(--text-1); margin-bottom: 2px; }
+.landlord-type { font-size: 12px; color: var(--text-3); }
+.landlord-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-top: 4px;
+}
+.landlord-rating i { color: #f59e0b; }
+
+.contact-info-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--cream);
+  border-radius: var(--r-md);
+  margin-bottom: 10px;
+}
+.contact-info-icon {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--forest);
+  color: var(--white);
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.contact-info-label { font-size: 11px; color: var(--text-3); }
+.contact-info-val { font-size: 14px; font-weight: 700; color: var(--text-1); }
+
+.contact-form textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  font-family: inherit;
+  font-size: 13.5px;
+  color: var(--text-1);
+  background: var(--white);
+  resize: vertical;
+  margin-bottom: 10px;
+}
+.contact-success {
+  font-size: 13px;
+  color: var(--forest);
+  background: var(--forest-light);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
 .btn-contact {
   display: flex;
   align-items: center;

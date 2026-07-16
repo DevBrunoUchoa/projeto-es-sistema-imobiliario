@@ -78,6 +78,15 @@ public class AnuncioController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/meus")
+    @PreAuthorize("hasAnyRole('LOCADOR', 'MISTO', 'ADMIN')")
+    public ResponseEntity<List<AnuncioResponseDTO>> listarMeusAnuncios(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername();
+
+        return ResponseEntity.ok(anuncioService.listarMeusAnuncios(email));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<AnuncioDetalhesResponseDTO> buscarDetalhes(@PathVariable UUID id) {
         AnuncioDetalhesResponseDTO response = anuncioService.buscarDetalhes(id);

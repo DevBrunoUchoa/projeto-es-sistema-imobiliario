@@ -19,6 +19,7 @@ export default defineConfig({
       // Só o POST exato de criação de imóvel — a rota /imoveis/:id é da SPA
       // (página de detalhe do anúncio).
       '^/imoveis$': { target: backend, changeOrigin: true },
+      '/interesses': { target: backend, changeOrigin: true },
       '/oauth2': { target: backend, changeOrigin: true },
       // Idem: só o callback do OAuth2, nunca a rota /login da SPA.
       '^/login/oauth2/.*': { target: backend, changeOrigin: true },

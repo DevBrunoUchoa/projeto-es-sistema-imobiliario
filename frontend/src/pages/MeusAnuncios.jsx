@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
-import { useAuth } from '../contexts/AuthContext';
 import { anuncioApi } from '../api/anuncioApi';
 import { STATUS_LABELS, TIPO_OFERTA_LABELS, formatMoeda } from '../utils/anuncio';
 
@@ -13,7 +12,6 @@ const TABS = [
 ];
 
 export default function MeusAnuncios() {
-  const { user } = useAuth();
   const [anuncios, setAnuncios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,8 +26,8 @@ export default function MeusAnuncios() {
   function carregar() {
     setLoading(true);
     setError(null);
-    anuncioApi.listar({ limit: 100 })
-      .then((data) => setAnuncios((data.items ?? []).filter((anuncio) => anuncio.locadorId === user.id)))
+    anuncioApi.meus()
+      .then(setAnuncios)
       .catch(() => setError('Não foi possível carregar seus anúncios.'))
       .finally(() => setLoading(false));
   }

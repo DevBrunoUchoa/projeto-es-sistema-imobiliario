@@ -183,6 +183,19 @@ public class AnuncioService {
         return mapToResponse(savedAnuncio);
     }
 
+    @Transactional(readOnly = true)
+    public List<AnuncioResponseDTO> listarMeusAnuncios(String email) {
+        List<User> users = userRepository.findByEmail(email);
+        if (users.isEmpty()) {
+            throw new RuntimeException("Locador não encontrado");
+        }
+        UUID locadorId = users.get(0).getId();
+
+        return anuncioRepository.findByLocadorIdOrderByDataPublicacaoDesc(locadorId).stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
     private AnuncioResponseDTO mapToResponse(Anuncio anuncio) {
     return AnuncioResponseDTO.builder()
             .id(anuncio.getId())
@@ -270,6 +283,7 @@ public class AnuncioService {
         return AnuncioDetalhesResponseDTO.builder()
                 // Dados do anúncio
                 .id(anuncio.getId())
+                .locadorId(anuncio.getLocadorId())
                 .titulo(anuncio.getTitulo())
                 .tipoOferta(anuncio.getTipoOferta().name())
                 .precoAluguel(anuncio.getPrecoAluguel())
