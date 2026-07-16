@@ -10,9 +10,12 @@ export default defineConfig({
     proxy: {
       '/auth': { target: backend, changeOrigin: true },
       '/usuarios': { target: backend, changeOrigin: true },
-      '/roommates': { target: backend, changeOrigin: true },
+      // Só os subcaminhos da API (ex.: /roommates/perfil), nunca a rota
+      // /roommates da SPA — senão o proxy engole a navegação da página.
+      '^/roommates/.+': { target: backend, changeOrigin: true },
       '/oauth2': { target: backend, changeOrigin: true },
-      '/login': { target: backend, changeOrigin: true },
+      // Idem: só o callback do OAuth2, nunca a rota /login da SPA.
+      '^/login/oauth2/.*': { target: backend, changeOrigin: true },
     },
   },
 });
