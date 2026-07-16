@@ -22,6 +22,7 @@ export default function Header() {
           {podeAnunciar && <Link to="/criar-anuncio" className="nav-link">Anunciar</Link>}
           {podeAnunciar && <Link to="/meus-anuncios" className="nav-link">Meus anúncios</Link>}
           {user && <Link to="/avaliacoes" className="nav-link">Avaliações</Link>}
+          {user?.role === 'ADMIN' && <Link to="/admin" className="nav-link">Admin</Link>}
         </nav>
 
         <div className="nav-actions">

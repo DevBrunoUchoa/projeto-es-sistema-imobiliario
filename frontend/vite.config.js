@@ -37,6 +37,10 @@ export default defineConfig({
         bypass: (req) => { if (req.method !== 'POST') return req.url; },
       },
       '^/avaliacoes/.+': { target: backend, changeOrigin: true },
+      // A SPA tem a rota exata /admin (dashboard), mas o backend só expõe
+      // subcaminhos (/admin/usuarios, /admin/denuncias, …) — sem rota exata
+      // /admin no backend, então não há colisão e não precisa de bypass.
+      '^/admin/.+': { target: backend, changeOrigin: true },
       '/oauth2': { target: backend, changeOrigin: true },
       // Idem: só o callback do OAuth2, nunca a rota /login da SPA.
       '^/login/oauth2/.*': { target: backend, changeOrigin: true },
