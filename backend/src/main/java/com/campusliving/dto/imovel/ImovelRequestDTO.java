@@ -33,9 +33,9 @@ public class ImovelRequestDTO {
     @Pattern(regexp = "[A-Z]{2}", message = "Estado deve ter 2 letras maiúsculas")
     private String estado;
 
-    @NotNull(message = "Latitude é obrigatória")
+    // RF-16: opcionais. Se omitidas, o sistema geocodifica o endereço
+    // (Nominatim). Se informadas, têm prioridade sobre a geocodificação.
     private Double latitude;
 
-    @NotNull(message = "Longitude é obrigatória")
     private Double longitude;
 }

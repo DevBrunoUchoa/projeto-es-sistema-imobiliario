@@ -36,6 +36,27 @@ server:
 # Interino: em produção com filesystem efêmero isso NÃO persiste entre
 # deploys/restarts — ver comentário em LocalDiskDocumentStorageService.
 app:
+  # Cookies de sessão (jwt/refresh) só com flag Secure quando servidos por
+  # HTTPS. Default false para funcionar em http://localhost; sobrescrito para
+  # true no profile prod (RNF/SEG-03).
+  cookie:
+    secure: ${APP_COOKIE_SECURE:false}
+  # URL base usada nos links dos e-mails (verificação/reset). Aponta para o
+  # frontend em produção; localhost em dev.
+  frontend-url: ${APP_FRONTEND_URL:http://localhost:8080}
+  # Envio de e-mail (RF-04/05/38). Desabilitado por padrão: sem SMTP
+  # configurado, os links são apenas logados (nunca devolvidos na resposta).
+  mail:
+    enabled: ${MAIL_ENABLED:false}
+    from: ${MAIL_FROM:no-reply@campusliving.app}
+  # Geocodificação de endereços e distância até a UFCG (RF-16).
+  geocoding:
+    enabled: ${GEOCODING_ENABLED:true}
+    nominatim-url: ${NOMINATIM_URL:https://nominatim.openstreetmap.org}
+    user-agent: ${GEOCODING_USER_AGENT:CampusLiving/1.0 (contato@campusliving.app)}
+    # Coordenadas do campus da UFCG em Campina Grande-PB (portão principal).
+    ufcg-lat: ${UFCG_LAT:-7.21528}
+    ufcg-lon: ${UFCG_LON:-35.90894}
   uploads:
     dir: ${UPLOADS_DIR:uploads}
   storage:

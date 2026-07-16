@@ -32,6 +32,9 @@ public interface UserService{
     /** RF-08/RF-09: upload de documento + solicitação de verificação de locador. */
     public VerificacaoLocadorResponseDTO solicitarVerificacao(UUID id, MultipartFile documento, UUID requesterId);
 
+    /** RF-20: upload/atualização da foto de perfil (apenas o próprio usuário ou ADMIN). */
+    public UserResponseDTO atualizarFotoPerfil(UUID id, MultipartFile foto, UUID requesterId);
+
     /** RF-18: promove ESTUDANTE -> MISTO. */
     public void promoverContaMista(UUID id, UUID requesterId);
 

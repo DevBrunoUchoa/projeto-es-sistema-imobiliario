@@ -233,6 +233,15 @@ public class RoommateServiceImpl implements RoommateService {
             throw new MatchDuplicadoException();
         }
 
+        // RF-35: notifica o destinatário sobre a nova solicitação de conexão.
+        notificacaoRepository.save(Notificacao.builder()
+                .userId(dto.getDestinatarioId())
+                .tipo(Notificacao.Tipo.MATCH)
+                .titulo("Nova solicitação de conexão")
+                .mensagem("Você recebeu uma nova solicitação de roommate.")
+                .lida(false)
+                .build());
+
         return new RoommateMatchResponseDTO(match);
     }
 

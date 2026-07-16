@@ -17,4 +17,6 @@ public interface DenunciaRepository extends JpaRepository<Denuncia, UUID> {
     long countByAlvoIdAndStatus(UUID alvoId, Denuncia.Status status);
 
     long countByStatus(Denuncia.Status status);
+
+    long countByDataCriacaoAfter(java.time.OffsetDateTime dataCriacao);
 }
