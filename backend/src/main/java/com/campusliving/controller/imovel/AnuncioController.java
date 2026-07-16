@@ -38,7 +38,7 @@ public class AnuncioController {
     private final AnuncioService anuncioService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('LOCADOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('LOCADOR', 'MISTO', 'ADMIN')")
     public ResponseEntity<AnuncioResponseDTO> publicarAnuncio(
             @Valid @RequestBody AnuncioRequestDTO request,
             Authentication authentication
@@ -51,7 +51,7 @@ public class AnuncioController {
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAnyRole('LOCADOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('LOCADOR', 'MISTO', 'ADMIN')")
     public ResponseEntity<AnuncioResponseDTO> atualizarStatus(
             @PathVariable UUID id,
             @Valid @RequestBody AnuncioStatusUpdateDTO request,
@@ -65,7 +65,7 @@ public class AnuncioController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('LOCADOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('LOCADOR', 'MISTO', 'ADMIN')")
     public ResponseEntity<AnuncioResponseDTO> editarAnuncio(
             @PathVariable UUID id,
             @Valid @RequestBody AnuncioUpdateRequestDTO request,
@@ -85,7 +85,7 @@ public class AnuncioController {
     }
 
     @GetMapping("/{id}/estatisticas")
-    @PreAuthorize("hasAnyRole('LOCADOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('LOCADOR', 'MISTO', 'ADMIN')")
     public ResponseEntity<AnuncioEstatisticasResponseDTO> buscarEstatisticas(
             @PathVariable UUID id,
             Authentication authentication

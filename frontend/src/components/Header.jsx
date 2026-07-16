@@ -1,7 +1,7 @@
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
-const PODE_ANUNCIAR = ['LOCADOR', 'ADMIN'];
+const PODE_ANUNCIAR = ['LOCADOR', 'MISTO', 'ADMIN'];
 
 export default function Header() {
   const { user, clearLocalSession } = useAuth();

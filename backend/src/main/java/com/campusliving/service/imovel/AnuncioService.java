@@ -44,6 +44,7 @@ public class AnuncioService {
     private final ImovelRepository imovelRepository;
     private final UserRepository userRepository;
     private final AuditLogService auditLogService;
+    private final ImagemAnuncioService imagemAnuncioService;
 
     @Value("${app.geocoding.ufcg-lat:-7.21528}")
     private double ufcgLat;
@@ -61,10 +62,11 @@ public class AnuncioService {
         User locador = users.get(0);
         UUID locadorId = locador.getId();
 
-        // 2. Verificar se o locador é LOCADOR ou ADMIN
+        // 2. Verificar se o locador é LOCADOR, MISTO ou ADMIN
         if (!"LOCADOR".equals(locador.getTipoConta().name()) &&
+            !"MISTO".equals(locador.getTipoConta().name()) &&
             !"ADMIN".equals(locador.getTipoConta().name())) {
-            throw new RuntimeException("Apenas LOCADOR ou ADMIN podem publicar anúncios");
+            throw new RuntimeException("Apenas LOCADOR, MISTO ou ADMIN podem publicar anúncios");
         }
 
         // 3. Buscar o imóvel
@@ -257,7 +259,9 @@ public class AnuncioService {
         anuncioRepository.save(anuncio);
 
         // 4. Buscar imagens
-        List<String> imagens = List.of(); // Placeholder
+        List<String> imagens = imagemAnuncioService.list(anuncioId).stream()
+                .map(com.campusliving.dto.imovel.ImagemAnuncioResponseDTO::getUrl)
+                .toList();
 
         // 5. Buscar nota média
         Double notaMedia = null;
@@ -289,6 +293,10 @@ public class AnuncioService {
                 .estado(imovel.getEstado())
                 .latitude(imovel.getLatitude())
                 .longitude(imovel.getLongitude())
+                .mobiliado(imovel.isMobiliado())
+                .permitePets(imovel.isPermitePets())
+                .permiteFumantes(imovel.isPermiteFumantes())
+                .incluiAlimentacao(imovel.isIncluiAlimentacao())
                 // Distâncias
                 .distanciaUfcgMetros(anuncio.getDistanciaUfcgMetros())
                 .tempoPeMin(anuncio.getTempoPeMin())

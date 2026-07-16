@@ -38,4 +38,12 @@ public class ImovelRequestDTO {
     private Double latitude;
 
     private Double longitude;
+
+    private boolean mobiliado;
+
+    private boolean permitePets;
+
+    private boolean permiteFumantes;
+
+    private boolean incluiAlimentacao;
 }

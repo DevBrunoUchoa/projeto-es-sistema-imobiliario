@@ -44,6 +44,10 @@ export default function CriarAnuncio() {
     bairro: '',
     cidade: 'Campina Grande',
     estado: 'PB',
+    mobiliado: false,
+    permitePets: false,
+    permiteFumantes: false,
+    incluiAlimentacao: false,
   });
 
   function update(field, value) {
@@ -87,6 +91,10 @@ export default function CriarAnuncio() {
         bairro: form.bairro,
         cidade: form.cidade,
         estado: form.estado,
+        mobiliado: form.mobiliado,
+        permitePets: form.permitePets,
+        permiteFumantes: form.permiteFumantes,
+        incluiAlimentacao: form.incluiAlimentacao,
       });
 
       const anuncio = await anuncioApi.criar({
@@ -249,6 +257,15 @@ export default function CriarAnuncio() {
                   <div className="form-group">
                     <label className="form-label">Estado (UF)</label>
                     <input type="text" className="form-input" maxLength={2} value={form.estado} onChange={(e) => update('estado', e.target.value.toUpperCase())} placeholder="PB" />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Comodidades</label>
+                  <div className="fp-checks">
+                    <label className="fp-check-item"><input type="checkbox" checked={form.mobiliado} onChange={(e) => update('mobiliado', e.target.checked)} /><span className="check-box" /><i className="fa-solid fa-couch" /> Mobiliado</label>
+                    <label className="fp-check-item"><input type="checkbox" checked={form.permitePets} onChange={(e) => update('permitePets', e.target.checked)} /><span className="check-box" /><i className="fa-solid fa-paw" /> Pet friendly</label>
+                    <label className="fp-check-item"><input type="checkbox" checked={form.permiteFumantes} onChange={(e) => update('permiteFumantes', e.target.checked)} /><span className="check-box" /><i className="fa-solid fa-smoking" /> Aceita fumantes</label>
+                    <label className="fp-check-item"><input type="checkbox" checked={form.incluiAlimentacao} onChange={(e) => update('incluiAlimentacao', e.target.checked)} /><span className="check-box" /><i className="fa-solid fa-utensils" /> Alimentação inclusa</label>
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>

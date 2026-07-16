@@ -23,7 +23,7 @@ public class ImovelController {
     private final ImovelService imovelService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('LOCADOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('LOCADOR', 'MISTO', 'ADMIN')")
     public ResponseEntity<ImovelResponseDTO> criarImovel(
             @Valid @RequestBody ImovelRequestDTO request,
             Authentication authentication

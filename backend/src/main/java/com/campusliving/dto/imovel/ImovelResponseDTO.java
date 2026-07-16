@@ -22,6 +22,10 @@ public class ImovelResponseDTO {
     private Double latitude;
     private Double longitude;
     private Boolean ativo;
+    private boolean mobiliado;
+    private boolean permitePets;
+    private boolean permiteFumantes;
+    private boolean incluiAlimentacao;
     private OffsetDateTime dataCriacao;
     private String mensagem;
 }

@@ -68,6 +68,13 @@ export default function DetalheImovel() {
   const precoTotal = Number(anuncio.precoAluguel ?? 0) + Number(anuncio.precoCondominio ?? 0) + Number(anuncio.precoIptu ?? 0);
   const availClass = anuncio.status === 'ATIVO' ? 'avail-yes' : 'avail-no';
   const availLabel = anuncio.status === 'ATIVO' ? 'Disponível' : anuncio.status === 'ALUGADO' ? 'Alugado' : 'Indisponível';
+  const comodidades = [
+    anuncio.mobiliado && ['fa-couch', 'Mobiliado'],
+    anuncio.permitePets && ['fa-paw', 'Pet friendly'],
+    anuncio.permiteFumantes && ['fa-smoking', 'Aceita fumantes'],
+    anuncio.incluiAlimentacao && ['fa-utensils', 'Alimentação inclusa'],
+  ].filter(Boolean);
+
   const endereco = [
     [anuncio.rua, anuncio.numero].filter(Boolean).join(', '),
     anuncio.complemento,
@@ -141,6 +148,17 @@ export default function DetalheImovel() {
                 <div className="detail-block">
                   <h2 className="detail-block-title">Sobre o imóvel</h2>
                   <p className="description-text">{anuncio.descricao}</p>
+                </div>
+              )}
+
+              {comodidades.length > 0 && (
+                <div className="detail-block">
+                  <h2 className="detail-block-title">Comodidades</h2>
+                  <div className="features-grid">
+                    {comodidades.map(([icon, label]) => (
+                      <div key={label} className="feature-item"><i className={`fa-solid ${icon}`} /> {label}</div>
+                    ))}
+                  </div>
                 </div>
               )}
 

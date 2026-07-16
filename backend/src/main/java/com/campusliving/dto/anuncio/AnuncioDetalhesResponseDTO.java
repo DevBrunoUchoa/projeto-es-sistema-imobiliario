@@ -37,6 +37,10 @@ public class AnuncioDetalhesResponseDTO {
     private String estado;
     private Double latitude;
     private Double longitude;
+    private boolean mobiliado;
+    private boolean permitePets;
+    private boolean permiteFumantes;
+    private boolean incluiAlimentacao;
 
     // Distância até a UFCG
     private Integer distanciaUfcgMetros;

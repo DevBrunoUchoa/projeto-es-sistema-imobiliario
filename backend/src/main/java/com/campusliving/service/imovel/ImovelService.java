@@ -36,10 +36,11 @@ public class ImovelService {
         User proprietario = users.get(0);
         UUID proprietarioId = proprietario.getId();
 
-        // Verificar se o proprietário é LOCADOR ou ADMIN
+        // Verificar se o proprietário é LOCADOR, MISTO ou ADMIN
         if (!"LOCADOR".equals(proprietario.getTipoConta().name()) &&
+            !"MISTO".equals(proprietario.getTipoConta().name()) &&
             !"ADMIN".equals(proprietario.getTipoConta().name())) {
-            throw new RuntimeException("Apenas LOCADOR ou ADMIN podem criar imóveis");
+            throw new RuntimeException("Apenas LOCADOR, MISTO ou ADMIN podem criar imóveis");
         }
 
         // RF-16: se o cliente não informou coordenadas, geocodifica o endereço
@@ -70,6 +71,10 @@ public class ImovelService {
                 .latitude(latitude)
                 .longitude(longitude)
                 .ativo(true)
+                .mobiliado(request.isMobiliado())
+                .permitePets(request.isPermitePets())
+                .permiteFumantes(request.isPermiteFumantes())
+                .incluiAlimentacao(request.isIncluiAlimentacao())
                 .build();
 
         Imovel savedImovel = imovelRepository.save(imovel);
@@ -96,6 +101,10 @@ public class ImovelService {
                 .latitude(savedImovel.getLatitude())
                 .longitude(savedImovel.getLongitude())
                 .ativo(savedImovel.isAtivo())
+                .mobiliado(savedImovel.isMobiliado())
+                .permitePets(savedImovel.isPermitePets())
+                .permiteFumantes(savedImovel.isPermiteFumantes())
+                .incluiAlimentacao(savedImovel.isIncluiAlimentacao())
                 .dataCriacao(savedImovel.getDataCriacao())
                 .mensagem("Imóvel criado com sucesso!")
                 .build();

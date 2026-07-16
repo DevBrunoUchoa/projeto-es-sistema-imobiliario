@@ -12,7 +12,7 @@ import MeusAnuncios from './pages/MeusAnuncios';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './contexts/AuthContext';
 
-const PODE_ANUNCIAR = ['LOCADOR', 'ADMIN'];
+const PODE_ANUNCIAR = ['LOCADOR', 'MISTO', 'ADMIN'];
 
 export default function App() {
   const { user } = useAuth();
