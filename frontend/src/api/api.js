@@ -9,15 +9,16 @@ export class ApiError extends Error {
 
 export async function apiRequest(endpoint, options = {}) {
   const { method = 'GET', body, headers = {}, signal } = options;
+  const isFormData = body instanceof FormData;
   const response = await fetch(endpoint, {
     method,
     credentials: 'include',
     signal,
     headers: {
-      ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      ...(body !== undefined && !isFormData ? { 'Content-Type': 'application/json' } : {}),
       ...headers,
     },
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
   });
 
   const contentType = response.headers.get('content-type') ?? '';

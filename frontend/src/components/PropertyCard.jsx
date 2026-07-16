@@ -1,37 +1,53 @@
-export default function PropertyCard({ property }) {
-  const genderLabel = property.gender === 'female' ? 'Feminino' : property.gender === 'male' ? 'Masculino' : 'Todos';
-  const genderClass = property.gender === 'female' ? 'g-female' : property.gender === 'male' ? 'g-male' : 'g-any';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { anuncioApi } from '../api/anuncioApi';
+import { TIPO_OFERTA_LABELS, formatMoeda } from '../utils/anuncio';
+
+export default function PropertyCard({ anuncio }) {
+  const [capa, setCapa] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    anuncioApi.imagens.listar(anuncio.id)
+      .then((imagens) => {
+        if (!active || !imagens?.length) return;
+        const principal = imagens.find((imagem) => imagem.principal) ?? imagens[0];
+        setCapa(principal.url);
+      })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [anuncio.id]);
+
+  const precoTotal = Number(anuncio.precoAluguel ?? 0) + Number(anuncio.precoCondominio ?? 0);
+  const vagasLabel = anuncio.tipoOferta === 'VAGA_COMPARTILHADA'
+    ? `${anuncio.vagasDisponiveis} de ${anuncio.vagasTotal} vagas`
+    : null;
 
   return (
     <article className="prop-card">
       <div className="card-img-wrap">
-        <img className="card-img" src={property.image} alt={property.title} />
-        <span className="badge-type">{property.type}</span>
-        <span className="badge-dist"><i className="fa-solid fa-location-dot" /> {property.distance} km</span>
-        {property.petFriendly && <span className="badge-pet" title="Aceita pets"><i className="fa-solid fa-paw" /></span>}
+        {capa
+          ? <img className="card-img" src={capa} alt={anuncio.titulo} />
+          : <div className="card-img card-img-placeholder"><i className="fa-solid fa-house" /></div>}
+        <span className="badge-type">{TIPO_OFERTA_LABELS[anuncio.tipoOferta] ?? anuncio.tipoOferta}</span>
       </div>
 
       <div className="card-body">
-        <div className="card-meta">
-          <span className="card-travel"><i className="fa-solid fa-person-walking" /> {property.walking} min da universidade</span>
-          <span className={`card-gender ${genderClass}`}>{genderLabel}</span>
-        </div>
+        {vagasLabel && (
+          <div className="card-meta">
+            <span className="card-travel"><i className="fa-solid fa-users" /> {vagasLabel}</span>
+          </div>
+        )}
 
-        <h3 className="card-title">{property.title}</h3>
-        <p className="card-addr"><i className="fa-solid fa-location-dot" /> {property.address}</p>
-
-        <div className="card-feats">
-          {property.furnished && <span className="feat-tag"><i className="fa-solid fa-couch" /> Mobiliado</span>}
-          {property.wifi && <span className="feat-tag"><i className="fa-solid fa-wifi" /> Wi-Fi</span>}
-          {property.parking && <span className="feat-tag"><i className="fa-solid fa-square-parking" /> Garagem</span>}
-        </div>
+        <h3 className="card-title">{anuncio.titulo}</h3>
+        {anuncio.descricao && <p className="card-addr">{anuncio.descricao}</p>}
 
         <div className="card-footer">
           <div className="card-price">
-            <span className="price-val">R$ {property.price.toLocaleString('pt-BR')}</span>
+            <span className="price-val">R$ {formatMoeda(precoTotal)}</span>
             <span className="price-per">/mês</span>
           </div>
-          <button className="btn-details" type="button" onClick={() => window.alert('Detalhes mockados: esta tela será integrada ao backend depois.')}>Ver detalhes <i className="fa-solid fa-arrow-right" /></button>
+          <Link to={`/imoveis/${anuncio.id}`} className="btn-details">Ver detalhes <i className="fa-solid fa-arrow-right" /></Link>
         </div>
       </div>
     </article>

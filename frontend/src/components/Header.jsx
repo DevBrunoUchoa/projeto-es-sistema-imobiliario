@@ -1,8 +1,11 @@
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
+const PODE_ANUNCIAR = ['LOCADOR', 'ADMIN'];
+
 export default function Header() {
   const { user, clearLocalSession } = useAuth();
+  const podeAnunciar = user && PODE_ANUNCIAR.includes(user.role);
 
   return (
     <header className="navbar scrolled">
@@ -13,9 +16,11 @@ export default function Header() {
         </Link>
 
         <nav className="nav-links home-nav-links" aria-label="Navegação principal">
-          <a href="#imoveis" className="nav-link">Alugar</a>
-          <a href="#como-funciona" className="nav-link">Como funciona</a>
+          <Link to="/#imoveis" className="nav-link">Alugar</Link>
+          <Link to="/#como-funciona" className="nav-link">Como funciona</Link>
           <Link to="/roommates" className="nav-link">Roommates</Link>
+          {podeAnunciar && <Link to="/criar-anuncio" className="nav-link">Anunciar</Link>}
+          {podeAnunciar && <Link to="/meus-anuncios" className="nav-link">Meus anúncios</Link>}
         </nav>
 
         <div className="nav-actions">

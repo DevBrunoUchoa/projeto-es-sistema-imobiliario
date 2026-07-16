@@ -6,8 +6,13 @@ import Perfil from './pages/Perfil';
 import RecuperarSenha from './pages/RecuperarSenha';
 import RedefinirSenha from './pages/RedefinirSenha';
 import Roommates from './pages/Roommates';
+import DetalheImovel from './pages/DetalheImovel';
+import CriarAnuncio from './pages/CriarAnuncio';
+import MeusAnuncios from './pages/MeusAnuncios';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './contexts/AuthContext';
+
+const PODE_ANUNCIAR = ['LOCADOR', 'ADMIN'];
 
 export default function App() {
   const { user } = useAuth();
@@ -21,6 +26,9 @@ export default function App() {
       <Route path="/redefinir-senha" element={user ? <Navigate to="/" replace /> : <RedefinirSenha />} />
       <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
       <Route path="/roommates" element={<ProtectedRoute><Roommates /></ProtectedRoute>} />
+      <Route path="/imoveis/:id" element={<DetalheImovel />} />
+      <Route path="/criar-anuncio" element={<ProtectedRoute roles={PODE_ANUNCIAR}><CriarAnuncio /></ProtectedRoute>} />
+      <Route path="/meus-anuncios" element={<ProtectedRoute roles={PODE_ANUNCIAR}><MeusAnuncios /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
