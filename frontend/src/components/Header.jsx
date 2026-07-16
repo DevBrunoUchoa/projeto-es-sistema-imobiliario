@@ -15,7 +15,7 @@ export default function Header() {
         <nav className="nav-links home-nav-links" aria-label="Navegação principal">
           <a href="#imoveis" className="nav-link">Alugar</a>
           <a href="#como-funciona" className="nav-link">Como funciona</a>
-          <span className="nav-link nav-link-disabled">Roommates</span>
+          <Link to="/roommates" className="nav-link">Roommates</Link>
         </nav>
 
         <div className="nav-actions">

@@ -19,4 +19,7 @@ public interface RoommateMatchRepository extends JpaRepository<RoommateMatch, UU
             + "(m.solicitanteId = :a AND m.destinatarioId = :b) "
             + "OR (m.solicitanteId = :b AND m.destinatarioId = :a)")
     List<RoommateMatch> findByParEmQualquerSentido(@Param("a") UUID a, @Param("b") UUID b);
+
+    // Aba "Solicitações" (aceitar/recusar): matches recebidos ainda sem resposta.
+    List<RoommateMatch> findByDestinatarioIdAndStatusOrderByDataSolicitacaoDesc(UUID destinatarioId, RoommateMatch.Status status);
 }

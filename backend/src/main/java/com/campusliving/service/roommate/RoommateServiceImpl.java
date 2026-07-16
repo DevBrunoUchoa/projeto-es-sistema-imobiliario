@@ -138,6 +138,38 @@ public class RoommateServiceImpl implements RoommateService {
     }
 
     @Override
+    public PerfilRoommateResponseDTO buscarMeuPerfil(UUID requesterId) {
+        if (requesterId == null) {
+            throw new AcessoNegadoException();
+        }
+        // Sem perfil ainda: devolve um default não-persistido (id null, tudo
+        // inativo) em vez de 404, pra o front conseguir renderizar a aba
+        // "Meu perfil" em branco sem precisar tratar erro como caso normal.
+        PerfilRoommate perfil = perfilRoommateRepository.findByUserId(requesterId)
+                .orElseGet(() -> PerfilRoommate.builder()
+                        .userId(requesterId)
+                        .aceitaPets(false)
+                        .fumante(false)
+                        .ativo(false)
+                        .jaPossuiCasa(false)
+                        .perfilVisivel(false)
+                        .build());
+        return new PerfilRoommateResponseDTO(perfil);
+    }
+
+    @Override
+    public List<RoommateMatchResponseDTO> listarSolicitacoesPendentes(UUID requesterId) {
+        if (requesterId == null) {
+            throw new AcessoNegadoException();
+        }
+        return roommateMatchRepository
+                .findByDestinatarioIdAndStatusOrderByDataSolicitacaoDesc(requesterId, RoommateMatch.Status.PENDENTE)
+                .stream()
+                .map(RoommateMatchResponseDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<RoommateCompativelDTO> listarCompativeis(UUID requesterId) {
         if (requesterId == null) {
             throw new AcessoNegadoException();

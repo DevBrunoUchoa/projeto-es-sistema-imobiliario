@@ -55,6 +55,20 @@ public class RoommateController {
         return ResponseEntity.status(HttpStatus.OK).body(perfil);
     }
 
+    @GetMapping("/perfil")
+    public ResponseEntity<?> meuPerfil(
+            @AuthenticationPrincipal User usuarioAutenticado) {
+        PerfilRoommateResponseDTO perfil = roommateService.buscarMeuPerfil(idDe(usuarioAutenticado));
+        return ResponseEntity.status(HttpStatus.OK).body(perfil);
+    }
+
+    @GetMapping("/match/pendentes")
+    public ResponseEntity<?> listarPendentes(
+            @AuthenticationPrincipal User usuarioAutenticado) {
+        List<RoommateMatchResponseDTO> pendentes = roommateService.listarSolicitacoesPendentes(idDe(usuarioAutenticado));
+        return ResponseEntity.status(HttpStatus.OK).body(pendentes);
+    }
+
     // --- T5.8.3: RF-33 -------------------------------------------------------
     @GetMapping("/compativeis")
     public ResponseEntity<?> listarCompativeis(

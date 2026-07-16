@@ -10,6 +10,7 @@ export default defineConfig({
     proxy: {
       '/auth': { target: backend, changeOrigin: true },
       '/usuarios': { target: backend, changeOrigin: true },
+      '/roommates': { target: backend, changeOrigin: true },
       '/oauth2': { target: backend, changeOrigin: true },
       '/login': { target: backend, changeOrigin: true },
     },

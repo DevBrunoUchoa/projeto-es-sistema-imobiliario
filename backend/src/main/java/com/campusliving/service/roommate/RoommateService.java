@@ -16,6 +16,12 @@ public interface RoommateService {
     /** T5.8.1 — RF-10/RF-32: salva hábitos (upsert do perfil). */
     PerfilRoommateResponseDTO salvarPreferencias(UUID userId, PreferenciasRoommateRequestDTO dto, UUID requesterId);
 
+    /** Perfil de roommate do próprio requerente, para pré-preencher a edição (default vazio se ainda não existe). */
+    PerfilRoommateResponseDTO buscarMeuPerfil(UUID requesterId);
+
+    /** Solicitações de match recebidas e ainda pendentes de resposta do requerente. */
+    List<RoommateMatchResponseDTO> listarSolicitacoesPendentes(UUID requesterId);
+
     /** T5.8.2 — RF-32: ativa/atualiza o card público no mural. */
     PerfilRoommateResponseDTO ativarPerfil(PerfilRoommateRequestDTO dto, UUID requesterId);
 
