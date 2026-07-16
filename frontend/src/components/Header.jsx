@@ -21,6 +21,7 @@ export default function Header() {
           <Link to="/roommates" className="nav-link">Roommates</Link>
           {podeAnunciar && <Link to="/criar-anuncio" className="nav-link">Anunciar</Link>}
           {podeAnunciar && <Link to="/meus-anuncios" className="nav-link">Meus anúncios</Link>}
+          {user && <Link to="/avaliacoes" className="nav-link">Avaliações</Link>}
         </nav>
 
         <div className="nav-actions">

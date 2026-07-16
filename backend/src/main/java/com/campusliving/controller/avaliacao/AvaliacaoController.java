@@ -78,4 +78,18 @@ public class AvaliacaoController {
             @PageableDefault(size = 20, sort = "dataCriacao", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(avaliacaoService.listarPorLocador(locadorId, pageable));
     }
+
+    // Avaliações feitas pelo próprio requerente autenticado (tela "Minhas
+    // avaliações"). Rota literal — precisa vir registrada antes de qualquer
+    // padrão "/{algo}" no mesmo nível para o Spring não tentar casar "minhas"
+    // como path variable (aqui não há conflito porque os demais mapeamentos
+    // deste controller são todos sub-rotas, mas mantém o padrão do resto do
+    // projeto de declarar rotas literais de forma explícita).
+    @GetMapping("/minhas")
+    public ResponseEntity<Page<AvaliacaoResponseDTO>> listarMinhasAvaliacoes(
+            @AuthenticationPrincipal User usuarioAutenticado,
+            @PageableDefault(size = 20, sort = "dataCriacao", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable) {
+        UUID avaliadorId = usuarioAutenticado == null ? null : usuarioAutenticado.getId();
+        return ResponseEntity.ok(avaliacaoService.listarMinhasAvaliacoes(avaliadorId, pageable));
+    }
 }

@@ -22,4 +22,7 @@ public interface AvaliacaoService {
 
     /** Avaliações recebidas por um locador, somando todos os anúncios dele (RF-07). */
     Page<AvaliacaoResponseDTO> listarPorLocador(UUID avaliadoId, Pageable pageable);
+
+    /** Avaliações feitas por um estudante (tela "Minhas avaliações"). */
+    Page<AvaliacaoResponseDTO> listarMinhasAvaliacoes(UUID avaliadorId, Pageable pageable);
 }

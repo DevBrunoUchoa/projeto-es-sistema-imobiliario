@@ -5,6 +5,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { anuncioApi } from '../api/anuncioApi';
 import { userApi } from '../api/userApi';
 import { contatoApi } from '../api/contatoApi';
+import { avaliacaoApi } from '../api/avaliacaoApi';
+import ReviewCard from '../components/ReviewCard';
 import { TIPO_OFERTA_LABELS, TIPO_IMOVEL_LABELS, formatMoeda } from '../utils/anuncio';
 
 export default function DetalheImovel() {
@@ -34,6 +36,41 @@ export default function DetalheImovel() {
     if (!anuncio?.locadorId) return;
     userApi.publico(anuncio.locadorId).then(setLocador).catch(() => {});
   }, [anuncio?.locadorId]);
+
+  const [avaliacoes, setAvaliacoes] = useState([]);
+  const [avaliacoesCarregando, setAvaliacoesCarregando] = useState(true);
+  const [minhaNota, setMinhaNota] = useState(0);
+  const [notaHover, setNotaHover] = useState(0);
+  const [meuComentario, setMeuComentario] = useState('');
+  const [enviandoAvaliacao, setEnviandoAvaliacao] = useState(false);
+  const [avaliacaoErro, setAvaliacaoErro] = useState(null);
+  const [avaliacaoEnviada, setAvaliacaoEnviada] = useState(false);
+
+  useEffect(() => {
+    if (!anuncio?.id) return;
+    setAvaliacoesCarregando(true);
+    avaliacaoApi.listarPorAnuncio(anuncio.id)
+      .then((data) => setAvaliacoes(data.content ?? []))
+      .catch(() => {})
+      .finally(() => setAvaliacoesCarregando(false));
+  }, [anuncio?.id]);
+
+  async function enviarAvaliacao(event) {
+    event.preventDefault();
+    if (!minhaNota || !meuComentario.trim()) return;
+    setEnviandoAvaliacao(true);
+    setAvaliacaoErro(null);
+    try {
+      const nova = await avaliacaoApi.publicar({ adId: anuncio.id, nota: minhaNota, comentario: meuComentario });
+      setAvaliacoes((current) => [nova, ...current]);
+      setAvaliacaoEnviada(true);
+      setMeuComentario('');
+    } catch (err) {
+      setAvaliacaoErro(err.message);
+    } finally {
+      setEnviandoAvaliacao(false);
+    }
+  }
 
   async function enviarInteresse(event) {
     event.preventDefault();
@@ -213,6 +250,44 @@ export default function DetalheImovel() {
                   </div>
                 </div>
               )}
+
+              <div className="detail-block">
+                <h2 className="detail-block-title">Avaliações {anuncio.totalAvaliacoes ? `(${anuncio.totalAvaliacoes})` : ''}</h2>
+
+                {user && anuncio.locadorId !== user.id && (
+                  avaliacaoEnviada ? (
+                    <p className="contact-success"><i className="fa-solid fa-circle-check" /> Avaliação publicada!</p>
+                  ) : (
+                    <form className="contact-form" onSubmit={enviarAvaliacao} style={{ marginBottom: 20 }}>
+                      <div style={{ display: 'flex', gap: 6, fontSize: 22, marginBottom: 10, cursor: 'pointer' }}>
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <i
+                            key={n}
+                            className={`fa-star ${n <= (notaHover || minhaNota) ? 'fa-solid' : 'fa-regular'}`}
+                            style={{ color: '#fbbf24' }}
+                            onMouseEnter={() => setNotaHover(n)}
+                            onMouseLeave={() => setNotaHover(0)}
+                            onClick={() => setMinhaNota(n)}
+                          />
+                        ))}
+                      </div>
+                      <textarea value={meuComentario} onChange={(e) => setMeuComentario(e.target.value)} placeholder="Conte sua experiência com esse imóvel e o locador..." required />
+                      {avaliacaoErro && <p className="sidebar-note" style={{ color: '#991b1b' }}>{avaliacaoErro}</p>}
+                      <button className="btn-sm btn-primary" type="submit" disabled={enviandoAvaliacao || !minhaNota}>{enviandoAvaliacao ? 'Enviando...' : 'Publicar avaliação'}</button>
+                    </form>
+                  )
+                )}
+
+                {avaliacoesCarregando && <p style={{ color: 'var(--text-3)', fontSize: 14 }}>Carregando avaliações...</p>}
+                {!avaliacoesCarregando && !avaliacoes.length && <p style={{ color: 'var(--text-3)', fontSize: 14 }}>Ainda não há avaliações para este imóvel.</p>}
+                {!avaliacoesCarregando && avaliacoes.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    {avaliacoes.map((avaliacao) => (
+                      <ReviewCard key={avaliacao.id} avaliacao={avaliacao} podeResponder={anuncio.locadorId === user?.id} />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             <aside className="detail-sidebar">

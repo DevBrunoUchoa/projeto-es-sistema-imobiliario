@@ -45,6 +45,7 @@ public class AnuncioService {
     private final UserRepository userRepository;
     private final AuditLogService auditLogService;
     private final ImagemAnuncioService imagemAnuncioService;
+    private final com.campusliving.repository.avaliacao.AvaliacaoRepository avaliacaoRepository;
 
     @Value("${app.geocoding.ufcg-lat:-7.21528}")
     private double ufcgLat;
@@ -276,9 +277,10 @@ public class AnuncioService {
                 .map(com.campusliving.dto.imovel.ImagemAnuncioResponseDTO::getUrl)
                 .toList();
 
-        // 5. Buscar nota média
-        Double notaMedia = null;
-        Integer totalAvaliacoes = 0;
+        // 5. Buscar nota média (por anúncio — não confundir com a reputação
+        // agregada do locador em users.nota_media/total_avaliacoes)
+        Double notaMedia = avaliacaoRepository.mediaNotaPorAnuncio(anuncioId);
+        Integer totalAvaliacoes = (int) avaliacaoRepository.countByAdId(anuncioId);
 
         return AnuncioDetalhesResponseDTO.builder()
                 // Dados do anúncio

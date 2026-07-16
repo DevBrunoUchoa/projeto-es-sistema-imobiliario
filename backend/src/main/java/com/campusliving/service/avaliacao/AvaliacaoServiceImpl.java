@@ -157,4 +157,13 @@ public class AvaliacaoServiceImpl implements AvaliacaoService {
         return avaliacaoRepository.findByAvaliadoId(avaliadoId, pageable)
                 .map(AvaliacaoResponseDTO::new);
     }
+
+    @Override
+    public Page<AvaliacaoResponseDTO> listarMinhasAvaliacoes(UUID avaliadorId, Pageable pageable) {
+        if (avaliadorId == null) {
+            throw new AcessoNegadoException();
+        }
+        return avaliacaoRepository.findByAvaliadorId(avaliadorId, pageable)
+                .map(AvaliacaoResponseDTO::new);
+    }
 }
