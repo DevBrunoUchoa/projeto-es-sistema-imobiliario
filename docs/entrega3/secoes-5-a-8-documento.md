@@ -119,14 +119,20 @@ em [`plano-testes-testlink.xml`](plano-testes-testlink.xml) (importável no Test
 
 ### 8.3. Testes Automatizados e Cobertura
 
-Suíte com **JUnit 5** e **Testcontainers** (PostGIS real), com **86 testes**
-automatizados. A cobertura foi medida com **JaCoCo**, priorizando o núcleo de
-negócio (camada `service`):
+Após a T5.10, a suíte com **JUnit 5** e **Testcontainers** (PostGIS real)
+possui **163 testes** automatizados, executados com **0 falhas** e **0 erros**.
+A cobertura foi medida com **JaCoCo**, priorizando o núcleo de negócio (camada
+`service`):
 
-- Projeto: **41,2%** de instruções / **36,7%** de *branches*.
-- Destaques na camada `service`: `AvaliacaoServiceImpl` **95,9%**,
-  `RoommateServiceImpl` **91,6%**, `UserServiceImpl` **69,1%**.
+- Projeto: **67,0%** de instruções / **55,2%** de *branches*.
+- Camada `service`: **73,5%** de instruções / **61,2%** de *branches*.
+- Destaques: `AuthService`, `DenunciaService`, `ImovelService` e
+  `NotificacaoService` com **100%** de instruções; `AnuncioService` com
+  **95,2%** e `PasswordResetService` com **95,7%**.
 
-Detalhes em [`cobertura-jacoco.md`](cobertura-jacoco.md). Débito técnico
-reconhecido: ampliar a cobertura de `AnuncioService`, `AuthService` e
-`ImovelService` (previsto na tarefa T5.10).
+Na T5.10 foram adicionadas suítes unitárias para `AnuncioService`,
+`ImovelService`, `AuthService`, `PasswordResetService`,
+`EmailVerificationService`, `DenunciaService` e `NotificacaoService`, cobrindo
+os fluxos críticos de publicação, autenticação, recuperação de senha,
+moderação e notificações. Os valores acima foram gerados por `mvn clean test`;
+detalhes estão em [`cobertura-jacoco.md`](cobertura-jacoco.md).
