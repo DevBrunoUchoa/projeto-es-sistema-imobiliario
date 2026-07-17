@@ -3,6 +3,7 @@ import Header from '../components/Header';
 import PropertyCard from '../components/PropertyCard';
 import { useAuth } from '../contexts/AuthContext';
 import { anuncioApi } from '../api/anuncioApi';
+import { useFavoritos } from '../hooks/useFavoritos';
 
 const QUICK_FILTERS = [
   ['mobiliado', 'fa-couch', 'Mobiliado'],
@@ -21,6 +22,7 @@ export default function Home() {
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { favoritos, toggle: toggleFavorito, habilitado: favoritosHabilitado } = useFavoritos();
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -111,7 +113,18 @@ export default function Home() {
               <div className="no-results"><div className="no-results-emoji">⚠️</div><h3>Não foi possível carregar</h3><p>{error}</p></div>
             )}
 
-            {!error && <div className="props-grid">{anuncios.map((anuncio) => <PropertyCard key={anuncio.id} anuncio={anuncio} />)}</div>}
+            {!error && (
+              <div className="props-grid">
+                {anuncios.map((anuncio) => (
+                  <PropertyCard
+                    key={anuncio.id}
+                    anuncio={anuncio}
+                    favorito={favoritos.has(anuncio.id)}
+                    onToggleFavorito={favoritosHabilitado ? toggleFavorito : undefined}
+                  />
+                ))}
+              </div>
+            )}
 
             {!loading && !error && !anuncios.length && <div className="no-results"><div className="no-results-emoji">🔍</div><h3>Nenhum imóvel encontrado</h3><p>Altere os filtros para visualizar outras opções.</p></div>}
           </div>

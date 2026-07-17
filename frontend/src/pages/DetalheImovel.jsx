@@ -7,11 +7,13 @@ import { userApi } from '../api/userApi';
 import { contatoApi } from '../api/contatoApi';
 import { avaliacaoApi } from '../api/avaliacaoApi';
 import ReviewCard from '../components/ReviewCard';
+import { useFavoritos } from '../hooks/useFavoritos';
 import { TIPO_OFERTA_LABELS, TIPO_IMOVEL_LABELS, formatMoeda } from '../utils/anuncio';
 
 export default function DetalheImovel() {
   const { id } = useParams();
   const { user } = useAuth();
+  const { favoritos, toggle: toggleFavorito, habilitado: favoritosHabilitado } = useFavoritos();
   const [anuncio, setAnuncio] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -183,6 +185,17 @@ export default function DetalheImovel() {
                   <span className="detail-type-tag">{TIPO_IMOVEL_LABELS[anuncio.tipoImovel] ?? anuncio.tipoImovel}</span>
                   <span className="detail-type-tag">{TIPO_OFERTA_LABELS[anuncio.tipoOferta] ?? anuncio.tipoOferta}</span>
                   <span className={`detail-avail ${availClass}`}><span className="avail-dot" /> {availLabel}</span>
+                  {favoritosHabilitado && (
+                    <button
+                      type="button"
+                      className="btn-ghost-sm"
+                      style={{ marginLeft: 'auto' }}
+                      onClick={() => toggleFavorito(anuncio.id)}
+                    >
+                      <i className={`fa-${favoritos.has(anuncio.id) ? 'solid' : 'regular'} fa-heart`} style={{ marginRight: 6, color: favoritos.has(anuncio.id) ? '#f87171' : undefined }} />
+                      {favoritos.has(anuncio.id) ? 'Favoritado' : 'Favoritar'}
+                    </button>
+                  )}
                 </div>
                 <h1 className="detail-title">{anuncio.titulo}</h1>
                 {endereco && <p className="detail-address"><i className="fa-solid fa-map-pin" /> {endereco}</p>}

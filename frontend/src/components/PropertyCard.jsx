@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { anuncioApi } from '../api/anuncioApi';
 import { TIPO_OFERTA_LABELS, formatMoeda } from '../utils/anuncio';
 
-export default function PropertyCard({ anuncio }) {
+export default function PropertyCard({ anuncio, favorito, onToggleFavorito }) {
   const [capa, setCapa] = useState(null);
 
   useEffect(() => {
@@ -30,6 +30,16 @@ export default function PropertyCard({ anuncio }) {
           ? <img className="card-img" src={capa} alt={anuncio.titulo} />
           : <div className="card-img card-img-placeholder"><i className="fa-solid fa-house" /></div>}
         <span className="badge-type">{TIPO_OFERTA_LABELS[anuncio.tipoOferta] ?? anuncio.tipoOferta}</span>
+        {onToggleFavorito && (
+          <button
+            type="button"
+            className={`card-fav-btn ${favorito ? 'active' : ''}`}
+            title={favorito ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+            onClick={(event) => { event.preventDefault(); onToggleFavorito(anuncio.id); }}
+          >
+            <i className={`fa-${favorito ? 'solid' : 'regular'} fa-heart`} />
+          </button>
+        )}
       </div>
 
       <div className="card-body">
