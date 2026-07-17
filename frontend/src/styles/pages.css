@@ -1431,7 +1431,7 @@
 
 .detail-sidebar { position: sticky; top: calc(var(--nav-h) + 24px); }
 .sidebar-card {
-  background: var(--white);
+  background: var(--card);
   border: 1.5px solid var(--border);
   border-radius: var(--r-xl);
   overflow: hidden;
@@ -1471,8 +1471,8 @@
   width: 52px; height: 52px;
   border-radius: 50%;
   flex-shrink: 0;
-  background: var(--forest-light);
-  color: var(--forest);
+  background: var(--primary);
+  color: var(--white);
   display: grid;
   place-items: center;
   font-weight: 700;
