@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,6 +30,7 @@ import com.campusliving.dto.roommate.RoommateMatchStatusUpdateDTO;
 import com.campusliving.exception.roommate.AutoMatchException;
 import com.campusliving.exception.roommate.MatchDuplicadoException;
 import com.campusliving.exception.roommate.MatchNaoEncontradoException;
+import com.campusliving.exception.roommate.PerfilRoommateIncompletoException;
 import com.campusliving.exception.roommate.PerfilRoommateNaoEncontradoException;
 import com.campusliving.exception.roommate.StatusMatchInvalidoException;
 import com.campusliving.exception.usuario.AcessoNegadoException;
@@ -141,6 +143,10 @@ class RoommateServiceImplTest {
 
     @Test
     void ativarPerfil_quandoNovoPerfil_deveCriarEAtivar() {
+        // Perfil recém-criado, sem preferências salvas ainda: não pode pedir
+        // perfilVisivel=true nesse cenário (ver
+        // ativarPerfil_publicoSemPreferencias_deveLancarPerfilIncompleto) —
+        // aqui testamos só a criação/ativação, com perfilVisivel=false.
         when(userRepository.existsById(meuId)).thenReturn(true);
         when(perfilRoommateRepository.findByUserId(meuId)).thenReturn(Optional.empty());
 
@@ -148,25 +154,30 @@ class RoommateServiceImplTest {
                 .descricao("Procuro colega tranquilo")
                 .orcamentoMax(new BigDecimal("800.00"))
                 .jaPossuiCasa(true)
-                .perfilVisivel(true)
+                .perfilVisivel(false)
                 .build();
 
         PerfilRoommateResponseDTO resultado = service.ativarPerfil(dto, meuId);
 
         assertThat(resultado.isAtivo()).isTrue();
         assertThat(resultado.isJaPossuiCasa()).isTrue();
-        assertThat(resultado.isPerfilVisivel()).isTrue();
+        assertThat(resultado.isPerfilVisivel()).isFalse();
         assertThat(resultado.getDescricao()).isEqualTo("Procuro colega tranquilo");
         verify(perfilRoommateRepository).save(any(PerfilRoommate.class));
     }
 
     @Test
     void ativarPerfil_quandoPerfilExistenteInativo_deveReativar() {
+        // Preferências já preenchidas (simula o front chamando
+        // salvarPreferencias antes de ativarPerfil) — só assim
+        // perfilVisivel=true é aceito.
         PerfilRoommate existente = PerfilRoommate.builder()
                 .id(UUID.randomUUID())
                 .userId(meuId)
                 .ativo(false)
                 .perfilVisivel(false)
+                .nivelBarulhoPreferido(PerfilRoommate.NivelBarulho.MODERADO)
+                .horarioDorme(LocalTime.of(23, 0))
                 .build();
 
         when(userRepository.existsById(meuId)).thenReturn(true);
@@ -180,6 +191,20 @@ class RoommateServiceImplTest {
 
         assertThat(resultado.isAtivo()).isTrue();
         assertThat(resultado.isPerfilVisivel()).isTrue();
+    }
+
+    @Test
+    void ativarPerfil_publicoSemPreferencias_deveLancarPerfilIncompleto() {
+        when(userRepository.existsById(meuId)).thenReturn(true);
+        when(perfilRoommateRepository.findByUserId(meuId)).thenReturn(Optional.empty());
+
+        PerfilRoommateRequestDTO dto = PerfilRoommateRequestDTO.builder()
+                .perfilVisivel(true)
+                .build();
+
+        assertThatThrownBy(() -> service.ativarPerfil(dto, meuId))
+                .isInstanceOf(PerfilRoommateIncompletoException.class);
+        verify(perfilRoommateRepository, never()).save(any());
     }
 
     @Test

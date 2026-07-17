@@ -114,23 +114,24 @@ function AbaMeuPerfil({ userId }) {
   async function salvar() {
     setSaving(true); setMessage({ type: '', text: '' });
     try {
-      await Promise.all([
-        roommateApi.ativarPerfil({
-          descricao: form.descricao,
-          orcamentoMax: form.orcamentoMax === '' ? null : form.orcamentoMax,
-          dataEntradaDesejada: form.dataEntradaDesejada || null,
-          periodoMinMeses: form.periodoMinMeses === '' ? null : form.periodoMinMeses,
-          jaPossuiCasa: form.jaPossuiCasa,
-          perfilVisivel: form.perfilVisivel,
-        }),
-        roommateApi.salvarPreferencias(userId, {
-          horarioDorme: form.horarioDorme || null,
-          horarioAcorda: form.horarioAcorda || null,
-          nivelBarulho: form.nivelBarulhoPreferido || null,
-          fumante: form.fumante,
-          aceitaPets: form.aceitaPets,
-        }),
-      ]);
+      // Preferências primeiro (sequencial, não Promise.all): ativarPerfil
+      // valida se nível de barulho/horário já estão preenchidos, então
+      // precisa ler o perfil DEPOIS que as preferências foram persistidas.
+      await roommateApi.salvarPreferencias(userId, {
+        horarioDorme: form.horarioDorme || null,
+        horarioAcorda: form.horarioAcorda || null,
+        nivelBarulho: form.nivelBarulhoPreferido || null,
+        fumante: form.fumante,
+        aceitaPets: form.aceitaPets,
+      });
+      await roommateApi.ativarPerfil({
+        descricao: form.descricao,
+        orcamentoMax: form.orcamentoMax === '' ? null : form.orcamentoMax,
+        dataEntradaDesejada: form.dataEntradaDesejada || null,
+        periodoMinMeses: form.periodoMinMeses === '' ? null : form.periodoMinMeses,
+        jaPossuiCasa: form.jaPossuiCasa,
+        perfilVisivel: form.perfilVisivel,
+      });
       setMessage({ type: 'success', text: 'Perfil de roommate atualizado com sucesso.' });
     } catch (err) {
       setMessage({ type: 'error', text: err.message });

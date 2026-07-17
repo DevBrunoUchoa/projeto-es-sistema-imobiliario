@@ -21,6 +21,7 @@ import com.campusliving.dto.roommate.RoommateMatchStatusUpdateDTO;
 import com.campusliving.exception.roommate.AutoMatchException;
 import com.campusliving.exception.roommate.MatchDuplicadoException;
 import com.campusliving.exception.roommate.MatchNaoEncontradoException;
+import com.campusliving.exception.roommate.PerfilRoommateIncompletoException;
 import com.campusliving.exception.roommate.PerfilRoommateNaoEncontradoException;
 import com.campusliving.exception.roommate.StatusMatchInvalidoException;
 import com.campusliving.exception.usuario.AcessoNegadoException;
@@ -126,6 +127,15 @@ public class RoommateServiceImpl implements RoommateService {
         if (dto.getPeriodoMinMeses() != null) {
             perfil.setPeriodoMinMeses(dto.getPeriodoMinMeses());
         }
+        // RF-32, fluxo secundário: não deixa tornar o perfil público sem
+        // nível de barulho e horário de dormir preenchidos (via
+        // PUT /usuarios/:id/preferencias-roommate). O front chama esse
+        // endpoint depois de salvar as preferências, então a checagem lê o
+        // estado já persistido do perfil.
+        if (dto.isPerfilVisivel() && (perfil.getNivelBarulhoPreferido() == null || perfil.getHorarioDorme() == null)) {
+            throw new PerfilRoommateIncompletoException();
+        }
+
         // RF-32: "ativar" — diferente das preferências (T5.8.1), este
         // endpoint sempre grava esses três campos, já que é literalmente o
         // que ele existe para fazer.
