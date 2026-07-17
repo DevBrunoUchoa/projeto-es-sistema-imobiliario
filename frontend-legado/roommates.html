@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roommates — CampusLiving</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+
+<nav class="navbar scrolled">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-mark">C</div>
+      <span class="logo-text">Campus<strong>Living</strong></span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html" class="nav-link">Alugar</a>
+      <a href="criar-anuncio.html" class="nav-link">Anunciar</a>
+      <a href="roommates.html" class="nav-link" style="color:var(--primary)">Roommates</a>
+      <a href="mensagens.html" class="nav-link">Mensagens</a>
+      <div class="nav-actions">
+        <a href="favoritos.html" class="btn-ghost">❤ Favoritos</a>
+        <a href="perfil.html" class="btn-primary-sm">João S.</a>
+      </div>
+    </div>
+    <button class="nav-mobile-toggle" id="mobileToggle" aria-label="Abrir menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="container">
+      <div class="page-header-inner">
+        <div>
+          <h1>Roommates</h1>
+          <p>Encontre colegas compatíveis para dividir moradia perto da sua universidade</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="padding-top:32px;padding-bottom:60px">
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('compatíveis',this)">Compatíveis</button>
+      <button class="tab-btn" onclick="showTab('meu-perfil',this)">Meu perfil roommate</button>
+      <button class="tab-btn" onclick="showTab('solicitacoes',this)">
+        Solicitações
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:var(--accent);color:var(--white);border-radius:50%;font-size:10px;font-weight:700;margin-left:6px">2</span>
+      </button>
+    </div>
+
+    <!-- Tab: Compatíveis -->
+    <div id="tab-compatíveis">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px" id="roommateGrid">
+
+        <div class="roommate-card">
+          <div class="rm-header">
+            <div class="rm-avatar">MA</div>
+            <div>
+              <div class="rm-name">Maria Alves</div>
+              <div class="rm-course">Engenharia Civil · 3º período</div>
+            </div>
+            <div class="rm-match">92%<br><span>match</span></div>
+          </div>
+          <div class="rm-tags">
+            <span class="rm-tag"><i class="fa-solid fa-venus" style="color:#f472b6"></i> Feminino</span>
+            <span class="rm-tag">20 anos</span>
+            <span class="rm-tag"><i class="fa-solid fa-paw"></i> Pet</span>
+            <span class="rm-tag"><i class="fa-solid fa-ban-smoking"></i> Não fuma</span>
+            <span class="rm-tag">Noturna</span>
+          </div>
+          <p style="font-size:13px;color:var(--text-2);line-height:1.55">"Busco ambiente tranquilo para estudar. Gosto de manter o espaço organizado."</p>
+          <div class="rm-actions">
+            <button class="btn-sm btn-primary" style="flex:1" onclick="sendMatch(this)"><i class="fa-solid fa-heart" style="margin-right:6px"></i>Solicitar match</button>
+            <button class="btn-sm btn-outline"><i class="fa-solid fa-comment"></i></button>
+          </div>
+        </div>
+
+        <div class="roommate-card">
+          <div class="rm-header">
+            <div class="rm-avatar" style="background:rgba(96,165,250,.15);color:#60a5fa">PL</div>
+            <div>
+              <div class="rm-name">Pedro Lima</div>
+              <div class="rm-course">Física · 2º período</div>
+            </div>
+            <div class="rm-match">87%<br><span>match</span></div>
+          </div>
+          <div class="rm-tags">
+            <span class="rm-tag"><i class="fa-solid fa-mars" style="color:#60a5fa"></i> Masculino</span>
+            <span class="rm-tag">21 anos</span>
+            <span class="rm-tag"><i class="fa-solid fa-ban-smoking"></i> Não fuma</span>
+            <span class="rm-tag">Matutino</span>
+            <span class="rm-tag"><i class="fa-solid fa-guitar"></i> Músico</span>
+          </div>
+          <p style="font-size:13px;color:var(--text-2);line-height:1.55">"Estudante tranquilo, gosto de música e respeito o espaço de todos. Busco apartamento próximo à UFCG."</p>
+          <div class="rm-actions">
+            <button class="btn-sm btn-primary" style="flex:1" onclick="sendMatch(this)"><i class="fa-solid fa-heart" style="margin-right:6px"></i>Solicitar match</button>
+            <button class="btn-sm btn-outline"><i class="fa-solid fa-comment"></i></button>
+          </div>
+        </div>
+
+        <div class="roommate-card">
+          <div class="rm-header">
+            <div class="rm-avatar">CS</div>
+            <div>
+              <div class="rm-name">Carla Santos</div>
+              <div class="rm-course">Medicina · 1º período</div>
+            </div>
+            <div class="rm-match">84%<br><span>match</span></div>
+          </div>
+          <div class="rm-tags">
+            <span class="rm-tag"><i class="fa-solid fa-venus" style="color:#f472b6"></i> Feminino</span>
+            <span class="rm-tag">18 anos</span>
+            <span class="rm-tag"><i class="fa-solid fa-paw"></i> Pet</span>
+            <span class="rm-tag">Vespertina</span>
+          </div>
+          <p style="font-size:13px;color:var(--text-2);line-height:1.55">"Caloura de medicina, organizada e responsável. Prefiro ambiente calmo para estudar muito."</p>
+          <div class="rm-actions">
+            <button class="btn-sm btn-primary" style="flex:1" onclick="sendMatch(this)"><i class="fa-solid fa-heart" style="margin-right:6px"></i>Solicitar match</button>
+            <button class="btn-sm btn-outline"><i class="fa-solid fa-comment"></i></button>
+          </div>
+        </div>
+
+        <div class="roommate-card">
+          <div class="rm-header">
+            <div class="rm-avatar" style="background:rgba(96,165,250,.15);color:#60a5fa">RF</div>
+            <div>
+              <div class="rm-name">Rafael Ferreira</div>
+              <div class="rm-course">Computação · 4º período</div>
+            </div>
+            <div class="rm-match">79%<br><span>match</span></div>
+          </div>
+          <div class="rm-tags">
+            <span class="rm-tag"><i class="fa-solid fa-mars" style="color:#60a5fa"></i> Masculino</span>
+            <span class="rm-tag">22 anos</span>
+            <span class="rm-tag">Noturno</span>
+            <span class="rm-tag"><i class="fa-solid fa-gamepad"></i> Gamer</span>
+          </div>
+          <p style="font-size:13px;color:var(--text-2);line-height:1.55">"Dev em formação, gosto de tecnologia e games. Sou organizado e respeito os horários de silêncio."</p>
+          <div class="rm-actions">
+            <button class="btn-sm btn-primary" style="flex:1" onclick="sendMatch(this)"><i class="fa-solid fa-heart" style="margin-right:6px"></i>Solicitar match</button>
+            <button class="btn-sm btn-outline"><i class="fa-solid fa-comment"></i></button>
+          </div>
+        </div>
+
+        <div class="roommate-card">
+          <div class="rm-header">
+            <div class="rm-avatar">LO</div>
+            <div>
+              <div class="rm-name">Luísa Oliveira</div>
+              <div class="rm-course">Administração · 2º período</div>
+            </div>
+            <div class="rm-match">76%<br><span>match</span></div>
+          </div>
+          <div class="rm-tags">
+            <span class="rm-tag"><i class="fa-solid fa-venus" style="color:#f472b6"></i> Feminino</span>
+            <span class="rm-tag">19 anos</span>
+            <span class="rm-tag"><i class="fa-solid fa-ban-smoking"></i> Não fuma</span>
+            <span class="rm-tag">Matutina</span>
+          </div>
+          <p style="font-size:13px;color:var(--text-2);line-height:1.55">"Sou pontual, organizada e mantenho tudo em ordem. Busco apartamento com boa localização."</p>
+          <div class="rm-actions">
+            <button class="btn-sm btn-primary" style="flex:1" onclick="sendMatch(this)"><i class="fa-solid fa-heart" style="margin-right:6px"></i>Solicitar match</button>
+            <button class="btn-sm btn-outline"><i class="fa-solid fa-comment"></i></button>
+          </div>
+        </div>
+
+        <div class="roommate-card">
+          <div class="rm-header">
+            <div class="rm-avatar" style="background:rgba(96,165,250,.15);color:#60a5fa">TN</div>
+            <div>
+              <div class="rm-name">Thiago Neves</div>
+              <div class="rm-course">Engenharia Elétrica · 5º período</div>
+            </div>
+            <div class="rm-match">71%<br><span>match</span></div>
+          </div>
+          <div class="rm-tags">
+            <span class="rm-tag"><i class="fa-solid fa-mars" style="color:#60a5fa"></i> Masculino</span>
+            <span class="rm-tag">23 anos</span>
+            <span class="rm-tag">Vespertino</span>
+            <span class="rm-tag"><i class="fa-solid fa-dumbbell"></i> Academia</span>
+          </div>
+          <p style="font-size:13px;color:var(--text-2);line-height:1.55">"Estudante dedicado, pratico esportes e tenho rotina regrada. Busco quarto próximo ao campus."</p>
+          <div class="rm-actions">
+            <button class="btn-sm btn-primary" style="flex:1" onclick="sendMatch(this)"><i class="fa-solid fa-heart" style="margin-right:6px"></i>Solicitar match</button>
+            <button class="btn-sm btn-outline"><i class="fa-solid fa-comment"></i></button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Tab: Meu perfil -->
+    <div id="tab-meu-perfil" style="display:none">
+      <div style="max-width:600px">
+        <div class="card-section">
+          <div class="card-section-title">Meu perfil de roommate</div>
+          <div style="display:flex;flex-direction:column;gap:18px">
+            <div class="alert alert-info">
+              <i class="fa-solid fa-users"></i>
+              <span>Seu perfil é exibido para outros estudantes que buscam roommates compatíveis.</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Apresentação</label>
+              <textarea class="form-textarea" placeholder="Escreva um pouco sobre você, seus hábitos e o que busca em um roommate...">Estudante de Computação, organizado e tranquilo. Busco moradia próxima à UFCG com ambiente calmo para estudar.</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gênero</label>
+              <div class="toggle-group">
+                <button class="tg-btn active">Masculino</button>
+                <button class="tg-btn">Feminino</button>
+                <button class="tg-btn">Outro</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Prefere roommate do gênero</label>
+              <div class="toggle-group">
+                <button class="tg-btn active">Qualquer</button>
+                <button class="tg-btn">Masculino</button>
+                <button class="tg-btn">Feminino</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Turno de estudo preferido</label>
+              <div class="toggle-group">
+                <button class="tg-btn">Matutino</button>
+                <button class="tg-btn">Vespertino</button>
+                <button class="tg-btn active">Noturno</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sobre você</label>
+              <div class="fp-checks">
+                <label class="fp-check-item"><input type="checkbox" checked><span class="check-box"></span><i class="fa-solid fa-ban-smoking"></i> Não fumo</label>
+                <label class="fp-check-item"><input type="checkbox" checked><span class="check-box"></span><i class="fa-solid fa-paw"></i> Tenho pet</label>
+                <label class="fp-check-item"><input type="checkbox"><span class="check-box"></span><i class="fa-solid fa-music"></i> Gosto de música alta</label>
+                <label class="fp-check-item"><input type="checkbox" checked><span class="check-box"></span><i class="fa-solid fa-broom"></i> Sou organizado</label>
+                <label class="fp-check-item"><input type="checkbox"><span class="check-box"></span><i class="fa-solid fa-utensils"></i> Gosto de cozinhar</label>
+              </div>
+            </div>
+            <button class="btn-full">Salvar perfil</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Solicitações -->
+    <div id="tab-solicitacoes" style="display:none">
+      <div style="max-width:600px;display:flex;flex-direction:column;gap:12px">
+
+        <div class="card-section" style="margin-bottom:0">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div class="rm-avatar">MA</div>
+            <div style="flex:1">
+              <div style="font-weight:700;font-size:15px;color:var(--text-1)">Maria Alves</div>
+              <div style="font-size:12px;color:var(--text-3)">Engenharia Civil · 92% compatível</div>
+              <div style="font-size:13px;color:var(--text-2);margin-top:4px">"Olá! Vi seu perfil e achamos bem compatíveis. Podemos conversar?"</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+            <button class="btn-sm btn-danger" onclick="rejectMatch(this)"><i class="fa-solid fa-xmark" style="margin-right:4px"></i>Recusar</button>
+            <button class="btn-sm btn-primary" onclick="acceptMatch(this)"><i class="fa-solid fa-check" style="margin-right:4px"></i>Aceitar match</button>
+          </div>
+        </div>
+
+        <div class="card-section" style="margin-bottom:0">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div class="rm-avatar" style="background:rgba(96,165,250,.15);color:#60a5fa">RF</div>
+            <div style="flex:1">
+              <div style="font-weight:700;font-size:15px;color:var(--text-1)">Rafael Ferreira</div>
+              <div style="font-size:12px;color:var(--text-3)">Computação · 79% compatível</div>
+              <div style="font-size:13px;color:var(--text-2);margin-top:4px">"Oi! Também sou de computação, quero dividir um quarto por semestre."</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+            <button class="btn-sm btn-danger" onclick="rejectMatch(this)"><i class="fa-solid fa-xmark" style="margin-right:4px"></i>Recusar</button>
+            <button class="btn-sm btn-primary" onclick="acceptMatch(this)"><i class="fa-solid fa-check" style="margin-right:4px"></i>Aceitar match</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['tab-compatíveis','tab-meu-perfil','tab-solicitacoes'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  document.getElementById('tab-' + tab).style.display = 'block';
+}
+function sendMatch(btn) {
+  btn.innerHTML = '<i class="fa-solid fa-check" style="margin-right:6px"></i>Solicitado!';
+  btn.style.background = 'rgba(34,197,94,.15)';
+  btn.style.color = '#22c55e';
+  btn.style.boxShadow = 'none';
+  btn.disabled = true;
+}
+function acceptMatch(btn) {
+  const card = btn.closest('.card-section');
+  card.style.borderColor = 'rgba(34,197,94,.3)';
+  card.style.background = 'rgba(34,197,94,.05)';
+  btn.closest('div').innerHTML = '<span style="color:#22c55e;font-weight:600;font-size:13px"><i class="fa-solid fa-check"></i> Match aceito!</span>';
+}
+function rejectMatch(btn) {
+  const card = btn.closest('.card-section');
+  card.style.opacity = '0';
+  card.style.transition = 'opacity .3s';
+  setTimeout(() => card.remove(), 300);
+}
+document.querySelectorAll('.tg-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const group = this.closest('.toggle-group');
+    group.querySelectorAll('.tg-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+<script src="pages-init.js"></script>
+</body>
+</html>

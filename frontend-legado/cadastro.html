@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criar Conta — CampusLiving</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+<div class="auth-screen">
+
+  <div class="auth-visual">
+    <div class="auth-visual-blobs">
+      <div class="blob b1"></div>
+      <div class="blob b2"></div>
+      <div class="blob b3"></div>
+    </div>
+    <div class="auth-visual-content">
+      <a href="index.html" class="auth-visual-brand">
+        <div class="logo-mark">C</div>
+        <span class="logo-text">Campus<strong>Living</strong></span>
+      </a>
+      <h2 class="auth-visual-tagline">
+        Junte-se à maior<br>plataforma de <em>moradia</em><br>estudantil
+      </h2>
+      <p class="auth-visual-sub">
+        Cadastro gratuito. Encontre seu imóvel ideal ou anuncie para milhares de estudantes universitários.
+      </p>
+    </div>
+    <div class="auth-visual-stats">
+      <div class="avs-item"><span class="avs-n">Grátis</span><span class="avs-l">Para estudantes</span></div>
+      <div class="avs-item"><span class="avs-n">100%</span><span class="avs-l">Verificado</span></div>
+      <div class="avs-item"><span class="avs-n">24h</span><span class="avs-l">Suporte</span></div>
+    </div>
+  </div>
+
+  <div class="auth-panel">
+    <div class="auth-form-box" style="max-width:480px">
+
+      <!-- Progresso -->
+      <div class="step-progress">
+        <div class="step-item active" id="step-ind-1">
+          <div class="step-dot">1</div>
+          <span class="step-label">Tipo de conta</span>
+        </div>
+        <div class="step-item" id="step-ind-2">
+          <div class="step-dot">2</div>
+          <span class="step-label">Seus dados</span>
+        </div>
+        <div class="step-item" id="step-ind-3">
+          <div class="step-dot"><i class="fa-solid fa-check" style="font-size:11px"></i></div>
+          <span class="step-label">Concluído</span>
+        </div>
+      </div>
+
+      <!-- Step 1 -->
+      <div id="step1">
+        <div>
+          <h2>Criar conta</h2>
+          <p class="auth-sub">Qual é o seu perfil?</p>
+        </div>
+        <div class="type-cards" style="margin-top:4px">
+          <div class="type-card selected" onclick="selectType(this,'estudante')">
+            <div class="type-card-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+            <strong>Estudante</strong>
+            <span>Busco moradia próxima à universidade</span>
+          </div>
+          <div class="type-card" onclick="selectType(this,'locador')">
+            <div class="type-card-icon"><i class="fa-solid fa-house"></i></div>
+            <strong>Locador</strong>
+            <span>Tenho imóvel e quero anunciar</span>
+          </div>
+          <div class="type-card" onclick="selectType(this,'corretor')">
+            <div class="type-card-icon"><i class="fa-solid fa-id-badge"></i></div>
+            <strong>Corretor</strong>
+            <span>Sou corretor de imóveis (CRECI)</span>
+          </div>
+          <div class="type-card" onclick="selectType(this,'imobiliaria')">
+            <div class="type-card-icon"><i class="fa-solid fa-building"></i></div>
+            <strong>Imobiliária</strong>
+            <span>Represento uma imobiliária</span>
+          </div>
+        </div>
+        <button class="btn-full" style="margin-top:24px" onclick="goStep(2)">Continuar <i class="fa-solid fa-arrow-right" style="margin-left:6px;font-size:13px"></i></button>
+        <p class="auth-footer" style="margin-top:20px">Já tem conta? <a href="login.html">Entrar</a></p>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="step2" style="display:none">
+        <div>
+          <h2>Seus dados</h2>
+          <p class="auth-sub">Preencha as informações abaixo</p>
+        </div>
+
+        <button onclick="goStep(1)" style="display:flex;align-items:center;gap:6px;color:var(--text-2);background:none;border:none;cursor:pointer;font-size:13px;padding:0;margin-bottom:8px;font-family:var(--font-body)">
+          <i class="fa-solid fa-arrow-left"></i> Voltar
+        </button>
+
+        <div id="cadastroAlert" class="alert alert-error" style="display:none;margin-bottom:2px"></div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="nome">Nome</label>
+              <input type="text" id="nome" name="nome" class="form-input" placeholder="João">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="sobrenome">Sobrenome</label>
+              <input type="text" id="sobrenome" name="sobrenome" class="form-input" placeholder="Silva">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">E-mail</label>
+            <div class="input-icon-wrap">
+              <i class="fa-solid fa-envelope input-icon"></i>
+              <input type="email" id="email" name="email" class="form-input" placeholder="seu@email.com">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Senha</label>
+            <div class="input-icon-wrap">
+              <i class="fa-solid fa-lock input-icon"></i>
+              <input type="password" id="novaSenha" class="form-input" placeholder="Mínimo 8 caracteres">
+              <button type="button" class="input-eye" onclick="togglePass('novaSenha',this)"><i class="fa-solid fa-eye"></i></button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirmar senha</label>
+            <div class="input-icon-wrap">
+              <i class="fa-solid fa-lock input-icon"></i>
+              <input type="password" id="confirmarSenha" class="form-input" placeholder="Repita a senha">
+              <button type="button" class="input-eye" onclick="togglePass('confirmarSenha',this)"><i class="fa-solid fa-eye"></i></button>
+            </div>
+          </div>
+          <label class="fp-check-item" style="padding:10px 14px">
+            <input type="checkbox" id="aceiteTermos" required>
+            <span class="check-box"></span>
+            <span style="font-size:13px">Aceito os <a href="#" style="color:var(--primary)">Termos de Uso</a> e a <a href="#" style="color:var(--primary)">Política de Privacidade</a></span>
+          </label>
+          <button class="btn-full" id="btnCriarConta" onclick="submitCadastro()">Criar conta</button>
+        </div>
+      </div>
+
+      <!-- Step 3: sucesso -->
+      <div id="step3" style="display:none;text-align:center">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:20px;padding:20px 0">
+          <div style="width:72px;height:72px;border-radius:50%;background:rgba(34,197,94,.12);border:2px solid rgba(34,197,94,.3);display:grid;place-items:center;font-size:28px;color:#22c55e">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <div>
+            <h2>Conta criada!</h2>
+            <p style="color:var(--text-2);font-size:15px;margin-top:8px;line-height:1.6">
+              Enviamos um e-mail de verificação.<br>Confirme para ativar sua conta.
+            </p>
+          </div>
+          <div class="alert alert-info" style="text-align:left">
+            <i class="fa-solid fa-envelope"></i>
+            <span>Verifique sua caixa de entrada e clique no link de confirmação.</span>
+          </div>
+          <a href="perfil.html" class="btn-full" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px">
+            Ir para meu perfil <i class="fa-solid fa-arrow-right" style="font-size:13px"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+let selectedType = 'estudante';
+function selectType(el, type) {
+  document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedType = type;
+}
+function goStep(n) {
+  document.getElementById('step1').style.display = n === 1 ? 'flex' : 'none';
+  if (n === 1) document.getElementById('step1').style.flexDirection = 'column';
+  document.getElementById('step2').style.display = n === 2 ? 'flex' : 'none';
+  if (n === 2) {
+    document.getElementById('step2').style.flexDirection = 'column';
+    document.getElementById('step2').style.gap = '20px';
+  }
+  document.getElementById('step3').style.display = n === 3 ? 'flex' : 'none';
+  if (n === 3) document.getElementById('step3').style.flexDirection = 'column';
+
+  ['step-ind-1','step-ind-2','step-ind-3'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.classList.remove('active','done');
+    if (i + 1 < n) el.classList.add('done');
+    if (i + 1 === n) el.classList.add('active');
+  });
+}
+function togglePass(id, btn) {
+  const input = document.getElementById(id);
+  const icon = btn.querySelector('i');
+  input.type = input.type === 'password' ? 'text' : 'password';
+  icon.className = input.type === 'password' ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+}
+
+const CADASTRO_ENDPOINT = '/auth/cadastro';
+
+const ROLE_MAP = {
+  estudante: 'ESTUDANTE',
+  locador: 'LOCADOR',
+  corretor: 'LOCADOR',
+  imobiliaria: 'LOCADOR',
+};
+
+function showCadastroError(message) {
+  const box = document.getElementById('cadastroAlert');
+  box.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><span>${message}</span>`;
+  box.style.display = 'flex';
+}
+
+function hideCadastroError() {
+  const box = document.getElementById('cadastroAlert');
+  box.style.display = 'none';
+  box.innerHTML = '';
+}
+
+function validateStep2() {
+  const nome = document.getElementById('nome').value.trim();
+  const sobrenome = document.getElementById('sobrenome').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const senha = document.getElementById('novaSenha').value;
+  const confirmarSenha = document.getElementById('confirmarSenha').value;
+  const aceite = document.getElementById('aceiteTermos').checked;
+
+  if (!nome || !sobrenome) return 'Preencha nome e sobrenome.';
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Informe um e-mail válido.';
+  if (senha.length < 8) return 'A senha deve ter no mínimo 8 caracteres.';
+  if (senha !== confirmarSenha) return 'As senhas não coincidem.';
+  if (!aceite) return 'É preciso aceitar os Termos de Uso e a Política de Privacidade.';
+  return null;
+}
+
+async function submitCadastro() {
+  hideCadastroError();
+
+  const erro = validateStep2();
+  if (erro) {
+    showCadastroError(erro);
+    return;
+  }
+
+  const nome = document.getElementById('nome').value.trim();
+  const sobrenome = document.getElementById('sobrenome').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const senha = document.getElementById('novaSenha').value;
+  const aceiteLgpd = document.getElementById('aceiteTermos').checked;
+
+  const payload = {
+    nome: `${nome} ${sobrenome}`.trim(),
+    email,
+    senha,
+    aceiteLgpd,
+    role: ROLE_MAP[selectedType] || 'ESTUDANTE',
+  };
+
+  const btn = document.getElementById('btnCriarConta');
+  const textoOriginal = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Criando conta...';
+
+  try {
+    const res = await fetch(CADASTRO_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    let data = null;
+    try { data = await res.json(); } catch (_) { /* corpo vazio ou não-JSON */ }
+
+    if (res.ok) {
+      goStep(3);
+      return;
+    }
+
+    if (res.status === 400 && data && Array.isArray(data.errors) && data.errors.length) {
+      showCadastroError(data.errors.join(' '));
+      return;
+    }
+
+    if (res.status === 409) {
+      showCadastroError((data && data.message) || 'Este e-mail já está cadastrado.');
+      return;
+    }
+
+    showCadastroError(
+      (data && data.message) ||
+      'Não foi possível concluir o cadastro. Verifique se o e-mail já está em uso ou tente novamente mais tarde.'
+    );
+  } catch (e) {
+    console.error('Erro ao chamar /auth/cadastro:', e);
+    showCadastroError('Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = textoOriginal;
+  }
+}
+</script>
+</body>
+</html>

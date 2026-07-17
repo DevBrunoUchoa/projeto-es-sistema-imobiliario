@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Favoritos — CampusLiving</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="pages.css">
+</head>
+<body>
+
+<nav class="navbar scrolled">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-mark">C</div>
+      <span class="logo-text">Campus<strong>Living</strong></span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html" class="nav-link">Alugar</a>
+      <a href="criar-anuncio.html" class="nav-link">Anunciar</a>
+      <a href="roommates.html" class="nav-link">Roommates</a>
+      <a href="mensagens.html" class="nav-link">Mensagens</a>
+      <div class="nav-actions">
+        <a href="favoritos.html" class="btn-ghost" style="color:var(--primary)">❤ Favoritos</a>
+        <a href="perfil.html" class="btn-primary-sm">João S.</a>
+      </div>
+    </div>
+    <button class="nav-mobile-toggle" id="mobileToggle" aria-label="Abrir menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="container">
+      <div class="page-header-inner">
+        <div>
+          <h1>Meus Favoritos</h1>
+          <p>Imóveis que você salvou para ver depois</p>
+        </div>
+        <a href="index.html" class="btn-primary-sm" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+          <i class="fa-solid fa-magnifying-glass"></i> Buscar mais
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <section class="props-section" style="padding-top:40px">
+    <div class="container">
+
+      <div class="props-grid" id="favGrid">
+
+        <!-- Card 1 -->
+        <div class="prop-card" style="position:relative">
+          <button onclick="removeFav(this)" title="Remover favorito" style="position:absolute;top:12px;right:12px;z-index:10;width:32px;height:32px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:#f87171;display:grid;place-items:center;cursor:pointer;font-size:14px;transition:all .2s" onmouseover="this.style.background='rgba(248,113,113,.15)'" onmouseout="this.style.background='var(--card)'"><i class="fa-solid fa-heart"></i></button>
+          <div class="card-img-wrap">
+            <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&q=80" alt="Quarto" class="card-img">
+            <span class="badge-type">Compartilhado</span>
+            <span class="badge-dist"><i class="fa-solid fa-location-dot"></i> 0.8 km</span>
+          </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-travel"><i class="fa-solid fa-person-walking"></i> 10 min a pé</span>
+              <span class="card-gender g-any">Qualquer</span>
+            </div>
+            <h3 class="card-title">Quarto em apartamento compartilhado — Centro</h3>
+            <div class="card-addr"><i class="fa-solid fa-location-dot"></i> Rua das Flores, 123 — Campina Grande</div>
+            <div class="card-feats">
+              <span class="feat-tag"><i class="fa-solid fa-wifi"></i> Wi-Fi</span>
+              <span class="feat-tag"><i class="fa-solid fa-couch"></i> Mobiliado</span>
+              <span class="feat-tag"><i class="fa-solid fa-paw"></i> Pet OK</span>
+            </div>
+            <div class="card-footer">
+              <div class="card-price"><span class="price-val">R$ 650</span><span class="price-per">/mês</span></div>
+              <a href="detail.html" class="btn-details">Ver detalhes <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="prop-card" style="position:relative">
+          <button onclick="removeFav(this)" title="Remover favorito" style="position:absolute;top:12px;right:12px;z-index:10;width:32px;height:32px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:#f87171;display:grid;place-items:center;cursor:pointer;font-size:14px;transition:all .2s" onmouseover="this.style.background='rgba(248,113,113,.15)'" onmouseout="this.style.background='var(--card)'"><i class="fa-solid fa-heart"></i></button>
+          <div class="card-img-wrap">
+            <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&q=80" alt="Studio" class="card-img">
+            <span class="badge-type">Studio</span>
+            <span class="badge-dist"><i class="fa-solid fa-location-dot"></i> 1.2 km</span>
+          </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-travel"><i class="fa-solid fa-person-walking"></i> 15 min a pé</span>
+              <span class="card-gender g-female">Feminino</span>
+            </div>
+            <h3 class="card-title">Studio completo próximo à UFCG — Universitário</h3>
+            <div class="card-addr"><i class="fa-solid fa-location-dot"></i> Av. Aprígio Veloso, 880 — Campina Grande</div>
+            <div class="card-feats">
+              <span class="feat-tag"><i class="fa-solid fa-snowflake"></i> AC</span>
+              <span class="feat-tag"><i class="fa-solid fa-wifi"></i> Wi-Fi</span>
+              <span class="feat-tag"><i class="fa-solid fa-square-parking"></i> Garagem</span>
+            </div>
+            <div class="card-footer">
+              <div class="card-price"><span class="price-val">R$ 1.100</span><span class="price-per">/mês</span></div>
+              <a href="detail.html" class="btn-details">Ver detalhes <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="prop-card" style="position:relative">
+          <button onclick="removeFav(this)" title="Remover favorito" style="position:absolute;top:12px;right:12px;z-index:10;width:32px;height:32px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:#f87171;display:grid;place-items:center;cursor:pointer;font-size:14px;transition:all .2s" onmouseover="this.style.background='rgba(248,113,113,.15)'" onmouseout="this.style.background='var(--card)'"><i class="fa-solid fa-heart"></i></button>
+          <div class="card-img-wrap">
+            <img src="https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&q=80" alt="Kitnet" class="card-img">
+            <span class="badge-type">Kitnet</span>
+            <span class="badge-dist"><i class="fa-solid fa-location-dot"></i> 2.1 km</span>
+          </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="card-travel"><i class="fa-solid fa-bus"></i> 8 min de ônibus</span>
+              <span class="card-gender g-male">Masculino</span>
+            </div>
+            <h3 class="card-title">Kitnet aconchegante no Bairro Universitário</h3>
+            <div class="card-addr"><i class="fa-solid fa-location-dot"></i> Rua Manoel Rodrigues, 45 — Campina Grande</div>
+            <div class="card-feats">
+              <span class="feat-tag"><i class="fa-solid fa-couch"></i> Mobiliado</span>
+              <span class="feat-tag"><i class="fa-solid fa-droplet"></i> Água inclusa</span>
+            </div>
+            <div class="card-footer">
+              <div class="card-price"><span class="price-val">R$ 800</span><span class="price-per">/mês</span></div>
+              <a href="detail.html" class="btn-details">Ver detalhes <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Estado vazio (oculto) -->
+      <div id="emptyFav" class="empty-state" style="display:none">
+        <div class="empty-state-icon"><i class="fa-regular fa-heart"></i></div>
+        <h3>Nenhum favorito ainda</h3>
+        <p>Explore os imóveis e salve os que mais gostar clicando no ícone de coração.</p>
+        <a href="index.html" class="btn-primary" style="text-decoration:none;margin-top:8px">
+          <i class="fa-solid fa-magnifying-glass"></i> Explorar imóveis
+        </a>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<script>
+function removeFav(btn) {
+  const card = btn.closest('.prop-card');
+  card.style.opacity = '0';
+  card.style.transform = 'scale(0.9)';
+  card.style.transition = 'all .3s';
+  setTimeout(() => {
+    card.remove();
+    if (!document.querySelector('.prop-card')) {
+      document.getElementById('favGrid').style.display = 'none';
+      document.getElementById('emptyFav').style.display = 'flex';
+    }
+  }, 300);
+}
+</script>
+<script src="pages-init.js"></script>
+</body>
+</html>
