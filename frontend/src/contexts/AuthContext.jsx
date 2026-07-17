@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { authApi } from '../api/authApi';
 
 const STORAGE_KEY = 'usuarioLogado';
@@ -13,21 +13,57 @@ function readStoredUser() {
   }
 }
 
+function normalizeUser(data) {
+  return {
+    id: data.id,
+    nome: data.nome,
+    email: data.email,
+    role: data.role,
+    fotoUrl: data.fotoUrl || null,
+  };
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(readStoredUser);
+  const [authLoading, setAuthLoading] = useState(true);
 
-  async function login(credentials) {
-    const data = await authApi.login(credentials);
-    const authenticatedUser = {
-      id: data.id,
-      nome: data.nome,
-      email: data.email,
-      role: data.role,
-    };
+  const persistUser = useCallback((data) => {
+    const authenticatedUser = normalizeUser(data);
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(authenticatedUser));
     setUser(authenticatedUser);
     return authenticatedUser;
-  }
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    async function restoreSession() {
+      try {
+        const data = await authApi.usuarioAtual();
+        if (active) persistUser(data);
+      } catch {
+        if (active) {
+          sessionStorage.removeItem(STORAGE_KEY);
+          setUser(null);
+        }
+      } finally {
+        if (active) setAuthLoading(false);
+      }
+    }
+
+    restoreSession();
+    return () => { active = false; };
+  }, []);
+
+  const login = useCallback(async (credentials) => {
+    const data = await authApi.login(credentials);
+    return persistUser(data);
+  }, [persistUser]);
+
+  const completeOAuthLogin = useCallback(async () => {
+    const data = await authApi.usuarioAtual();
+    return persistUser(data);
+  }, [persistUser]);
 
   function updateLocalUser(changes) {
     setUser((current) => {
@@ -37,12 +73,30 @@ export function AuthProvider({ children }) {
     });
   }
 
+  const logout = useCallback(async () => {
+    try {
+      await authApi.logout();
+    } finally {
+      sessionStorage.removeItem(STORAGE_KEY);
+      setUser(null);
+    }
+  }, []);
+
   function clearLocalSession() {
     sessionStorage.removeItem(STORAGE_KEY);
     setUser(null);
   }
 
-  const value = useMemo(() => ({ user, login, updateLocalUser, clearLocalSession }), [user]);
+  const value = useMemo(() => ({
+    user,
+    authLoading,
+    login,
+    completeOAuthLogin,
+    logout,
+    updateLocalUser,
+    clearLocalSession,
+  }), [user, authLoading, login, completeOAuthLogin, logout]);
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

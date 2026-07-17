@@ -32,7 +32,7 @@ public class EmailService {
     @Value("${app.mail.from:no-reply@campusliving.app}")
     private String remetente;
 
-    @Value("${app.frontend-url:http://localhost:8080}")
+    @Value("${app.frontend-url:http://localhost:5173}")
     private String frontendUrl;
 
     public EmailService(ObjectProvider<JavaMailSender> mailSenderProvider) {
@@ -42,7 +42,7 @@ public class EmailService {
     /** RF-05: link de verificação de e-mail (expira em 24h). */
     @Async
     public void enviarVerificacaoEmail(String destino, String nome, String token) {
-        String link = frontendUrl + "/auth/verificar-email/" + token;
+        String link = frontendUrl + "/verificar-email?token=" + token;
         enviar(destino, "Confirme seu e-mail — Campus Living",
                 "Olá, " + nome + "!\n\n"
                         + "Confirme seu cadastro acessando o link abaixo:\n" + link + "\n\n"
@@ -52,7 +52,7 @@ public class EmailService {
     /** RF-04: link de redefinição de senha (expira em 1h). */
     @Async
     public void enviarResetSenha(String destino, String nome, String token) {
-        String link = frontendUrl + "/reset-password?token=" + token;
+        String link = frontendUrl + "/redefinir-senha?token=" + token;
         enviar(destino, "Redefinição de senha — Campus Living",
                 "Olá, " + nome + "!\n\n"
                         + "Recebemos um pedido para redefinir sua senha. Use o link abaixo:\n" + link + "\n\n"

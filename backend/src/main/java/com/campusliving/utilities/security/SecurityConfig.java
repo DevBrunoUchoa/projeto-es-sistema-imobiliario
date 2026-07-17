@@ -2,7 +2,9 @@ package com.campusliving.utilities.security;
 
 import com.campusliving.config.security.JwtAuthenticationFilter;
 import com.campusliving.config.security.OAuth2SuccessHandler;
+import com.campusliving.service.auth.OAuth2Service;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -30,6 +32,10 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2Service oAuth2Service;
+
+    @Value("${app.frontend-url:http://localhost:5173}")
+    private String frontendUrl;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -71,6 +77,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(oAuth2Service)
+                        )
                         .authorizationEndpoint(auth -> auth
                                 .baseUri("/oauth2/authorization")
                         )
@@ -78,7 +87,8 @@ public class SecurityConfig {
                                 .baseUri("/login/oauth2/code/*")
                         )
                         .successHandler(oAuth2SuccessHandler)
-                        .failureUrl("/auth/google-error")
+                        .failureHandler((request, response, exception) ->
+                                response.sendRedirect(frontendUrl + "/login?googleError=true"))
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

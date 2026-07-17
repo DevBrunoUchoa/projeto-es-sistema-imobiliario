@@ -55,6 +55,12 @@ public class UserResponseDTO {
     @NotBlank(message = "")
     private boolean ativo;
 
+    @JsonProperty("fotoUrl")
+    private String fotoUrl;
+
+    @JsonProperty("role")
+    private String role;
+
 
     public UserResponseDTO(User usuario) {
         this.id = usuario.getId();
@@ -66,6 +72,8 @@ public class UserResponseDTO {
         this.instituicao = usuario.getInstituicao();
         this.verificado = usuario.getVerificado();
         this.ativo = usuario.getAtivo();
+        this.fotoUrl = usuario.getFotoUrl();
+        this.role = usuario.getTipoConta() == null ? null : usuario.getTipoConta().name();
     }
 
 }

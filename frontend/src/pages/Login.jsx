@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AuthVisual from '../components/AuthVisual';
 import Alert from '../components/Alert';
@@ -12,6 +12,13 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('googleError') === 'true') {
+      setError('Não foi possível entrar com Google. Verifique a configuração OAuth2.');
+    }
+  }, [location.search]);
 
   async function handleSubmit(event) {
     event.preventDefault();

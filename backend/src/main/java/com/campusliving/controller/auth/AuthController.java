@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/auth")
@@ -70,6 +71,22 @@ public class AuthController {
         LoginResponseDTO loginResponse = authService.refresh(refreshToken);
         escreverCookiesDeSessao(response, loginResponse);
         return ResponseEntity.ok(semTokensNoCorpo(loginResponse));
+    }
+
+
+    @GetMapping("/me")
+    public ResponseEntity<LoginResponseDTO> me(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(authService.usuarioAtual(authentication.getName()));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieDeSessao("jwt", "", 0).toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieDeSessao("refresh_token", "", 0).toString());
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/verificar-email/{token}")

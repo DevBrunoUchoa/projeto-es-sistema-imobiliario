@@ -112,6 +112,13 @@ public class UserServiceImpl implements UserService{
         if (dto.getInstituicao() != null) {
             usuario.setInstituicao(dto.getInstituicao());
         }
+        if (dto.getRole() != null) {
+            // ADMIN nunca pode ser escolhido pelo próprio usuário pela tela de perfil.
+            if (dto.getRole() == User.Tipo.ADMIN) {
+                throw new AcessoNegadoException();
+            }
+            usuario.setTipoConta(dto.getRole());
+        }
 
         repository.save(usuario);
         return new UserResponseDTO(usuario);

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.campusliving.model.usuario.User;
 
 /**
  * Corpo do PUT /usuarios/:id (RF-06).
@@ -39,4 +40,7 @@ public class UserUpdateRequestDTO {
     @JsonProperty("instituicao")
     @Size(max = 150, message = "Instituicao deve ter no maximo 150 caracteres")
     private String instituicao;
+
+    @JsonProperty("role")
+    private User.Tipo role;
 }

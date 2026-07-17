@@ -1,5 +1,8 @@
 package com.campusliving.service.imovel;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -20,21 +23,29 @@ public class SupabaseImageStorageService implements ImageStorageService {
     private final String supabaseUrl;
     private final String serviceKey;
     private final String bucket;
+    private final Path localDirectory;
+    private final String publicBackendUrl;
 
     public SupabaseImageStorageService(
             RestClient.Builder builder,
             @Value("${app.storage.supabase.url:}") String supabaseUrl,
             @Value("${app.storage.supabase.service-key:}") String serviceKey,
-            @Value("${app.storage.supabase.bucket:anuncios}") String bucket) {
+            @Value("${app.storage.supabase.bucket:anuncios}") String bucket,
+            @Value("${app.storage.local.directory:uploads}") String localDirectory,
+            @Value("${app.backend.public-url:http://localhost:${APP_PORT:8080}}") String publicBackendUrl) {
         this.supabaseUrl = removeTrailingSlash(supabaseUrl);
         this.serviceKey = serviceKey;
         this.bucket = bucket;
+        this.localDirectory = Path.of(localDirectory).toAbsolutePath().normalize();
+        this.publicBackendUrl = removeTrailingSlash(publicBackendUrl);
         this.restClient = builder.build();
     }
 
     @Override
     public StoredImage upload(String path, MultipartFile file) {
-        validateConfiguration();
+        if (!isSupabaseConfigured()) {
+            return uploadLocally(path, file);
+        }
         try {
             restClient.post()
                     .uri(supabaseUrl + "/storage/v1/object/" + bucket + "/" + path)
@@ -56,7 +67,10 @@ public class SupabaseImageStorageService implements ImageStorageService {
 
     @Override
     public void delete(String path) {
-        validateConfiguration();
+        if (!isSupabaseConfigured()) {
+            deleteLocally(path);
+            return;
+        }
         try {
             restClient.method(HttpMethod.DELETE)
                     .uri(supabaseUrl + "/storage/v1/object/" + bucket)
@@ -72,9 +86,33 @@ public class SupabaseImageStorageService implements ImageStorageService {
         }
     }
 
-    private void validateConfiguration() {
-        if (!StringUtils.hasText(supabaseUrl) || !StringUtils.hasText(serviceKey) || !StringUtils.hasText(bucket)) {
-            throw new StorageException("Supabase Storage nao esta configurado");
+    private boolean isSupabaseConfigured() {
+        return StringUtils.hasText(supabaseUrl) && StringUtils.hasText(serviceKey) && StringUtils.hasText(bucket);
+    }
+
+    private StoredImage uploadLocally(String path, MultipartFile file) {
+        Path destination = localDirectory.resolve(path).normalize();
+        if (!destination.startsWith(localDirectory)) {
+            throw new StorageException("Caminho de upload invalido");
+        }
+        try {
+            Files.createDirectories(destination.getParent());
+            file.transferTo(destination);
+            return new StoredImage(path, publicBackendUrl + "/uploads/" + path);
+        } catch (IOException e) {
+            throw new StorageException("Nao foi possivel salvar a imagem localmente");
+        }
+    }
+
+    private void deleteLocally(String path) {
+        Path destination = localDirectory.resolve(path).normalize();
+        if (!destination.startsWith(localDirectory)) {
+            return;
+        }
+        try {
+            Files.deleteIfExists(destination);
+        } catch (IOException e) {
+            throw new StorageException("Nao foi possivel excluir a imagem local");
         }
     }
 

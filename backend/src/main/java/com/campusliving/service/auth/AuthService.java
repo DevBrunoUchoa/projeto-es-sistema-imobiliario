@@ -117,9 +117,29 @@ public class AuthService {
                 .nome(user.getNome())
                 .email(user.getEmail())
                 .role(user.getTipoConta().name())
+                .fotoUrl(user.getFotoUrl())
                 .mensagem("Login realizado com sucesso!")
                 .jwtToken(jwtToken)
                 .refreshToken(refreshToken)
+                .build();
+    }
+
+    public LoginResponseDTO usuarioAtual(String email) {
+        User user = userRepository.findByEmail(email).stream()
+                .findFirst()
+                .orElseThrow(() -> new ProjectException("Usuário não encontrado", HttpStatus.UNAUTHORIZED));
+
+        if (!user.isAtivo()) {
+            throw new ProjectException("Conta desativada", HttpStatus.UNAUTHORIZED);
+        }
+
+        return LoginResponseDTO.builder()
+                .id(user.getId())
+                .nome(user.getNome())
+                .email(user.getEmail())
+                .role(user.getTipoConta().name())
+                .fotoUrl(user.getFotoUrl())
+                .mensagem("Sessão autenticada")
                 .build();
     }
 
@@ -152,6 +172,7 @@ public class AuthService {
                 .nome(user.getNome())
                 .email(user.getEmail())
                 .role(user.getTipoConta().name())
+                .fotoUrl(user.getFotoUrl())
                 .mensagem("Token renovado com sucesso!")
                 .jwtToken(jwtService.generateToken(user))
                 .refreshToken(jwtService.generateRefreshToken(user))

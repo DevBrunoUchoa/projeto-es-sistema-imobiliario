@@ -36,7 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Rotas públicas - não verificar token
         String path = request.getServletPath();
-        if (path.startsWith("/auth/") ||
+        if ((path.startsWith("/auth/") && !path.equals("/auth/me")) ||
             path.startsWith("/swagger-ui/") ||
             path.startsWith("/api-docs/") ||
             path.equals("/actuator/health")) {

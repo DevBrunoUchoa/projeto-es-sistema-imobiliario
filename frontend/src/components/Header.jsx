@@ -2,7 +2,7 @@ import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Header() {
-  const { user, clearLocalSession } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <header className="navbar scrolled">
@@ -22,13 +22,17 @@ export default function Header() {
           {user ? (
             <>
               <NavLink to="/perfil" className="profile-nav-link">
-                <span className="profile-nav-avatar">{user.nome?.charAt(0)?.toUpperCase() || 'U'}</span>
+                <span className="profile-nav-avatar">
+                  {user.fotoUrl
+                    ? <img src={user.fotoUrl} alt="" />
+                    : (user.nome?.charAt(0)?.toUpperCase() || 'U')}
+                </span>
                 <span className="profile-nav-copy">
                   <small>Olá,</small>
                   <strong>{user.nome?.split(' ')[0] || 'Usuário'}</strong>
                 </span>
               </NavLink>
-              <button type="button" className="btn-ghost" onClick={clearLocalSession}>Sair</button>
+              <button type="button" className="btn-ghost" onClick={logout}>Sair</button>
             </>
           ) : (
             <>

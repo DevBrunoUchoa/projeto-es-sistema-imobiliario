@@ -11,6 +11,7 @@ public class LoginResponseDTO {
     private String nome;
     private String email;
     private String role;
+    private String fotoUrl;
     private String mensagem;
     private String jwtToken;    
     private String refreshToken;  
