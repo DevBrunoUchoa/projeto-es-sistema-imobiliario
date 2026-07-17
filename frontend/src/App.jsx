@@ -5,6 +5,7 @@ import Cadastro from './pages/Cadastro';
 import Perfil from './pages/Perfil';
 import RecuperarSenha from './pages/RecuperarSenha';
 import RedefinirSenha from './pages/RedefinirSenha';
+import VerificarEmail from './pages/VerificarEmail';
 import Roommates from './pages/Roommates';
 import DetalheImovel from './pages/DetalheImovel';
 import CriarAnuncio from './pages/CriarAnuncio';
@@ -29,6 +30,7 @@ export default function App() {
       <Route path="/cadastro" element={user ? <Navigate to="/" replace /> : <Cadastro />} />
       <Route path="/recuperar-senha" element={user ? <Navigate to="/" replace /> : <RecuperarSenha />} />
       <Route path="/redefinir-senha" element={user ? <Navigate to="/" replace /> : <RedefinirSenha />} />
+      <Route path="/verificar-email/:token" element={<VerificarEmail />} />
       <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
       <Route path="/roommates" element={<ProtectedRoute><Roommates /></ProtectedRoute>} />
       <Route path="/imoveis/:id" element={<DetalheImovel />} />
