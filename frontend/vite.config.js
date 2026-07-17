@@ -37,6 +37,9 @@ export default defineConfig({
         bypass: (req) => { if (req.method !== 'POST') return req.url; },
       },
       '^/avaliacoes/.+': { target: backend, changeOrigin: true },
+      // Sem rota de SPA em /notificacoes (é um dropdown no Header, não uma
+      // página própria) — prefixo aberto é seguro.
+      '/notificacoes': { target: backend, changeOrigin: true },
       // A SPA tem a rota exata /admin (dashboard), mas o backend só expõe
       // subcaminhos (/admin/usuarios, /admin/denuncias, …) — sem rota exata
       // /admin no backend, então não há colisão e não precisa de bypass.

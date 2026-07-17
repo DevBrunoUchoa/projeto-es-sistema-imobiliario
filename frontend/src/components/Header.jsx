@@ -1,5 +1,6 @@
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import NotificationBell from './NotificationBell';
 
 const PODE_ANUNCIAR = ['LOCADOR', 'MISTO', 'ADMIN'];
 
@@ -28,6 +29,7 @@ export default function Header() {
         <div className="nav-actions">
           {user ? (
             <>
+              <NotificationBell />
               <NavLink to="/perfil" className="profile-nav-link">
                 <span className="profile-nav-avatar">{user.nome?.charAt(0)?.toUpperCase() || 'U'}</span>
                 <span className="profile-nav-copy">
