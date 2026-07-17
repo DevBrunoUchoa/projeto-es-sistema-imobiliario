@@ -11,9 +11,9 @@ export default function Header() {
   return (
     <header className="navbar scrolled">
       <div className="nav-container">
-        <Link to="/" className="nav-logo" aria-label="Página inicial EstudanteLar">
-          <div className="logo-mark">E</div>
-          <span className="logo-text">Estudante<strong>Lar</strong></span>
+        <Link to="/" className="nav-logo" aria-label="Página inicial CampusLiving">
+          <div className="logo-mark">C</div>
+          <span className="logo-text">Campus<strong>Living</strong></span>
         </Link>
 
         <nav className="nav-links home-nav-links" aria-label="Navegação principal">

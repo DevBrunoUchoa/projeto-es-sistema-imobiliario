@@ -5,7 +5,7 @@ export default function AuthVisual({ cadastro = false }) {
     <div className="auth-visual">
       <div className="auth-visual-blobs"><div className="blob b1"/><div className="blob b2"/><div className="blob b3"/></div>
       <div className="auth-visual-content">
-        <Link to="/" className="auth-visual-brand"><div className="logo-mark">E</div><span className="logo-text">Estudante<strong>Lar</strong></span></Link>
+        <Link to="/" className="auth-visual-brand"><div className="logo-mark">C</div><span className="logo-text">Campus<strong>Living</strong></span></Link>
         <h2 className="auth-visual-tagline">
           {cadastro ? <>Junte-se à plataforma de <em>moradia</em> estudantil</> : <>Sua nova <em>moradia</em><br/>está aqui</>}
         </h2>

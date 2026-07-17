@@ -87,7 +87,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
   console.log('\n┌─────────────────────────────────────────┐');
-  console.log(`│  🏠  EstudanteLar rodando em:            │`);
+  console.log(`│  🏠  CampusLiving rodando em:            │`);
   console.log(`│      http://localhost:${PORT}               │`);
   console.log('└─────────────────────────────────────────┘\n');
   console.log(`  Proxy /auth/* → ${BACKEND_URL}`);

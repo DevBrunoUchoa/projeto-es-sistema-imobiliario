@@ -99,7 +99,7 @@ export default function AdminDashboard() {
         <div className="container" style={{ paddingTop: 32, paddingBottom: 60 }}>
           <div style={{ marginBottom: 28 }}>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 500, color: 'var(--text-1)' }}>Painel Administrativo</h2>
-            <p style={{ fontSize: 14, color: 'var(--text-2)', marginTop: 4 }}>Visão geral da plataforma EstudanteLar</p>
+            <p style={{ fontSize: 14, color: 'var(--text-2)', marginTop: 4 }}>Visão geral da plataforma CampusLiving</p>
           </div>
 
           <div className="stats-strip">

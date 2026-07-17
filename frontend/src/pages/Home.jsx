@@ -144,7 +144,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="footer"><div className="container"><div className="footer-bottom"><span>© 2026 EstudanteLar</span></div></div></footer>
+      <footer className="footer"><div className="container"><div className="footer-bottom"><span>© 2026 CampusLiving</span></div></div></footer>
     </>
   );
 }

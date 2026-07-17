@@ -1,4 +1,4 @@
-# Frontend React — EstudanteLar
+# Frontend React — CampusLiving
 
 Migração inicial das telas de login, cadastro e perfil. O backend Java não foi alterado.
 

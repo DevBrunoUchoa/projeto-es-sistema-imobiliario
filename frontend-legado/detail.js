@@ -1,5 +1,5 @@
 /* =============================================
-   EstudanteLar — Detail Page Script
+   CampusLiving — Detail Page Script
    ============================================= */
 
 let property = null;
@@ -21,7 +21,7 @@ async function loadDetail() {
     const data = await res.json();
     property = data.properties.find(p => p.id === id);
     if (!property) { window.location.href = 'index.html'; return; }
-    document.title = `${property.title} — EstudanteLar`;
+    document.title = `${property.title} — CampusLiving`;
     renderGallery();
     renderMain();
     renderSidebar();
@@ -287,7 +287,7 @@ function renderSidebar() {
 
       <p class="sidebar-note">
         <i class="fa-solid fa-shield-check" style="color:var(--forest)"></i>
-        Perfil verificado pela EstudanteLar
+        Perfil verificado pela CampusLiving
       </p>
     </div>
   `;

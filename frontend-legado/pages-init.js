@@ -1,4 +1,4 @@
-/* EstudanteLar — Shared init for inner pages */
+/* CampusLiving — Shared init for inner pages */
 (function () {
 
   /* ---- Navbar mobile toggle ---- */
