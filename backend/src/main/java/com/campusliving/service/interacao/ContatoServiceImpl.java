@@ -1,5 +1,6 @@
 package com.campusliving.service.interacao;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -86,6 +87,26 @@ public class ContatoServiceImpl implements ContatoService {
                 estudanteNome,
                 anuncio.getTitulo(),
                 previewMensagem(dto.getMensagem()));
+    }
+
+    @Override
+    public List<ContatoResponseDTO> listarEnviados(UUID estudanteId) {
+        if (estudanteId == null) {
+            throw new AcessoNegadoException();
+        }
+        return contatoRepository.findByEstudanteIdOrderByDataCriacaoDesc(estudanteId).stream()
+                .map(ContatoResponseDTO::new)
+                .toList();
+    }
+
+    @Override
+    public List<ContatoResponseDTO> listarRecebidos(UUID locadorId) {
+        if (locadorId == null) {
+            throw new AcessoNegadoException();
+        }
+        return contatoRepository.findRecebidosPorLocador(locadorId).stream()
+                .map(ContatoResponseDTO::new)
+                .toList();
     }
 
     private String previewMensagem(String mensagem) {

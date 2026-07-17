@@ -1,5 +1,6 @@
 package com.campusliving.service.interacao;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.campusliving.dto.interacao.ContatoResponseDTO;
@@ -9,4 +10,10 @@ public interface ContatoService {
 
     /** RF-28/RNF-LEG-03: registra interesse do estudante em um anúncio. */
     ContatoResponseDTO registrarInteresse(InteresseRequestDTO dto, UUID estudanteId);
+
+    /** Interesses que o estudante autenticado registrou ("minhas mensagens"). */
+    List<ContatoResponseDTO> listarEnviados(UUID estudanteId);
+
+    /** Interesses recebidos em qualquer anúncio do locador autenticado. */
+    List<ContatoResponseDTO> listarRecebidos(UUID locadorId);
 }

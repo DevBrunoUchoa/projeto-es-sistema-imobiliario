@@ -24,6 +24,7 @@ export default function Header() {
           {podeAnunciar && <Link to="/meus-anuncios" className="nav-link">Meus anúncios</Link>}
           {user && <Link to="/avaliacoes" className="nav-link">Avaliações</Link>}
           {user && <Link to="/favoritos" className="nav-link"><i className="fa-solid fa-heart" style={{ marginRight: 4 }} />Favoritos</Link>}
+          {user && <Link to="/mensagens" className="nav-link">Mensagens</Link>}
           {user?.role === 'ADMIN' && <Link to="/admin" className="nav-link">Admin</Link>}
         </nav>
 

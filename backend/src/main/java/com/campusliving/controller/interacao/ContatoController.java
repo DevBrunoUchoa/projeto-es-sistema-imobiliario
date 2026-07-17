@@ -1,15 +1,18 @@
 package com.campusliving.controller.interacao;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.campusliving.dto.interacao.ContatoResponseDTO;
 import com.campusliving.dto.interacao.InteresseRequestDTO;
 import com.campusliving.model.usuario.User;
 import com.campusliving.service.interacao.ContatoService;
@@ -39,5 +42,19 @@ public class ContatoController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(contatoService.registrarInteresse(dto, estudanteId));
+    }
+
+    // "Minhas mensagens" — interesses que o estudante autenticado registrou.
+    @GetMapping("/enviados")
+    public ResponseEntity<List<ContatoResponseDTO>> listarEnviados(@AuthenticationPrincipal User usuarioAutenticado) {
+        UUID estudanteId = usuarioAutenticado == null ? null : usuarioAutenticado.getId();
+        return ResponseEntity.ok(contatoService.listarEnviados(estudanteId));
+    }
+
+    // Interesses recebidos em qualquer anúncio do locador autenticado.
+    @GetMapping("/recebidos")
+    public ResponseEntity<List<ContatoResponseDTO>> listarRecebidos(@AuthenticationPrincipal User usuarioAutenticado) {
+        UUID locadorId = usuarioAutenticado == null ? null : usuarioAutenticado.getId();
+        return ResponseEntity.ok(contatoService.listarRecebidos(locadorId));
     }
 }

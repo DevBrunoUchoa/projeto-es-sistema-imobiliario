@@ -1,5 +1,6 @@
 package com.campusliving.repository.interacao;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,6 +10,17 @@ import org.springframework.data.repository.query.Param;
 import com.campusliving.model.interacao.Contato;
 
 public interface ContatoRepository extends JpaRepository<Contato, UUID> {
+
+    // "Minhas mensagens" — interesses que EU (estudante) registrei.
+    List<Contato> findByEstudanteIdOrderByDataCriacaoDesc(UUID estudanteId);
+
+    // "Recebidos" — interesses em qualquer anúncio DESTE locador. Sem
+    // @ManyToOne entre Contato e Anuncio de propósito (ver comentário na
+    // entidade Contato), então o vínculo é feito via subquery JPQL.
+    @Query("SELECT c FROM Contato c WHERE c.adId IN "
+            + "(SELECT a.id FROM Anuncio a WHERE a.locadorId = :locadorId) "
+            + "ORDER BY c.dataCriacao DESC")
+    List<Contato> findRecebidosPorLocador(@Param("locadorId") UUID locadorId);
 
     @Query(value = "SELECT EXISTS(SELECT 1 FROM ads WHERE id = :adId)", nativeQuery = true)
     boolean anuncioExiste(@Param("adId") UUID adId);

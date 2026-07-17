@@ -13,6 +13,7 @@ import MeusAnuncios from './pages/MeusAnuncios';
 import Avaliacoes from './pages/Avaliacoes';
 import AdminDashboard from './pages/AdminDashboard';
 import Favoritos from './pages/Favoritos';
+import Mensagens from './pages/Mensagens';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './contexts/AuthContext';
 
@@ -36,6 +37,7 @@ export default function App() {
       <Route path="/meus-anuncios" element={<ProtectedRoute roles={PODE_ANUNCIAR}><MeusAnuncios /></ProtectedRoute>} />
       <Route path="/avaliacoes" element={<ProtectedRoute><Avaliacoes /></ProtectedRoute>} />
       <Route path="/favoritos" element={<ProtectedRoute><Favoritos /></ProtectedRoute>} />
+      <Route path="/mensagens" element={<ProtectedRoute><Mensagens /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute roles={['ADMIN']}><AdminDashboard /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
