@@ -19,6 +19,8 @@ export default function Perfil() {
   const [promovendo, setPromovendo] = useState(false);
   const [enviandoVerificacao, setEnviandoVerificacao] = useState(false);
   const [verificacaoStatus, setVerificacaoStatus] = useState(null);
+  const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
+  const [excluindo, setExcluindo] = useState(false);
   const { inputRef: fotoInputRef, openPicker: abrirSeletorFoto, resetPicker: limparSeletorFoto } = useFilePicker();
   const { inputRef: docInputRef, openPicker: abrirSeletorDoc, resetPicker: limparSeletorDoc } = useFilePicker();
   const navigate = useNavigate();
@@ -90,6 +92,19 @@ export default function Perfil() {
     }
   }
 
+  async function excluirConta() {
+    setExcluindo(true);
+    setMessage({type:'',text:''});
+    try {
+      await userApi.excluir(user.id);
+      clearLocalSession();
+      navigate('/', {replace:true});
+    } catch (err) {
+      setMessage({type:'error',text:err.message});
+      setExcluindo(false);
+    }
+  }
+
   if (loading) return <main className="page-content"><p>Carregando perfil...</p></main>;
 
   return <div className="app-shell"><header className="topbar"><div className="brand"><div className="logo-mark">E</div><span className="logo-text">Estudante<strong>Lar</strong></span></div><button className="btn-sm btn-outline" onClick={logoutLocal}><i className="fa-solid fa-arrow-right-from-bracket"/> Sair da interface</button></header><main className="page-content profile-page">
@@ -115,5 +130,24 @@ export default function Perfil() {
         )}
       </div>
     )}
+    <div className="card-section" style={{borderColor:'#f87171'}}>
+      <div className="card-section-title" style={{color:'#991b1b'}}>Excluir conta</div>
+      {!confirmandoExclusao ? (
+        <>
+          <p style={{fontSize:14,color:'var(--text-2)',marginBottom:14}}>Remove permanentemente seus dados da plataforma, conforme a LGPD. Essa ação não pode ser desfeita.</p>
+          <button className="btn-sm btn-danger" type="button" onClick={()=>setConfirmandoExclusao(true)}>
+            <i className="fa-solid fa-trash" style={{marginRight:6}}/> Excluir minha conta
+          </button>
+        </>
+      ) : (
+        <>
+          <p style={{fontSize:14,color:'#991b1b',marginBottom:14,fontWeight:600}}>Tem certeza? Seus dados serão apagados e você sairá da conta imediatamente.</p>
+          <div style={{display:'flex',gap:10}}>
+            <button className="btn-sm btn-outline" type="button" disabled={excluindo} onClick={()=>setConfirmandoExclusao(false)}>Cancelar</button>
+            <button className="btn-sm btn-danger" type="button" disabled={excluindo} onClick={excluirConta}>{excluindo?'Excluindo...':'Sim, excluir permanentemente'}</button>
+          </div>
+        </>
+      )}
+    </div>
   </main></div>;
 }
