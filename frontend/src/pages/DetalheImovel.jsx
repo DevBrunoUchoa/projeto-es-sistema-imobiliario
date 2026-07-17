@@ -7,6 +7,7 @@ import { userApi } from '../api/userApi';
 import { contatoApi } from '../api/contatoApi';
 import { avaliacaoApi } from '../api/avaliacaoApi';
 import ReviewCard from '../components/ReviewCard';
+import DenunciarButton from '../components/DenunciarButton';
 import { useFavoritos } from '../hooks/useFavoritos';
 import { TIPO_OFERTA_LABELS, TIPO_IMOVEL_LABELS, formatMoeda } from '../utils/anuncio';
 
@@ -363,6 +364,13 @@ export default function DetalheImovel() {
                         <i className="fa-brands fa-whatsapp" /> {enviando ? 'Enviando...' : 'Enviar interesse'}
                       </button>
                     </form>
+                  )}
+
+                  {user && anuncio.locadorId !== user.id && (
+                    <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--border)' }}>
+                      <DenunciarButton tipoAlvo="ANUNCIO" alvoId={anuncio.id} label="Denunciar anúncio" />
+                      {locador && <DenunciarButton tipoAlvo="USUARIO" alvoId={locador.id} label="Denunciar locador" />}
+                    </div>
                   )}
                 </div>
               </div>

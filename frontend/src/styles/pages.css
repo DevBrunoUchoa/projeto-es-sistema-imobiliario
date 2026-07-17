@@ -1113,6 +1113,61 @@
   .dash-main { padding: 20px 16px; }
 }
 
+/* ---- Denunciar (report button + modal) ---- */
+.report-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--text-3);
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 0;
+}
+.report-trigger:hover { color: #991b1b; text-decoration: underline; }
+.report-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26,23,20,.55);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.report-modal {
+  width: 100%;
+  max-width: 420px;
+  background: var(--white);
+  border-radius: var(--r-lg, var(--r-xl));
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+.report-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-1);
+}
+.report-modal-close {
+  background: none;
+  border: none;
+  color: var(--text-3);
+  font-size: 16px;
+  cursor: pointer;
+  width: 28px; height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+.report-modal-close:hover { background: var(--cream); color: var(--text-1); }
+.report-modal-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+
 /* ---- Detail page (imóvel) ---- */
 .detail-back {
   display: inline-flex;

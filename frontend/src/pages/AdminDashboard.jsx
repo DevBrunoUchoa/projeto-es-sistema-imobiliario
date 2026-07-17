@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import Header from '../components/Header';
 import { adminApi } from '../api/adminApi';
+import { MOTIVO_LABELS } from '../utils/denuncia';
 
 const TIPO_CONTA_LABELS = { ESTUDANTE: 'Estudante', LOCADOR: 'Locador', MISTO: 'Misto', ADMIN: 'Admin' };
-const MOTIVO_LABELS = { CONTEUDO_INADEQUADO: 'Conteúdo inadequado', SPAM: 'Spam', FRAUDE: 'Fraude', ASSEDIO: 'Assédio', OUTROS: 'Outros' };
 const STATUS_LABELS = { PENDENTE: 'Pendente', EM_ANALISE: 'Em análise', RESOLVIDA: 'Resolvida', REJEITADA: 'Rejeitada/Arquivada' };
 const PERIODOS = [7, 30, 90];
 

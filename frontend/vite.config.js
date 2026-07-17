@@ -26,6 +26,9 @@ export default defineConfig({
         bypass: (req) => { if (req.method !== 'POST') return req.url; },
       },
       '/interesses': { target: backend, changeOrigin: true },
+      // Sem rota de SPA em /denuncias (é um modal reaproveitável, não uma
+      // página própria) — prefixo aberto é seguro.
+      '/denuncias': { target: backend, changeOrigin: true },
       // A SPA TEM uma rota /avaliacoes (dashboard) — diferente de /imoveis,
       // aqui o GET exato precisa mesmo ir pra SPA (bypass), só o POST
       // (publicar avaliação) vai pro backend. Subcaminhos (/avaliacoes/anuncio/…,
