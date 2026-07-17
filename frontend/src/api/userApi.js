@@ -7,4 +7,5 @@ export const userApi = {
   excluir: (id) => apiRequest(`/usuarios/${id}`, { method: 'DELETE' }),
   atualizarFoto: (id, file) => apiRequest(`/usuarios/${id}/foto`, { method: 'POST', body: buildMultipartBody('foto', file) }),
   promoverContaMista: (id) => apiRequest(`/usuarios/${id}/conta-mista`, { method: 'PATCH' }),
+  solicitarVerificacao: (id, file) => apiRequest(`/usuarios/${id}/verificacao`, { method: 'POST', body: buildMultipartBody('documento', file) }),
 };

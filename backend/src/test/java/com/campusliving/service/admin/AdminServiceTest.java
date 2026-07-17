@@ -20,6 +20,7 @@ import com.campusliving.model.imovel.Anuncio;
 import com.campusliving.repository.denuncia.DenunciaRepository;
 import com.campusliving.repository.imovel.AnuncioRepository;
 import com.campusliving.repository.usuario.UserRepository;
+import com.campusliving.repository.usuario.VerificacaoLocadorRepository;
 
 @ExtendWith(MockitoExtension.class)
 class AdminServiceTest {
@@ -30,12 +31,14 @@ class AdminServiceTest {
     private DenunciaRepository denunciaRepository;
     @Mock
     private AnuncioRepository anuncioRepository;
+    @Mock
+    private VerificacaoLocadorRepository verificacaoLocadorRepository;
 
     private AdminService service;
 
     private AdminService service() {
         if (service == null) {
-            service = new AdminService(userRepository, denunciaRepository, anuncioRepository);
+            service = new AdminService(userRepository, denunciaRepository, anuncioRepository, verificacaoLocadorRepository);
         }
         return service;
     }

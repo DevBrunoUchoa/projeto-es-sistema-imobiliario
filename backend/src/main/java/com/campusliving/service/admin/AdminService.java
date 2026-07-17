@@ -4,10 +4,13 @@ import com.campusliving.dto.admin.AdminDenunciaResponseDTO;
 import com.campusliving.dto.admin.AdminModerarDenunciaRequestDTO;
 import com.campusliving.dto.admin.AdminUsuarioResponseDTO;
 import com.campusliving.dto.admin.AdminVerificarLocadorResponseDTO;
+import com.campusliving.dto.usuario.VerificacaoLocadorResponseDTO;
 import com.campusliving.exception.ProjectException;
 import com.campusliving.model.denuncia.Denuncia;
 import com.campusliving.model.usuario.User;
+import com.campusliving.model.usuario.VerificacaoLocador;
 import com.campusliving.repository.usuario.UserRepository;
+import com.campusliving.repository.usuario.VerificacaoLocadorRepository;
 import com.campusliving.dto.admin.AdminRelatorioResponseDTO;
 import com.campusliving.model.imovel.Anuncio;
 import com.campusliving.repository.imovel.AnuncioRepository;
@@ -28,6 +31,7 @@ public class AdminService {
     private final UserRepository userRepository;
     private final DenunciaRepository denunciaRepository;
     private final AnuncioRepository anuncioRepository;
+    private final VerificacaoLocadorRepository verificacaoLocadorRepository;
 
     @Transactional(readOnly = true)
     public List<AdminUsuarioResponseDTO> listarUsuarios() {
@@ -78,17 +82,31 @@ public class AdminService {
     }
 
     @Transactional
-    public AdminVerificarLocadorResponseDTO verificarLocador(UUID userId, Boolean verificado) {
+    public AdminVerificarLocadorResponseDTO verificarLocador(UUID userId, Boolean verificado, UUID adminId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        // Verificar se o usuário é LOCADOR
-        if (user.getTipoConta() != User.Tipo.LOCADOR) {
-            throw new RuntimeException("Apenas usuários do tipo LOCADOR podem ser verificados");
+        // Verificar se o usuário é LOCADOR ou MISTO (também anuncia imóveis)
+        if (user.getTipoConta() != User.Tipo.LOCADOR && user.getTipoConta() != User.Tipo.MISTO) {
+            throw new RuntimeException("Apenas usuários do tipo LOCADOR ou MISTO podem ser verificados");
         }
 
         user.setVerificado(verificado);
         userRepository.save(user);
+
+        // RF-08/09: resolve a(s) solicitação(ões) de verificação pendente(s)
+        // deste usuário, se houver — sem isso a aprovação direta pelo admin
+        // deixava o registro de VerificacaoLocador preso em PENDENTE pra sempre.
+        VerificacaoLocador.Status novoStatus = verificado
+                ? VerificacaoLocador.Status.APROVADO
+                : VerificacaoLocador.Status.REJEITADO;
+        verificacaoLocadorRepository.findByUserIdAndStatus(userId, VerificacaoLocador.Status.PENDENTE.name())
+                .forEach(v -> {
+                    v.setStatus(novoStatus.name());
+                    v.setAnalisadoPor(adminId);
+                    v.setDataAnalise(OffsetDateTime.now());
+                    verificacaoLocadorRepository.save(v);
+                });
 
         return AdminVerificarLocadorResponseDTO.builder()
                 .id(user.getId())
@@ -98,6 +116,15 @@ public class AdminService {
                 .verificado(user.isVerificado())
                 .mensagem("Status de verificação atualizado com sucesso!")
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<VerificacaoLocadorResponseDTO> listarVerificacoesPendentes() {
+        return verificacaoLocadorRepository
+                .findByStatusOrderByDataCriacaoAsc(VerificacaoLocador.Status.PENDENTE.name())
+                .stream()
+                .map(VerificacaoLocadorResponseDTO::new)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)

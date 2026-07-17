@@ -6,6 +6,7 @@ import com.campusliving.dto.admin.AdminRelatorioResponseDTO;
 import com.campusliving.dto.admin.AdminUsuarioResponseDTO;
 import com.campusliving.dto.admin.AdminVerificarLocadorRequestDTO;
 import com.campusliving.dto.admin.AdminVerificarLocadorResponseDTO;
+import com.campusliving.dto.usuario.VerificacaoLocadorResponseDTO;
 import com.campusliving.model.usuario.User;
 import com.campusliving.service.admin.AdminService;
 
@@ -50,10 +51,19 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AdminVerificarLocadorResponseDTO> verificarLocador(
             @PathVariable UUID id,
-            @Valid @RequestBody AdminVerificarLocadorRequestDTO request
+            @Valid @RequestBody AdminVerificarLocadorRequestDTO request,
+            @AuthenticationPrincipal User admin
     ) {
-        AdminVerificarLocadorResponseDTO response = adminService.verificarLocador(id, request.getVerificado());
+        UUID adminId = admin == null ? null : admin.getId();
+        AdminVerificarLocadorResponseDTO response = adminService.verificarLocador(id, request.getVerificado(), adminId);
         return ResponseEntity.ok(response);
+    }
+
+    // RF-08/09: solicitações de verificação de locador pendentes de análise.
+    @GetMapping("/verificacoes")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<VerificacaoLocadorResponseDTO>> listarVerificacoesPendentes() {
+        return ResponseEntity.ok(adminService.listarVerificacoesPendentes());
     }
 
     @GetMapping("/relatorios")

@@ -24,6 +24,9 @@ export default function AdminDashboard() {
   const [denunciasErro, setDenunciasErro] = useState(null);
   const [moderandoId, setModerandoId] = useState(null);
 
+  const [verificacoes, setVerificacoes] = useState([]);
+  const [verificacoesLoading, setVerificacoesLoading] = useState(true);
+  const [verificacoesErro, setVerificacoesErro] = useState(null);
   const [verificandoId, setVerificandoId] = useState(null);
 
   const [dias, setDias] = useState(30);
@@ -45,14 +48,18 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
+    adminApi.listarVerificacoes()
+      .then(setVerificacoes)
+      .catch(() => setVerificacoesErro('Não foi possível carregar as verificações pendentes.'))
+      .finally(() => setVerificacoesLoading(false));
+  }, []);
+
+  useEffect(() => {
     setRelatorioLoading(true);
     adminApi.relatorio(dias).then(setRelatorio).catch(() => {}).finally(() => setRelatorioLoading(false));
   }, [dias]);
 
-  const locadoresPendentes = useMemo(
-    () => usuarios.filter((u) => u.tipoConta === 'LOCADOR' && !u.verificado),
-    [usuarios],
-  );
+  const usuariosPorId = useMemo(() => new Map(usuarios.map((u) => [u.id, u])), [usuarios]);
   const denunciasPendentes = useMemo(() => denuncias.filter((d) => d.status === 'PENDENTE' || d.status === 'EM_ANALISE'), [denuncias]);
   const cadastrosPorTipo = useMemo(() => {
     const contagem = {};
@@ -60,13 +67,14 @@ export default function AdminDashboard() {
     return Object.entries(contagem).sort((a, b) => b[1] - a[1]);
   }, [usuarios]);
 
-  async function aprovarVerificacao(usuario) {
-    setVerificandoId(usuario.id);
+  async function resolverVerificacao(verificacao, aprovado) {
+    setVerificandoId(verificacao.id);
     try {
-      await adminApi.verificarLocador(usuario.id, true);
-      setUsuarios((current) => current.map((u) => u.id === usuario.id ? { ...u, verificado: true } : u));
+      await adminApi.verificarLocador(verificacao.userId, aprovado);
+      setVerificacoes((current) => current.filter((v) => v.id !== verificacao.id));
+      setUsuarios((current) => current.map((u) => u.id === verificacao.userId ? { ...u, verificado: aprovado } : u));
     } catch (err) {
-      setUsuariosErro(err.message);
+      setVerificacoesErro(err.message);
     } finally {
       setVerificandoId(null);
     }
@@ -103,7 +111,7 @@ export default function AdminDashboard() {
 
           <div className="tabs">
             <button className={`tab-btn ${tab === 'visao-geral' ? 'active' : ''}`} type="button" onClick={() => setTab('visao-geral')}>Usuários</button>
-            <button className={`tab-btn ${tab === 'verificacoes' ? 'active' : ''}`} type="button" onClick={() => setTab('verificacoes')}>Verificações {locadoresPendentes.length > 0 && `(${locadoresPendentes.length})`}</button>
+            <button className={`tab-btn ${tab === 'verificacoes' ? 'active' : ''}`} type="button" onClick={() => setTab('verificacoes')}>Verificações {verificacoes.length > 0 && `(${verificacoes.length})`}</button>
             <button className={`tab-btn ${tab === 'denuncias' ? 'active' : ''}`} type="button" onClick={() => setTab('denuncias')}>Denúncias {denunciasPendentes.length > 0 && `(${denunciasPendentes.length})`}</button>
             <button className={`tab-btn ${tab === 'relatorios' ? 'active' : ''}`} type="button" onClick={() => setTab('relatorios')}>Relatórios</button>
           </div>
@@ -141,26 +149,35 @@ export default function AdminDashboard() {
 
             {tab === 'verificacoes' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {!locadoresPendentes.length && !usuariosLoading && (
+                {verificacoesLoading && <p style={{ color: 'var(--text-3)' }}>Carregando...</p>}
+                {verificacoesErro && <div className="alert alert-info"><i className="fa-solid fa-triangle-exclamation" /><span>{verificacoesErro}</span></div>}
+                {!verificacoesLoading && !verificacoesErro && !verificacoes.length && (
                   <div className="no-results"><div className="no-results-emoji">✅</div><h3>Nenhuma verificação pendente</h3></div>
                 )}
-                {locadoresPendentes.map((u) => (
-                  <div key={u.id} className="card-section" style={{ marginBottom: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-                      <div className="table-avatar" style={{ width: 48, height: 48, fontSize: 16 }}>{u.nome?.charAt(0)?.toUpperCase() ?? '?'}</div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                          <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--text-1)' }}>{u.nome}</span>
-                          <span className="chip chip-pending">Pendente</span>
+                {verificacoes.map((v) => {
+                  const usuario = usuariosPorId.get(v.userId);
+                  return (
+                    <div key={v.id} className="card-section" style={{ marginBottom: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+                        <div className="table-avatar" style={{ width: 48, height: 48, fontSize: 16 }}>{usuario?.nome?.charAt(0)?.toUpperCase() ?? '?'}</div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                            <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--text-1)' }}>{usuario?.nome ?? 'Usuário'}</span>
+                            <span className="chip chip-pending">Pendente</span>
+                          </div>
+                          <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 2 }}>{usuario?.email} · solicitado em {formatarData(v.dataCriacao)}</div>
+                          <a href={v.documentoUrl} target="_blank" rel="noreferrer" style={{ fontSize: 12.5, color: 'var(--primary)' }}><i className="fa-solid fa-file" style={{ marginRight: 4 }} />Ver documento enviado</a>
                         </div>
-                        <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 2 }}>{u.email} · cadastrado em {formatarData(u.dataCriacao)}</div>
+                        <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                          <button className="btn-sm btn-outline" type="button" disabled={verificandoId === v.id} onClick={() => resolverVerificacao(v, false)}>Reprovar</button>
+                          <button className="btn-sm btn-primary" type="button" disabled={verificandoId === v.id} onClick={() => resolverVerificacao(v, true)}>
+                            <i className="fa-solid fa-check" style={{ marginRight: 4 }} />{verificandoId === v.id ? 'Aprovando...' : 'Aprovar'}
+                          </button>
+                        </div>
                       </div>
-                      <button className="btn-sm btn-primary" type="button" disabled={verificandoId === u.id} onClick={() => aprovarVerificacao(u)}>
-                        <i className="fa-solid fa-check" style={{ marginRight: 4 }} />{verificandoId === u.id ? 'Aprovando...' : 'Aprovar verificação'}
-                      </button>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 

@@ -10,4 +10,6 @@ import com.campusliving.model.usuario.VerificacaoLocador;
 public interface VerificacaoLocadorRepository extends JpaRepository<VerificacaoLocador, UUID> {
 
     List<VerificacaoLocador> findByUserIdAndStatus(UUID userId, String status);
+
+    List<VerificacaoLocador> findByStatusOrderByDataCriacaoAsc(String status);
 }
