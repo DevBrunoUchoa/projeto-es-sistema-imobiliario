@@ -63,9 +63,9 @@ public class UserServiceImpl implements UserService{
     }
 
 	@Override
-	public User getUserById(UUID userId) {
+	public UserResponseDTO getUserById(UUID userId) {
         User usuario = repository.findById(userId).orElseThrow(UserNotFoundException::new);
-        return usuario;
+        return new UserResponseDTO(usuario);
     }
 
 	@Override
@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService{
             throw new EmailEmUsoException();
         }
         repository.save(usuario);
-        return modelMapper.map(usuario, UserResponseDTO.class);
+        return new UserResponseDTO(usuario);
 	}
 
     // -------------------------------------------------------------------

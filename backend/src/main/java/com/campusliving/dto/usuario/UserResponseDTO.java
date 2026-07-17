@@ -55,6 +55,14 @@ public class UserResponseDTO {
     @NotBlank(message = "")
     private boolean ativo;
 
+    // Faltavam aqui apesar de já existirem na entidade: sem isso, o cliente
+    // não tinha como saber a foto que acabou de enviar em POST /:id/foto nem
+    // o tipo de conta atual (ex.: após promoção pra MISTO via RF-18).
+    @JsonProperty("fotoUrl")
+    private String fotoUrl;
+
+    @JsonProperty("tipoConta")
+    private String tipoConta;
 
     public UserResponseDTO(User usuario) {
         this.id = usuario.getId();
@@ -66,6 +74,8 @@ public class UserResponseDTO {
         this.instituicao = usuario.getInstituicao();
         this.verificado = usuario.getVerificado();
         this.ativo = usuario.getAtivo();
+        this.fotoUrl = usuario.getFotoUrl();
+        this.tipoConta = usuario.getTipoConta().name();
     }
 
 }

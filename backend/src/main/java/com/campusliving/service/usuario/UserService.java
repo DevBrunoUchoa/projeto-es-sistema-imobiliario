@@ -17,7 +17,7 @@ public interface UserService{
 
     public UserResponseDTO criar(UserPostPutRequestDTO usuarioPostPutRequestDTO);
 
-    public User getUserById(UUID userId);
+    public UserResponseDTO getUserById(UUID userId);
 
     public List<UserResponseDTO> listUsers();
 

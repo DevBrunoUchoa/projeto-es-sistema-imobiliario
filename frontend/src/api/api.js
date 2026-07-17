@@ -1,3 +1,10 @@
+export function buildMultipartBody(fieldName, fileOrFiles) {
+  const formData = new FormData();
+  const files = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles];
+  files.forEach((file) => formData.append(fieldName, file));
+  return formData;
+}
+
 export class ApiError extends Error {
   constructor(message, status, data) {
     super(message);

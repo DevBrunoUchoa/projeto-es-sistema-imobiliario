@@ -1,4 +1,4 @@
-import { apiRequest } from './api';
+import { apiRequest, buildMultipartBody } from './api';
 import { toQueryString } from '../utils/queryString';
 
 export const anuncioApi = {
@@ -12,11 +12,7 @@ export const anuncioApi = {
   mapa: () => apiRequest('/anuncios/mapa'),
   imagens: {
     listar: (adId) => apiRequest(`/anuncios/${adId}/imagens`),
-    upload: (adId, files) => {
-      const formData = new FormData();
-      files.forEach((file) => formData.append('imagens', file));
-      return apiRequest(`/anuncios/${adId}/imagens`, { method: 'POST', body: formData });
-    },
+    upload: (adId, files) => apiRequest(`/anuncios/${adId}/imagens`, { method: 'POST', body: buildMultipartBody('imagens', files) }),
     remover: (adId, imageId) => apiRequest(`/anuncios/${adId}/imagens/${imageId}`, { method: 'DELETE' }),
     definirPrincipal: (adId, imageId) => apiRequest(`/anuncios/${adId}/imagens/${imageId}/principal`, { method: 'PATCH' }),
   },

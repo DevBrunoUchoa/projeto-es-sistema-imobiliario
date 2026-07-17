@@ -1,8 +1,9 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { imovelApi } from '../api/imovelApi';
 import { anuncioApi } from '../api/anuncioApi';
+import { useFilePicker } from '../hooks/useFilePicker';
 import { TIPO_IMOVEL_LABELS, TIPO_OFERTA_LABELS } from '../utils/anuncio';
 
 const TIPOS_IMOVEL = Object.keys(TIPO_IMOVEL_LABELS);
@@ -17,7 +18,7 @@ const STEPS = [
 
 export default function CriarAnuncio() {
   const navigate = useNavigate();
-  const fileInputRef = useRef(null);
+  const { inputRef: fileInputRef, openPicker: abrirSeletorFotos, resetPicker: limparSeletorFotos } = useFilePicker();
 
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
@@ -130,7 +131,7 @@ export default function CriarAnuncio() {
       const novasImagens = await anuncioApi.imagens.upload(anuncioId, filesToUpload);
       setImagens((current) => [...current, ...novasImagens]);
       setFilesToUpload([]);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      limparSeletorFotos();
     } catch (err) {
       setErrorMsg(err.message);
     } finally {
@@ -292,7 +293,7 @@ export default function CriarAnuncio() {
                       <img src={imagem.url} alt="" />
                     </div>
                   ))}
-                  <div className="photo-slot" onClick={() => fileInputRef.current?.click()}>
+                  <div className="photo-slot" onClick={abrirSeletorFotos}>
                     <i className="fa-solid fa-plus" />
                     <span>Adicionar</span>
                   </div>
