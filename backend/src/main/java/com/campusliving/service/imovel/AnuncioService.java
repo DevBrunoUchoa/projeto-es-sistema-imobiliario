@@ -497,6 +497,7 @@ public class AnuncioService {
                 permiteFumantes,
                 incluiAlimentacao,
                 parseTipoOferta(tipoOferta),
+                null,
                 pageable
         );
 
@@ -531,29 +532,22 @@ public class AnuncioService {
         Sort sort = getSort(sortBy);
         Pageable pageable = PageRequest.of(page, limit, sort);
 
-        Page<Anuncio> pageResult;
-
-        // Se tiver query textual, usa busca com texto
-        if (query != null && !query.trim().isEmpty()) {
-            pageResult = anuncioRepository.buscarPorTexto(
-                    Anuncio.Status.ATIVO,
-                    query.trim(),
-                    pageable
-            );
-        } else {
-            // Senão, usa os filtros normais
-            pageResult = anuncioRepository.findByFiltros(
-                    Anuncio.Status.ATIVO,
-                    precoMax,
-                    distanciaMaxMetros,
-                    mobiliado,
-                    permitePets,
-                    permiteFumantes,
-                    incluiAlimentacao,
-                    parseTipoOferta(tipoOferta),
-                    pageable
-            );
-        }
+        // Texto e os demais filtros (preço, tipo, comodidades) combinados
+        // na mesma query — antes, ter um texto de busca fazia os outros
+        // filtros serem ignorados silenciosamente.
+        String textoBusca = (query == null || query.trim().isEmpty()) ? null : query.trim();
+        Page<Anuncio> pageResult = anuncioRepository.findByFiltros(
+                Anuncio.Status.ATIVO,
+                precoMax,
+                distanciaMaxMetros,
+                mobiliado,
+                permitePets,
+                permiteFumantes,
+                incluiAlimentacao,
+                parseTipoOferta(tipoOferta),
+                textoBusca,
+                pageable
+        );
 
         List<AnuncioResponseDTO> items = pageResult.getContent().stream()
                 .map(this::mapToResponse)
