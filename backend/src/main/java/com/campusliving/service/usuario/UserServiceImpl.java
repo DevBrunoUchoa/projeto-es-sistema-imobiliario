@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.campusliving.dto.usuario.UserPostPutRequestDTO;
@@ -246,6 +247,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public void removerFavorito(UUID id, UUID adId, UUID requesterId) {
         repository.findById(id).orElseThrow(UserNotFoundException::new);
         exigirDono(requesterId, id);
