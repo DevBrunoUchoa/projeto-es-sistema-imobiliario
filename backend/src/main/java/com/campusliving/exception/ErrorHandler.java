@@ -9,12 +9,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -67,6 +71,47 @@ public class ErrorHandler {
         return ResponseEntity
                 .status(e.getStatus())
                 .body(defaultCustomErrorTypeConstruct(e.getMessage()));
+    }
+
+    // @PreAuthorize negado lança isso via AOP, na própria invocação do método
+    // do controller — chega aqui, não no ExceptionTranslationFilter do Spring
+    // Security (que só vê exceções da cadeia de filtros). Sem esse handler,
+    // TODO endpoint com @PreAuthorize devolvia 500 pra quem não tinha
+    // permissão, em vez de 403 (achado testando o painel admin).
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public CustomErrorType onAuthorizationDenied(AuthorizationDeniedException e) {
+        return defaultCustomErrorTypeConstruct("Você não tem permissão para acessar este recurso");
+    }
+
+    // Parâmetro obrigatório faltando (?adId=... etc.) e verbo HTTP errado pra
+    // rota também são erros do cliente que o Spring já sabe classificar
+    // corretamente — sem esses handlers, ambos caíam no catch-all como 500.
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public CustomErrorType onMissingParameter(MissingServletRequestParameterException e) {
+        return defaultCustomErrorTypeConstruct("Parâmetro obrigatório ausente: " + e.getParameterName());
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    @ResponseBody
+    public CustomErrorType onMethodNotSupported(HttpRequestMethodNotSupportedException e) {
+        return defaultCustomErrorTypeConstruct("Método HTTP não suportado para esta rota");
+    }
+
+    // Rota inexistente dentro de um prefixo permitAll (ex.: /auth/rota-que-nao-
+    // existe) chega até o DispatcherServlet sem passar pelo filtro de
+    // autenticação — e sem handler dedicado virava 500 em vez de 404. Fora dos
+    // prefixos permitAll o comportamento já é outro (401 do authenticationEntryPoint
+    // do SecurityConfig, que age antes disso).
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public CustomErrorType onNoResourceFound(NoResourceFoundException e) {
+        return defaultCustomErrorTypeConstruct("Rota não encontrada");
     }
 
     // Último recurso: qualquer exceção que não seja um dos tipos de negócio
