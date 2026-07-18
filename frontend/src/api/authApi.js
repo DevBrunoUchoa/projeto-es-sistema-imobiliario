@@ -6,4 +6,5 @@ export const authApi = {
   esqueciSenha: (payload) => apiRequest('/auth/forgot-password', { method: 'POST', body: payload }),
   redefinirSenha: (payload) => apiRequest('/auth/reset-password', { method: 'POST', body: payload }),
   verificarEmail: (token) => apiRequest(`/auth/verificar-email/${token}`),
+  refresh: () => apiRequest('/auth/refresh', { method: 'POST' }),
 };
