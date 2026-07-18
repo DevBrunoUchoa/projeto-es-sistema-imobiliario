@@ -39,6 +39,10 @@ public interface AnuncioRepository extends JpaRepository<Anuncio, UUID> {
 
     long countByStatus(Anuncio.Status status);
 
+    // Filtros e busca por texto combinados numa query só (antes eram duas
+    // queries separadas: quando havia texto, os outros filtros — preço,
+    // tipo, comodidades — eram silenciosamente ignorados, porque a busca por
+    // texto nem recebia esses parâmetros).
     @Query("SELECT a FROM Anuncio a " +
            "JOIN Imovel i ON a.imovelId = i.id " +
            "WHERE a.status = :status " +
@@ -48,7 +52,10 @@ public interface AnuncioRepository extends JpaRepository<Anuncio, UUID> {
            "AND (:permitePets IS NULL OR i.permitePets = :permitePets) " +
            "AND (:permiteFumantes IS NULL OR i.permiteFumantes = :permiteFumantes) " +
            "AND (:incluiAlimentacao IS NULL OR i.incluiAlimentacao = :incluiAlimentacao) " +
-           "AND (:tipoOferta IS NULL OR a.tipoOferta = :tipoOferta)")
+           "AND (:tipoOferta IS NULL OR a.tipoOferta = :tipoOferta) " +
+           "AND (:query IS NULL OR " +
+           "   LOWER(a.titulo) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "   LOWER(a.descricao) LIKE LOWER(CONCAT('%', :query, '%')))")
     Page<Anuncio> findByFiltros(
             @Param("status") Anuncio.Status status,
             @Param("precoMax") BigDecimal precoMax,
@@ -58,16 +65,6 @@ public interface AnuncioRepository extends JpaRepository<Anuncio, UUID> {
             @Param("permiteFumantes") Boolean permiteFumantes,
             @Param("incluiAlimentacao") Boolean incluiAlimentacao,
             @Param("tipoOferta") Anuncio.TipoOferta tipoOferta,
-            Pageable pageable
-    );
-
-    @Query("SELECT a FROM Anuncio a " +
-           "WHERE a.status = :status " +
-           "AND (:query IS NULL OR " +
-           "   LOWER(a.titulo) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-           "   LOWER(a.descricao) LIKE LOWER(CONCAT('%', :query, '%')))")
-    Page<Anuncio> buscarPorTexto(
-            @Param("status") Anuncio.Status status,
             @Param("query") String query,
             Pageable pageable
     );
