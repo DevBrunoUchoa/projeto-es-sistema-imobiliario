@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.campusliving.dto.usuario.UserPostPutRequestDTO;
@@ -168,10 +169,19 @@ public class UserServiceImpl implements UserService{
                 && repository.findById(requesterId)
                         .map(u -> u.getTipoConta() == User.Tipo.ADMIN)
                         .orElse(false);
+        // Sentido normal (RNF/LEG-03): o requerente (estudante) já registrou
+        // interesse em algum anúncio do dono do perfil (locador) — libera o
+        // contato do LOCADOR para o estudante.
         boolean contatoPrevio = !ehOProprio && !ehAdmin && requesterId != null
                 && contatoRepository.existeContatoEntre(requesterId, id);
 
-        boolean contatoLiberado = ehOProprio || ehAdmin || contatoPrevio;
+        // Sentido inverso: o dono do perfil (estudante) liberou o próprio
+        // contato ao requerente (locador) ao mandar uma mensagem marcando a
+        // opção de liberar — libera o contato do ESTUDANTE para o locador.
+        boolean estudanteLiberouContato = !ehOProprio && !ehAdmin && requesterId != null
+                && contatoRepository.existeContatoLiberadoEntre(id, requesterId);
+
+        boolean contatoLiberado = ehOProprio || ehAdmin || contatoPrevio || estudanteLiberouContato;
         return UserPublicProfileDTO.of(alvo, contatoLiberado);
     }
 
@@ -213,10 +223,17 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public FavoritoResponseDTO adicionarFavorito(UUID id, UUID adId, UUID requesterId) {
-        repository.findById(id).orElseThrow(UserNotFoundException::new);
+        User usuario = repository.findById(id).orElseThrow(UserNotFoundException::new);
         // Só faz sentido favoritar em nome de si mesmo; ADMIN não precisa
         // gerenciar favoritos de terceiros, então exigimos o próprio dono.
         exigirDono(requesterId, id);
+
+        // RF-26: favoritar é uma ação de quem busca moradia. LOCADOR puro não
+        // aluga para si mesmo, então não mantém lista de favoritos — bloqueamos
+        // no backend, não só escondendo o botão no frontend.
+        if (usuario.getTipoConta() == User.Tipo.LOCADOR) {
+            throw new AcessoNegadoException();
+        }
 
         if (!favoritoRepository.anuncioExiste(adId)) {
             throw new AnuncioNaoEncontradoException();
@@ -246,6 +263,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional
     public void removerFavorito(UUID id, UUID adId, UUID requesterId) {
         repository.findById(id).orElseThrow(UserNotFoundException::new);
         exigirDono(requesterId, id);

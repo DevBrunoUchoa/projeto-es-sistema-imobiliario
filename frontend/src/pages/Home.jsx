@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import Header from '../components/Header';
 import PropertyCard from '../components/PropertyCard';
 import { useAuth } from '../contexts/AuthContext';
@@ -23,6 +23,36 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { favoritos, toggle: toggleFavorito, habilitado: favoritosHabilitado } = useFavoritos();
+
+  // Copy da home muda conforme o perfil: LOCADOR puro vê a plataforma pela
+  // ótica de quem anuncia (encontrar locatário); todos os demais (estudante,
+  // conta mista, admin e visitante) veem a ótica de quem busca moradia.
+  const primeiroNome = user?.nome?.split(' ')[0];
+  const ehLocador = user?.role === 'LOCADOR';
+
+  const heroTitle = ehLocador
+    ? <>Olá, {primeiroNome}. Anuncie e encontre seu próximo <em>locatário</em></>
+    : user
+      ? <>Olá, {primeiroNome}. Encontre seu <em>novo lar</em></>
+      : <>Encontre sua <em>moradia</em><br />próxima à universidade</>;
+
+  const heroSub = ehLocador
+    ? 'Publique seus imóveis, acompanhe seus anúncios e conecte-se com estudantes que procuram moradia perto da UFCG.'
+    : 'Explore os imóveis anunciados perto da UFCG e encontre o lugar certo para o seu próximo semestre.';
+
+  const passos = ehLocador
+    ? [
+        ['fa-house-circle-check', '01', 'Publique seu imóvel', 'Cadastre fotos, preço e regras da casa em poucos minutos.'],
+        ['fa-envelope-open-text', '02', 'Receba interessados', 'Estudantes encontram seu anúncio e enviam mensagens de interesse.'],
+        ['fa-handshake', '03', 'Feche negócio', 'Converse com os interessados e marque o imóvel como alugado.'],
+      ]
+    : [
+        ['fa-magnifying-glass', '01', 'Busque seu imóvel', 'Use os filtros para encontrar opções alinhadas à sua rotina universitária.'],
+        ['fa-user-check', '02', 'Complete seu perfil', 'Mantenha curso, instituição e apresentação pessoal atualizados.'],
+        ['fa-comments', '03', 'Entre em contato', 'Veja os detalhes do anúncio e fale com o anunciante.'],
+      ];
+
+  const propsHeading = ehLocador ? 'Imóveis anunciados na plataforma' : 'Imóveis em destaque';
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -62,8 +92,8 @@ export default function Home() {
           <div className="hero-blobs"><div className="blob b1" /><div className="blob b2" /><div className="blob b3" /></div>
 
           <div className="hero-content">
-            <h1 className="hero-title">{user ? <>Olá, {user.nome?.split(' ')[0]}. Encontre seu <em>novo lar</em></> : <>Encontre sua <em>moradia</em><br />próxima à universidade</>}</h1>
-            <p className="hero-sub">Explore os imóveis anunciados perto da UFCG e encontre o lugar certo para o seu próximo semestre.</p>
+            <h1 className="hero-title">{heroTitle}</h1>
+            <p className="hero-sub">{heroSub}</p>
 
             <div className="search-bar">
               <div className="sb-field">
@@ -106,7 +136,7 @@ export default function Home() {
         <section className="props-section" id="imoveis">
           <div className="container">
             <div className="props-header">
-              <div><h2 className="section-title">Imóveis em destaque</h2><p className="result-count">{loading ? 'Carregando...' : error ? ' ' : `${totalItems} ${totalItems === 1 ? 'opção encontrada' : 'opções encontradas'}`}</p></div>
+              <div><h2 className="section-title">{propsHeading}</h2><p className="result-count">{loading ? 'Carregando...' : error ? ' ' : `${totalItems} ${totalItems === 1 ? 'opção encontrada' : 'opções encontradas'}`}</p></div>
             </div>
 
             {error && (
@@ -134,11 +164,12 @@ export default function Home() {
           <div className="container">
             <div className="hiw-header"><p className="section-eyebrow">Simples assim</p><h2 className="section-title">Como funciona</h2></div>
             <div className="hiw-grid">
-              <div className="hiw-card"><div className="hiw-icon-wrap"><i className="fa-solid fa-magnifying-glass" /></div><span className="hiw-step-num">01</span><h3>Busque seu imóvel</h3><p>Use os filtros para encontrar opções alinhadas à sua rotina universitária.</p></div>
-              <div className="hiw-connector" />
-              <div className="hiw-card"><div className="hiw-icon-wrap"><i className="fa-solid fa-user-check" /></div><span className="hiw-step-num">02</span><h3>Complete seu perfil</h3><p>Mantenha curso, instituição e apresentação pessoal atualizados.</p></div>
-              <div className="hiw-connector" />
-              <div className="hiw-card"><div className="hiw-icon-wrap"><i className="fa-solid fa-comments" /></div><span className="hiw-step-num">03</span><h3>Entre em contato</h3><p>Veja os detalhes do anúncio e fale com o anunciante.</p></div>
+              {passos.map(([icon, num, titulo, desc], i) => (
+                <Fragment key={num}>
+                  {i > 0 && <div className="hiw-connector" />}
+                  <div className="hiw-card"><div className="hiw-icon-wrap"><i className={`fa-solid ${icon}`} /></div><span className="hiw-step-num">{num}</span><h3>{titulo}</h3><p>{desc}</p></div>
+                </Fragment>
+              ))}
             </div>
           </div>
         </section>

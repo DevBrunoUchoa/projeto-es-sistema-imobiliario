@@ -1,12 +1,12 @@
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import NotificationBell from './NotificationBell';
-
-const PODE_ANUNCIAR = ['LOCADOR', 'MISTO', 'ADMIN'];
+import { PODE_ANUNCIAR, PODE_BUSCAR_MORADIA } from '../utils/roles';
 
 export default function Header() {
   const { user, clearLocalSession } = useAuth();
   const podeAnunciar = user && PODE_ANUNCIAR.includes(user.role);
+  const podeBuscarMoradia = user && PODE_BUSCAR_MORADIA.includes(user.role);
 
   return (
     <header className="navbar scrolled">
@@ -19,11 +19,11 @@ export default function Header() {
         <nav className="nav-links home-nav-links" aria-label="Navegação principal">
           <Link to="/#imoveis" className="nav-link">Alugar</Link>
           <Link to="/#como-funciona" className="nav-link">Como funciona</Link>
-          <Link to="/roommates" className="nav-link">Roommates</Link>
+          {podeBuscarMoradia && <Link to="/roommates" className="nav-link">Roommates</Link>}
           {podeAnunciar && <Link to="/criar-anuncio" className="nav-link">Anunciar</Link>}
           {podeAnunciar && <Link to="/meus-anuncios" className="nav-link">Meus anúncios</Link>}
           {user && <Link to="/avaliacoes" className="nav-link">Avaliações</Link>}
-          {user && <Link to="/favoritos" className="nav-link"><i className="fa-solid fa-heart" style={{ marginRight: 4 }} />Favoritos</Link>}
+          {podeBuscarMoradia && <Link to="/favoritos" className="nav-link"><i className="fa-solid fa-heart" style={{ marginRight: 4 }} />Favoritos</Link>}
           {user && <Link to="/mensagens" className="nav-link">Mensagens</Link>}
           {user?.role === 'ADMIN' && <Link to="/admin" className="nav-link">Admin</Link>}
         </nav>
@@ -33,7 +33,15 @@ export default function Header() {
             <>
               <NotificationBell />
               <NavLink to="/perfil" className="profile-nav-link">
-                <span className="profile-nav-avatar">{user.nome?.charAt(0)?.toUpperCase() || 'U'}</span>
+                {user.fotoUrl ? (
+                  <img
+                    className="profile-nav-avatar profile-nav-avatar-img"
+                    src={user.fotoUrl}
+                    alt={user.nome || 'Foto de perfil'}
+                  />
+                ) : (
+                  <span className="profile-nav-avatar">{user.nome?.charAt(0)?.toUpperCase() || 'U'}</span>
+                )}
                 <span className="profile-nav-copy">
                   <small>Olá,</small>
                   <strong>{user.nome?.split(' ')[0] || 'Usuário'}</strong>

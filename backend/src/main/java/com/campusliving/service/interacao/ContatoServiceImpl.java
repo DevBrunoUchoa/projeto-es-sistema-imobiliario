@@ -54,6 +54,7 @@ public class ContatoServiceImpl implements ContatoService {
                 .adId(dto.getAdId())
                 .mensagem(dto.getMensagem())
                 .status(Contato.Status.ENVIADO.name())
+                .contatoLiberado(dto.isLiberarContato())
                 .build();
         contatoRepository.save(contato);
 

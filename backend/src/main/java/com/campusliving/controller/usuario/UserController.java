@@ -24,6 +24,7 @@ import com.campusliving.dto.roommate.PerfilRoommateResponseDTO;
 import com.campusliving.dto.roommate.PreferenciasRoommateRequestDTO;
 import com.campusliving.dto.usuario.UserPostPutRequestDTO;
 import com.campusliving.dto.usuario.UserUpdateRequestDTO;
+import com.campusliving.exception.usuario.AcessoNegadoException;
 import com.campusliving.model.usuario.User;
 import com.campusliving.service.roommate.RoommateService;
 import com.campusliving.service.usuario.UserService;
@@ -156,6 +157,11 @@ public class UserController {
             @PathVariable UUID id,
             @RequestBody PreferenciasRoommateRequestDTO dto,
             @AuthenticationPrincipal User usuarioAutenticado) {
+        // RF-32: preferências de roommate são de quem busca moradia; LOCADOR
+        // puro não participa da funcionalidade (mesma regra do RoommateController).
+        if (usuarioAutenticado != null && usuarioAutenticado.getTipoConta() == User.Tipo.LOCADOR) {
+            throw new AcessoNegadoException();
+        }
         PerfilRoommateResponseDTO perfil = roommateService.salvarPreferencias(id, dto, idDe(usuarioAutenticado));
         return ResponseEntity.status(HttpStatus.OK).body(perfil);
     }

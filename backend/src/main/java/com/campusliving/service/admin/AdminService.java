@@ -84,11 +84,11 @@ public class AdminService {
     @Transactional
     public AdminVerificarLocadorResponseDTO verificarLocador(UUID userId, Boolean verificado, UUID adminId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ProjectException("Usuário não encontrado", HttpStatus.NOT_FOUND));
 
         // Verificar se o usuário é LOCADOR ou MISTO (também anuncia imóveis)
         if (user.getTipoConta() != User.Tipo.LOCADOR && user.getTipoConta() != User.Tipo.MISTO) {
-            throw new RuntimeException("Apenas usuários do tipo LOCADOR ou MISTO podem ser verificados");
+            throw new ProjectException("Apenas usuários do tipo LOCADOR ou MISTO podem ser verificados", HttpStatus.BAD_REQUEST);
         }
 
         user.setVerificado(verificado);

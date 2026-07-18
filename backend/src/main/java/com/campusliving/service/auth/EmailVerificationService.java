@@ -1,5 +1,6 @@
 package com.campusliving.service.auth;
 
+import com.campusliving.exception.ProjectException;
 import com.campusliving.model.usuario.PasswordResetToken;
 import com.campusliving.model.usuario.User;
 import com.campusliving.repository.usuario.PasswordResetTokenRepository;
@@ -7,6 +8,7 @@ import com.campusliving.repository.usuario.UserRepository;
 import com.campusliving.service.audit.AuditLogService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,11 +46,11 @@ public class EmailVerificationService {
         PasswordResetToken verificationToken = tokenRepository.findAll().stream()
                 .filter(t -> t.getTokenHash().equals(token) && !t.isUsado())
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Token inválido ou já utilizado"));
+                .orElseThrow(() -> new ProjectException("Token inválido ou já utilizado", HttpStatus.BAD_REQUEST));
 
         //Verifica se expirou
         if (verificationToken.getExpiraEm().isBefore(OffsetDateTime.now())) {
-            throw new RuntimeException("Token expirado");
+            throw new ProjectException("Token expirado", HttpStatus.BAD_REQUEST);
         }
 
         //Marca como usado
@@ -57,7 +59,7 @@ public class EmailVerificationService {
 
         //Ativa o usuário
         User user = userRepository.findById(verificationToken.getUserId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ProjectException("Usuário não encontrado", HttpStatus.NOT_FOUND));
 
         user.setVerificado(true);
         userRepository.save(user);

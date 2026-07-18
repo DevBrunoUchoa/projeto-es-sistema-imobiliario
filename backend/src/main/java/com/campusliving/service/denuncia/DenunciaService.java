@@ -2,6 +2,7 @@ package com.campusliving.service.denuncia;
 
 import com.campusliving.dto.denuncia.DenunciaRequestDTO;
 import com.campusliving.dto.denuncia.DenunciaResponseDTO;
+import com.campusliving.exception.ProjectException;
 import com.campusliving.model.denuncia.Denuncia;
 import com.campusliving.model.imovel.Anuncio;
 import com.campusliving.model.usuario.User;
@@ -10,6 +11,7 @@ import com.campusliving.repository.imovel.AnuncioRepository;
 import com.campusliving.repository.usuario.UserRepository;
 import com.campusliving.service.audit.AuditLogService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +34,7 @@ public class DenunciaService {
         System.out.println(">>> CRIANDO DENÚNCIA para: " + request.getAlvoId());
         List<User> users = userRepository.findByEmail(email);
         if (users.isEmpty()) {
-            throw new RuntimeException("Usuário não encontrado");
+            throw new ProjectException("Usuário não encontrado", HttpStatus.NOT_FOUND);
         }
         User denunciante = users.get(0);
 
@@ -40,14 +42,14 @@ public class DenunciaService {
         try {
             tipoAlvo = Denuncia.TipoAlvo.valueOf(request.getTipoAlvo().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Tipo de alvo inválido. Valores: ANUNCIO, USUARIO");
+            throw new ProjectException("Tipo de alvo inválido. Valores: ANUNCIO, USUARIO", HttpStatus.BAD_REQUEST);
         }
 
         Denuncia.Motivo motivo;
         try {
             motivo = Denuncia.Motivo.valueOf(request.getMotivo().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Motivo inválido. Valores: CONTEUDO_INADEQUADO, SPAM, FRAUDE, ASSEDIO, OUTROS");
+            throw new ProjectException("Motivo inválido. Valores: CONTEUDO_INADEQUADO, SPAM, FRAUDE, ASSEDIO, OUTROS", HttpStatus.BAD_REQUEST);
         }
 
         UUID alvoId = UUID.fromString(request.getAlvoId());
@@ -55,7 +57,7 @@ public class DenunciaService {
         List<Denuncia> denunciasExistentes = denunciaRepository.findByDenuncianteIdAndAlvoIdAndStatus(
                 denunciante.getId(), alvoId, Denuncia.Status.PENDENTE);
         if (!denunciasExistentes.isEmpty()) {
-            throw new RuntimeException("Você já denunciou este alvo. Aguarde a análise.");
+            throw new ProjectException("Você já denunciou este alvo. Aguarde a análise.", HttpStatus.CONFLICT);
         }
 
         Denuncia denuncia = Denuncia.builder()
@@ -101,7 +103,7 @@ public class DenunciaService {
             if (tipoAlvo == Denuncia.TipoAlvo.ANUNCIO) {
 
                 Anuncio anuncio = anuncioRepository.findById(alvoId)
-                        .orElseThrow(() -> new RuntimeException("Anúncio não encontrado"));
+                        .orElseThrow(() -> new ProjectException("Anúncio não encontrado", HttpStatus.NOT_FOUND));
 
                 if (anuncio.getStatus() == Anuncio.Status.ATIVO) {
                     anuncio.setStatus(Anuncio.Status.INATIVO);

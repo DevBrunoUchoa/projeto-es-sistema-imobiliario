@@ -2,6 +2,7 @@ package com.campusliving.utilities.security;
 
 import com.campusliving.config.security.JwtAuthenticationFilter;
 import com.campusliving.config.security.OAuth2SuccessHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -57,13 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**", "/oauth2/**", "/login/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
-                        // Navegação pública do catálogo para o ator "Visitante"
-                        // (RF-15/21/22/23/24/25 e RF-07). São somente leituras
-                        // (GET). Dados de contato do locador seguem mascarados
-                        // para não autenticados no /usuarios/*/publico
-                        // (RNF/LEG-03); os DTOs de anúncio não expõem contato.
-                        // As escritas (POST/PUT/PATCH/DELETE) continuam exigindo
-                        // autenticação/role via .anyRequest() e @PreAuthorize.
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.GET, "/anuncios", "/anuncios/*", "/anuncios/*/imagens").permitAll()
                         .requestMatchers(HttpMethod.GET, "/usuarios/*/publico").permitAll()
                         .requestMatchers(HttpMethod.GET, "/avaliacoes/**").permitAll()
@@ -82,7 +77,10 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(
+                        (request, response, authException) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Nao autenticado")));
 
         return http.build();
     }

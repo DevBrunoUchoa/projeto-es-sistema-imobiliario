@@ -31,7 +31,7 @@ public class ImovelService {
         // Buscar o proprietário pelo email
         List<User> users = userRepository.findByEmail(email);
         if (users.isEmpty()) {
-            throw new RuntimeException("Proprietário não encontrado");
+            throw new ProjectException("Proprietário não encontrado", HttpStatus.NOT_FOUND);
         }
         User proprietario = users.get(0);
         UUID proprietarioId = proprietario.getId();
@@ -40,7 +40,7 @@ public class ImovelService {
         if (!"LOCADOR".equals(proprietario.getTipoConta().name()) &&
             !"MISTO".equals(proprietario.getTipoConta().name()) &&
             !"ADMIN".equals(proprietario.getTipoConta().name())) {
-            throw new RuntimeException("Apenas LOCADOR, MISTO ou ADMIN podem criar imóveis");
+            throw new ProjectException("Apenas LOCADOR, MISTO ou ADMIN podem criar imóveis", HttpStatus.FORBIDDEN);
         }
 
         // RF-16: se o cliente não informou coordenadas, geocodifica o endereço

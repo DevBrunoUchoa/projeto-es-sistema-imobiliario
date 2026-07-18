@@ -20,6 +20,7 @@ import com.campusliving.dto.roommate.RoommateCompativelDTO;
 import com.campusliving.dto.roommate.RoommateMatchRequestDTO;
 import com.campusliving.dto.roommate.RoommateMatchResponseDTO;
 import com.campusliving.dto.roommate.RoommateMatchStatusUpdateDTO;
+import com.campusliving.exception.usuario.AcessoNegadoException;
 import com.campusliving.model.usuario.User;
 import com.campusliving.service.roommate.RoommateService;
 
@@ -46,11 +47,22 @@ public class RoommateController {
         return usuarioAutenticado == null ? null : usuarioAutenticado.getId();
     }
 
+    // RF-32..35: roommates é uma funcionalidade de quem busca moradia. LOCADOR
+    // puro não participa (não aluga para si mesmo), então bloqueamos o acesso a
+    // toda a área — não basta esconder o link no frontend. O papel vem do
+    // usuário autenticado (JWT), nunca de valor enviado pelo cliente.
+    private static void exigirPapelDeRoommate(User usuarioAutenticado) {
+        if (usuarioAutenticado != null && usuarioAutenticado.getTipoConta() == User.Tipo.LOCADOR) {
+            throw new AcessoNegadoException();
+        }
+    }
+
     // --- T5.8.2: RF-32 -------------------------------------------------------
     @PostMapping("/perfil")
     public ResponseEntity<?> ativarPerfil(
             @RequestBody PerfilRoommateRequestDTO dto,
             @AuthenticationPrincipal User usuarioAutenticado) {
+        exigirPapelDeRoommate(usuarioAutenticado);
         PerfilRoommateResponseDTO perfil = roommateService.ativarPerfil(dto, idDe(usuarioAutenticado));
         return ResponseEntity.status(HttpStatus.OK).body(perfil);
     }
@@ -58,6 +70,7 @@ public class RoommateController {
     @GetMapping("/perfil")
     public ResponseEntity<?> meuPerfil(
             @AuthenticationPrincipal User usuarioAutenticado) {
+        exigirPapelDeRoommate(usuarioAutenticado);
         PerfilRoommateResponseDTO perfil = roommateService.buscarMeuPerfil(idDe(usuarioAutenticado));
         return ResponseEntity.status(HttpStatus.OK).body(perfil);
     }
@@ -65,6 +78,7 @@ public class RoommateController {
     @GetMapping("/match/pendentes")
     public ResponseEntity<?> listarPendentes(
             @AuthenticationPrincipal User usuarioAutenticado) {
+        exigirPapelDeRoommate(usuarioAutenticado);
         List<RoommateMatchResponseDTO> pendentes = roommateService.listarSolicitacoesPendentes(idDe(usuarioAutenticado));
         return ResponseEntity.status(HttpStatus.OK).body(pendentes);
     }
@@ -73,6 +87,7 @@ public class RoommateController {
     @GetMapping("/compativeis")
     public ResponseEntity<?> listarCompativeis(
             @AuthenticationPrincipal User usuarioAutenticado) {
+        exigirPapelDeRoommate(usuarioAutenticado);
         List<RoommateCompativelDTO> compativeis = roommateService.listarCompativeis(idDe(usuarioAutenticado));
         return ResponseEntity.status(HttpStatus.OK).body(compativeis);
     }
@@ -82,6 +97,7 @@ public class RoommateController {
     public ResponseEntity<?> solicitarMatch(
             @RequestBody @Valid RoommateMatchRequestDTO dto,
             @AuthenticationPrincipal User usuarioAutenticado) {
+        exigirPapelDeRoommate(usuarioAutenticado);
         RoommateMatchResponseDTO match = roommateService.solicitarMatch(dto, idDe(usuarioAutenticado));
         return ResponseEntity.status(HttpStatus.CREATED).body(match);
     }
@@ -92,6 +108,7 @@ public class RoommateController {
             @PathVariable UUID id,
             @RequestBody @Valid RoommateMatchStatusUpdateDTO dto,
             @AuthenticationPrincipal User usuarioAutenticado) {
+        exigirPapelDeRoommate(usuarioAutenticado);
         RoommateMatchResponseDTO match = roommateService.responderMatch(id, dto, idDe(usuarioAutenticado));
         return ResponseEntity.status(HttpStatus.OK).body(match);
     }

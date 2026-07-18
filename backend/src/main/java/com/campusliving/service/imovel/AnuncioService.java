@@ -7,6 +7,7 @@ import com.campusliving.dto.anuncio.AnuncioDetalhesResponseDTO;
 import com.campusliving.dto.anuncio.AnuncioRequestDTO;
 import com.campusliving.dto.anuncio.AnuncioResponseDTO;
 import com.campusliving.dto.anuncio.AnuncioUpdateRequestDTO;
+import com.campusliving.exception.ProjectException;
 import com.campusliving.model.imovel.Anuncio;
 import com.campusliving.model.imovel.Imovel;
 import com.campusliving.model.usuario.User;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,7 +60,7 @@ public class AnuncioService {
         // 1. Buscar o locador pelo email
         List<User> users = userRepository.findByEmail(email);
         if (users.isEmpty()) {
-            throw new RuntimeException("Locador não encontrado");
+            throw new ProjectException("Locador não encontrado", HttpStatus.NOT_FOUND);
         }
         User locador = users.get(0);
         UUID locadorId = locador.getId();
@@ -67,23 +69,23 @@ public class AnuncioService {
         if (!"LOCADOR".equals(locador.getTipoConta().name()) &&
             !"MISTO".equals(locador.getTipoConta().name()) &&
             !"ADMIN".equals(locador.getTipoConta().name())) {
-            throw new RuntimeException("Apenas LOCADOR, MISTO ou ADMIN podem publicar anúncios");
+            throw new ProjectException("Apenas LOCADOR, MISTO ou ADMIN podem publicar anúncios", HttpStatus.FORBIDDEN);
         }
 
         // 3. Buscar o imóvel
         UUID imovelId = UUID.fromString(request.getImovelId());
         Imovel imovel = imovelRepository.findById(imovelId)
-                .orElseThrow(() -> new RuntimeException("Imóvel não encontrado"));
+                .orElseThrow(() -> new ProjectException("Imóvel não encontrado", HttpStatus.NOT_FOUND));
 
         // 4. Verificar se o imóvel pertence ao locador
         if (!imovel.getProprietarioId().equals(locadorId)) {
-            throw new RuntimeException("Este imóvel não pertence ao locador informado");
+            throw new ProjectException("Este imóvel não pertence ao locador informado", HttpStatus.FORBIDDEN);
         }
 
         // 5. Verificar se já existe um anúncio ATIVO para este imóvel
         List<Anuncio> anunciosExistentes = anuncioRepository.findByImovelIdAndStatus(imovelId, Anuncio.Status.ATIVO);
         if (!anunciosExistentes.isEmpty()) {
-            throw new RuntimeException("Já existe um anúncio ativo para este imóvel");
+            throw new ProjectException("Já existe um anúncio ativo para este imóvel", HttpStatus.CONFLICT);
         }
 
         // RF-16 (RNF/PER-04): distância até a UFCG pré-computada na publicação,
@@ -149,18 +151,18 @@ public class AnuncioService {
         // 1. Buscar o locador
         List<User> users = userRepository.findByEmail(email);
         if (users.isEmpty()) {
-            throw new RuntimeException("Locador não encontrado");
+            throw new ProjectException("Locador não encontrado", HttpStatus.NOT_FOUND);
         }
         User locador = users.get(0);
         UUID locadorId = locador.getId();
 
         // 2. Buscar o anúncio
         Anuncio anuncio = anuncioRepository.findById(anuncioId)
-                .orElseThrow(() -> new RuntimeException("Anúncio não encontrado"));
+                .orElseThrow(() -> new ProjectException("Anúncio não encontrado", HttpStatus.NOT_FOUND));
 
         // 3. Verificar se o locador é o dono do anúncio (ou ADMIN)
         if (!anuncio.getLocadorId().equals(locadorId) && !"ADMIN".equals(locador.getTipoConta().name())) {
-            throw new RuntimeException("Você não tem permissão para alterar este anúncio");
+            throw new ProjectException("Você não tem permissão para alterar este anúncio", HttpStatus.FORBIDDEN);
         }
 
         // 4. Validar o status
@@ -168,7 +170,7 @@ public class AnuncioService {
             Anuncio.Status status = Anuncio.Status.valueOf(novoStatus);
             anuncio.setStatus(status);
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Status inválido. Valores permitidos: ATIVO, INATIVO, ALUGADO");
+            throw new ProjectException("Status inválido. Valores permitidos: ATIVO, INATIVO, ALUGADO", HttpStatus.BAD_REQUEST);
         }
 
         Anuncio savedAnuncio = anuncioRepository.save(anuncio);
@@ -188,7 +190,7 @@ public class AnuncioService {
     public List<AnuncioResponseDTO> listarMeusAnuncios(String email) {
         List<User> users = userRepository.findByEmail(email);
         if (users.isEmpty()) {
-            throw new RuntimeException("Locador não encontrado");
+            throw new ProjectException("Locador não encontrado", HttpStatus.NOT_FOUND);
         }
         UUID locadorId = users.get(0).getId();
 
@@ -221,18 +223,18 @@ public class AnuncioService {
         // 1. Buscar o locador
         List<User> users = userRepository.findByEmail(email);
         if (users.isEmpty()) {
-            throw new RuntimeException("Locador não encontrado");
+            throw new ProjectException("Locador não encontrado", HttpStatus.NOT_FOUND);
         }
         User locador = users.get(0);
         UUID locadorId = locador.getId();
 
         // 2. Buscar o anúncio
         Anuncio anuncio = anuncioRepository.findById(anuncioId)
-                .orElseThrow(() -> new RuntimeException("Anúncio não encontrado"));
+                .orElseThrow(() -> new ProjectException("Anúncio não encontrado", HttpStatus.NOT_FOUND));
 
         // 3. Verificar permissão (dono ou ADMIN)
         if (!anuncio.getLocadorId().equals(locadorId) && !"ADMIN".equals(locador.getTipoConta().name())) {
-            throw new RuntimeException("Você não tem permissão para editar este anúncio");
+            throw new ProjectException("Você não tem permissão para editar este anúncio", HttpStatus.FORBIDDEN);
         }
 
         // 4. Atualizar os campos
@@ -262,11 +264,11 @@ public class AnuncioService {
     public AnuncioDetalhesResponseDTO buscarDetalhes(UUID anuncioId) {
         // 1. Buscar o anúncio
         Anuncio anuncio = anuncioRepository.findById(anuncioId)
-                .orElseThrow(() -> new RuntimeException("Anúncio não encontrado"));
+                .orElseThrow(() -> new ProjectException("Anúncio não encontrado", HttpStatus.NOT_FOUND));
 
         // 2. Buscar o imóvel
         Imovel imovel = imovelRepository.findById(anuncio.getImovelId())
-                .orElseThrow(() -> new RuntimeException("Imóvel não encontrado"));
+                .orElseThrow(() -> new ProjectException("Imóvel não encontrado", HttpStatus.NOT_FOUND));
 
         // 3. Incrementar visualizações
         anuncio.setVisualizacoes(anuncio.getVisualizacoes() + 1);
@@ -329,17 +331,17 @@ public class AnuncioService {
         // 1. Buscar o locador
         List<User> users = userRepository.findByEmail(email);
         if (users.isEmpty()) {
-            throw new RuntimeException("Locador não encontrado");
+            throw new ProjectException("Locador não encontrado", HttpStatus.NOT_FOUND);
         }
         User locador = users.get(0);
 
         // 2. Buscar o anúncio
         Anuncio anuncio = anuncioRepository.findById(anuncioId)
-                .orElseThrow(() -> new RuntimeException("Anúncio não encontrado"));
+                .orElseThrow(() -> new ProjectException("Anúncio não encontrado", HttpStatus.NOT_FOUND));
 
         // 3. Verificar permissão (apenas dono ou ADMIN)
         if (!anuncio.getLocadorId().equals(locador.getId()) && !"ADMIN".equals(locador.getTipoConta().name())) {
-            throw new RuntimeException("Você não tem permissão para ver as estatísticas deste anúncio");
+            throw new ProjectException("Você não tem permissão para ver as estatísticas deste anúncio", HttpStatus.FORBIDDEN);
         }
 
         // 4. Buscar visualizações agrupadas por dia
@@ -370,7 +372,7 @@ public class AnuncioService {
     private AnuncioMapaResponseDTO mapToMapaResponse(Anuncio anuncio) {
         // Buscar o imóvel para obter latitude/longitude
         Imovel imovel = imovelRepository.findById(anuncio.getImovelId())
-                .orElseThrow(() -> new RuntimeException("Imóvel não encontrado"));
+                .orElseThrow(() -> new ProjectException("Imóvel não encontrado", HttpStatus.NOT_FOUND));
 
         return AnuncioMapaResponseDTO.builder()
                 .id(anuncio.getId())
@@ -434,6 +436,25 @@ public class AnuncioService {
                 .build();
     }
 
+    // Converte o parâmetro de query (String) para o enum da entidade. O JPQL
+    // de findByFiltros compara diretamente com o campo `a.tipoOferta`, que é
+    // do tipo Anuncio.TipoOferta — passar uma String "crua" nesse bind faz o
+    // Hibernate lançar IllegalArgumentException em tempo de execução (o tipo
+    // do parâmetro não bate com o tipo esperado pelo path da query), o que
+    // vira um 500 sem handler dedicado e, por ser um forward interno para
+    // /error, acaba sendo barrado pelo Spring Security como 401 antes de
+    // chegar à resposta real. Valor inválido/nulo apenas ignora o filtro.
+    private Anuncio.TipoOferta parseTipoOferta(String tipoOferta) {
+        if (tipoOferta == null || tipoOferta.isBlank()) {
+            return null;
+        }
+        try {
+            return Anuncio.TipoOferta.valueOf(tipoOferta.trim());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
     private Sort getSort(String sortBy) {
         if (sortBy == null) {
             return Sort.by(Sort.Direction.DESC, "dataPublicacao");
@@ -475,7 +496,7 @@ public class AnuncioService {
                 permitePets,
                 permiteFumantes,
                 incluiAlimentacao,
-                tipoOferta,
+                parseTipoOferta(tipoOferta),
                 pageable
         );
 
@@ -529,7 +550,7 @@ public class AnuncioService {
                     permitePets,
                     permiteFumantes,
                     incluiAlimentacao,
-                    tipoOferta,
+                    parseTipoOferta(tipoOferta),
                     pageable
             );
         }

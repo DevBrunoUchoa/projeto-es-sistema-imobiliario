@@ -56,7 +56,7 @@ export default function Favoritos() {
             {!loading && !error && visiveis.length > 0 && (
               <div className="props-grid">
                 {visiveis.map((anuncio) => (
-                  <PropertyCard key={anuncio.id} anuncio={anuncio} favorito onToggleFavorito={toggle} />
+                  <PropertyCard key={anuncio.id} anuncio={anuncio} favorito={favoritos.has(anuncio.id)} onToggleFavorito={toggle} />
                 ))}
               </div>
             )}

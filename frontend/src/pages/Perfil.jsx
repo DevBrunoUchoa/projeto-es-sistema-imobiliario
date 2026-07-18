@@ -61,6 +61,7 @@ export default function Perfil() {
 
         setProfile(normalized);
         setDraft(normalized);
+        updateLocalUser({ fotoUrl: normalized.fotoUrl });
       })
       .catch((err) => {
         if (err.name !== 'AbortError') {
@@ -152,6 +153,8 @@ export default function Perfil() {
         ...current,
         fotoUrl: updated.fotoUrl,
       }));
+
+      updateLocalUser({ fotoUrl: updated.fotoUrl });
 
       setMessage({
         type: 'success',
