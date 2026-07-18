@@ -39,6 +39,10 @@
     {
       "source": "/admin/:p+",
       "destination": "https://campus-living-api.onrender.com/admin/:p+"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
