@@ -33,7 +33,15 @@ export default function Header() {
             <>
               <NotificationBell />
               <NavLink to="/perfil" className="profile-nav-link">
-                <span className="profile-nav-avatar">{user.nome?.charAt(0)?.toUpperCase() || 'U'}</span>
+                {user.fotoUrl ? (
+                  <img
+                    className="profile-nav-avatar profile-nav-avatar-img"
+                    src={user.fotoUrl}
+                    alt={user.nome || 'Foto de perfil'}
+                  />
+                ) : (
+                  <span className="profile-nav-avatar">{user.nome?.charAt(0)?.toUpperCase() || 'U'}</span>
+                )}
                 <span className="profile-nav-copy">
                   <small>Olá,</small>
                   <strong>{user.nome?.split(' ')[0] || 'Usuário'}</strong>
