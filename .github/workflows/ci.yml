@@ -2,6 +2,10 @@ name: CI
 
 # Executa build e testes automaticamente a cada Pull Request para a main.
 # (RNF/PROC-05 - integração contínua a cada pull request)
+#
+# Estrutura monorepo: o backend fica em backend/. Este workflow precisa viver
+# na RAIZ do repositório (o GitHub Actions só lê .github/workflows/ da raiz),
+# mas compila dentro de backend/ via working-directory.
 on:
   pull_request:
     branches: [ main ]
@@ -11,6 +15,9 @@ jobs:
   build-and-test:
     name: Build & Test (Java 21)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,6 +28,7 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
+          cache-dependency-path: backend/pom.xml
 
       - name: Build and run tests
         # 'verify' compila, empacota e executa os testes.
