@@ -1,0 +1,44 @@
+{
+  "rewrites": [
+    {
+      "source": "/auth/:p*",
+      "destination": "https://campus-living-api.onrender.com/auth/:p*"
+    },
+    {
+      "source": "/usuarios/:p*",
+      "destination": "https://campus-living-api.onrender.com/usuarios/:p*"
+    },
+    {
+      "source": "/anuncios/:p*",
+      "destination": "https://campus-living-api.onrender.com/anuncios/:p*"
+    },
+    {
+      "source": "/imoveis",
+      "destination": "https://campus-living-api.onrender.com/imoveis"
+    },
+    {
+      "source": "/interesses/:p*",
+      "destination": "https://campus-living-api.onrender.com/interesses/:p*"
+    },
+    {
+      "source": "/denuncias/:p*",
+      "destination": "https://campus-living-api.onrender.com/denuncias/:p*"
+    },
+    {
+      "source": "/avaliacoes/:p*",
+      "destination": "https://campus-living-api.onrender.com/avaliacoes/:p*"
+    },
+    {
+      "source": "/roommates/:p+",
+      "destination": "https://campus-living-api.onrender.com/roommates/:p+"
+    },
+    {
+      "source": "/notificacoes/:p*",
+      "destination": "https://campus-living-api.onrender.com/notificacoes/:p*"
+    },
+    {
+      "source": "/admin/:p+",
+      "destination": "https://campus-living-api.onrender.com/admin/:p+"
+    }
+  ]
+}
