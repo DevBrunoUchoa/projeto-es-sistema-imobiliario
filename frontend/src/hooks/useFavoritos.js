@@ -16,7 +16,7 @@ export function useFavoritos() {
   useEffect(() => {
     let ativo = true;
 
-    if (!user) {ß
+    if (!user) {
       atualizarFavoritos(new Set());
       return () => { ativo = false; };
     }
