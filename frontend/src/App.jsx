@@ -38,7 +38,7 @@ export default function App() {
       <Route path="/criar-anuncio" element={<ProtectedRoute roles={PODE_ANUNCIAR}><CriarAnuncio /></ProtectedRoute>} />
       <Route path="/editar-anuncio/:id" element={<ProtectedRoute roles={PODE_ANUNCIAR}><EditarAnuncio /></ProtectedRoute>} />
       <Route path="/meus-anuncios" element={<ProtectedRoute roles={PODE_ANUNCIAR}><MeusAnuncios /></ProtectedRoute>} />
-      <Route path="/avaliacoes" element={<ProtectedRoute><Avaliacoes /></ProtectedRoute>} />
+      <Route path="/minhas-avaliacoes" element={<ProtectedRoute><Avaliacoes /></ProtectedRoute>} />
       <Route path="/favoritos" element={<ProtectedRoute roles={PODE_BUSCAR_MORADIA}><Favoritos /></ProtectedRoute>} />
       <Route path="/mensagens" element={<ProtectedRoute><Mensagens /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute roles={['ADMIN']}><AdminDashboard /></ProtectedRoute>} />

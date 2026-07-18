@@ -63,7 +63,7 @@ export default function MeusAnuncios() {
             <span className="dash-sidebar-title">Conta</span>
             <Link to="/perfil" className="sidebar-link"><i className="fa-solid fa-user" /> Meu perfil</Link>
             <Link to="/meus-anuncios" className="sidebar-link active"><i className="fa-solid fa-house-chimney" /> Meus anúncios</Link>
-            <Link to="/avaliacoes" className="sidebar-link"><i className="fa-solid fa-star" /> Avaliações</Link>
+            <Link to="/minhas-avaliacoes" className="sidebar-link"><i className="fa-solid fa-star" /> Avaliações</Link>
           </aside>
 
           <main className="dash-main">
