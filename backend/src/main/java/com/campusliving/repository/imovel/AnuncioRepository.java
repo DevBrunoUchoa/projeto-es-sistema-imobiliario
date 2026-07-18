@@ -53,9 +53,13 @@ public interface AnuncioRepository extends JpaRepository<Anuncio, UUID> {
            "AND (:permiteFumantes IS NULL OR i.permiteFumantes = :permiteFumantes) " +
            "AND (:incluiAlimentacao IS NULL OR i.incluiAlimentacao = :incluiAlimentacao) " +
            "AND (:tipoOferta IS NULL OR a.tipoOferta = :tipoOferta) " +
+           // CAST(:query AS String) é obrigatório: com :query nulo, o Hibernate 6
+           // bindaria o parâmetro como bytea dentro do CONCAT e o PostgreSQL
+           // falharia no plan-time com "function lower(bytea) does not exist"
+           // (o curto-circuito de :query IS NULL não evita a resolução de tipos).
            "AND (:query IS NULL OR " +
-           "   LOWER(a.titulo) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-           "   LOWER(a.descricao) LIKE LOWER(CONCAT('%', :query, '%')))")
+           "   LOWER(a.titulo) LIKE LOWER(CONCAT('%', CAST(:query AS String), '%')) OR " +
+           "   LOWER(a.descricao) LIKE LOWER(CONCAT('%', CAST(:query AS String), '%')))")
     Page<Anuncio> findByFiltros(
             @Param("status") Anuncio.Status status,
             @Param("precoMax") BigDecimal precoMax,
