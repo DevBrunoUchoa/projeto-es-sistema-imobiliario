@@ -191,6 +191,14 @@ public class RoommateServiceImpl implements RoommateService {
                 .findByAtivoTrueAndPerfilVisivelTrueAndUserIdNot(requesterId);
 
         return candidatos.stream()
+                // RF-32..35: roommates é só pra quem busca moradia. A criação/
+                // ativação de perfil já bloqueia LOCADOR (exigirPapelDeRoommate),
+                // mas perfis de LOCADOR criados antes dessa regra existir podem
+                // continuar ativos no banco — filtra aqui também, em vez de
+                // confiar só em nunca existir dado inválido.
+                .filter(candidato -> userRepository.findById(candidato.getUserId())
+                        .map(u -> u.getTipoConta() != User.Tipo.LOCADOR)
+                        .orElse(false))
                 .map(candidato -> {
                     User usuario = userRepository.findById(candidato.getUserId()).orElse(null);
                     return RoommateCompativelDTO.builder()
