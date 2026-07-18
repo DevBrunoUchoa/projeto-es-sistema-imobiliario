@@ -4,6 +4,7 @@ import com.campusliving.config.security.JwtAuthenticationFilter;
 import com.campusliving.config.security.OAuth2SuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,6 +19,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -31,6 +33,9 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    // Só existe quando há um provedor OAuth2 configurado (dev/test têm Google;
+    // prod não). Usamos ObjectProvider para não falhar na ausência do bean.
+    private final ObjectProvider<ClientRegistrationRepository> clientRegistrationRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -65,22 +70,23 @@ public class SecurityConfig {
                         .requestMatchers("/denuncias/**").authenticated()
                         .anyRequest().authenticated()
                 )
-                .oauth2Login(oauth2 -> oauth2
-                        .authorizationEndpoint(auth -> auth
-                                .baseUri("/oauth2/authorization")
-                        )
-                        .redirectionEndpoint(redir -> redir
-                                .baseUri("/login/oauth2/code/*")
-                        )
-                        .successHandler(oAuth2SuccessHandler)
-                        .failureUrl("/auth/google-error")
-                )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(
                         (request, response, authException) ->
                                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Nao autenticado")));
+
+        // Login com Google só é ativado quando existe um provedor OAuth2
+        // configurado. Em produção (sem GOOGLE_CLIENT_ID) esse bean não existe,
+        // e configurar oauth2Login sem ele quebra o contexto da aplicação.
+        if (clientRegistrationRepository.getIfAvailable() != null) {
+            http.oauth2Login(oauth2 -> oauth2
+                    .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))
+                    .redirectionEndpoint(redir -> redir.baseUri("/login/oauth2/code/*"))
+                    .successHandler(oAuth2SuccessHandler)
+                    .failureUrl("/auth/google-error"));
+        }
 
         return http.build();
     }

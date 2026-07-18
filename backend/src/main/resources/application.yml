@@ -30,7 +30,9 @@ spring:
       max-request-size: 55MB
 
 server:
-  port: ${APP_PORT:8080}
+  # Provedores como o Render injetam a porta na variável PORT. Preferimos ela;
+  # caímos para APP_PORT (Docker Compose local) e, por fim, 8080.
+  port: ${PORT:${APP_PORT:8080}}
 
 # Diretório onde documentos/uploads são salvos localmente (T5.4/T5.9).
 # Interino: em produção com filesystem efêmero isso NÃO persiste entre
