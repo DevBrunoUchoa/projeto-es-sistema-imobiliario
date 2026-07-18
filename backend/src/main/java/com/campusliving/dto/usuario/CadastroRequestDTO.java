@@ -23,5 +23,8 @@ public class CadastroRequestDTO {
     @NotNull(message = "Aceite do LGPD é obrigatório")
     private Boolean aceiteLgpd;
 
-    private String role; // ESTUDANTE, LOCADOR, MISTO, ADMIN (opcional, default ESTUDANTE)
+    // ESTUDANTE, LOCADOR ou MISTO (opcional, default ESTUDANTE). ADMIN nunca é
+    // aceito aqui — AuthService.cadastrar rejeita explicitamente, já que este
+    // endpoint é público (permitAll).
+    private String role;
 }

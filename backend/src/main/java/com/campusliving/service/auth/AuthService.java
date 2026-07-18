@@ -43,11 +43,20 @@ public class AuthService {
         //Define role padrão (ESTUDANTE)
         User.Tipo tipo = User.Tipo.ESTUDANTE;
         if (request.getRole() != null) {
+            User.Tipo tipoSolicitado;
             try {
-                tipo = User.Tipo.valueOf(request.getRole().toUpperCase());
+                tipoSolicitado = User.Tipo.valueOf(request.getRole().toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new ProjectException("Role inválida. Valores permitidos: ESTUDANTE, LOCADOR, MISTO, ADMIN", HttpStatus.BAD_REQUEST);
+                throw new ProjectException("Role inválida. Valores permitidos: ESTUDANTE, LOCADOR, MISTO", HttpStatus.BAD_REQUEST);
             }
+            // RNF/SEG: ADMIN nunca pode ser auto-atribuído no cadastro público
+            // (endpoint é permitAll) — sem isso, qualquer um vira admin da
+            // plataforma só passando "role":"ADMIN" no corpo da requisição.
+            // Promoção a admin é feita manualmente, fora deste endpoint.
+            if (tipoSolicitado == User.Tipo.ADMIN) {
+                throw new ProjectException("Role inválida. Valores permitidos: ESTUDANTE, LOCADOR, MISTO", HttpStatus.BAD_REQUEST);
+            }
+            tipo = tipoSolicitado;
         }
 
         User user = User.builder()
