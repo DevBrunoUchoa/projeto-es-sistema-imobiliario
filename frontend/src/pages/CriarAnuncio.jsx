@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { imovelApi } from '../api/imovelApi';
@@ -27,6 +27,12 @@ export default function CriarAnuncio() {
   const [imagens, setImagens] = useState([]);
   const [filesToUpload, setFilesToUpload] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [cepLoading, setCepLoading] = useState(false);
+  const [cepErro, setCepErro] = useState(null);
+  // Só aparece se a geocodificação automática do endereço falhar no backend.
+  const [mostrarCoords, setMostrarCoords] = useState(false);
+  // Prévias locais das fotos escolhidas, antes de enviar ao servidor.
+  const [previews, setPreviews] = useState([]);
 
   const [form, setForm] = useState({
     tipoImovel: 'APARTAMENTO',
@@ -45,6 +51,8 @@ export default function CriarAnuncio() {
     bairro: '',
     cidade: 'Campina Grande',
     estado: 'PB',
+    latitude: '',
+    longitude: '',
     mobiliado: false,
     permitePets: false,
     permiteFumantes: false,
@@ -53,6 +61,43 @@ export default function CriarAnuncio() {
 
   function update(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
+  }
+
+  // Autocompleta rua/bairro/cidade/UF a partir do CEP (ViaCEP, gratuito e sem
+  // chave). O usuário ainda edita/completa o número e o complemento.
+  async function buscarEnderecoPorCep(cepDigitado) {
+    const cepLimpo = (cepDigitado || '').replace(/\D/g, '');
+    if (cepLimpo.length !== 8) return;
+
+    setCepLoading(true);
+    setCepErro(null);
+    try {
+      const resposta = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+      const dados = await resposta.json();
+      if (dados.erro) {
+        setCepErro('CEP não encontrado. Preencha o endereço manualmente.');
+        return;
+      }
+      setForm((current) => ({
+        ...current,
+        rua: dados.logradouro || current.rua,
+        bairro: dados.bairro || current.bairro,
+        cidade: dados.localidade || current.cidade,
+        estado: (dados.uf || current.estado || '').toUpperCase(),
+      }));
+    } catch {
+      setCepErro('Não foi possível consultar o CEP agora. Preencha o endereço manualmente.');
+    } finally {
+      setCepLoading(false);
+    }
+  }
+
+  function onCepChange(valor) {
+    update('cep', valor);
+    setCepErro(null);
+    if (valor.replace(/\D/g, '').length === 8) {
+      buscarEnderecoPorCep(valor);
+    }
   }
 
   function validarStep1() {
@@ -92,6 +137,10 @@ export default function CriarAnuncio() {
         bairro: form.bairro,
         cidade: form.cidade,
         estado: form.estado,
+        // Opcionais: se o backend não geocodificar o endereço, o usuário pode
+        // ter informado as coordenadas manualmente no bloco de fallback.
+        latitude: form.latitude !== '' ? Number(form.latitude) : undefined,
+        longitude: form.longitude !== '' ? Number(form.longitude) : undefined,
         mobiliado: form.mobiliado,
         permitePets: form.permitePets,
         permiteFumantes: form.permiteFumantes,
@@ -113,7 +162,16 @@ export default function CriarAnuncio() {
       setAnuncioId(anuncio.id);
       setStep(3);
     } catch (err) {
-      setErrorMsg(err.message);
+      const msg = err.message || 'Não foi possível publicar o anúncio.';
+      // Backend não conseguiu localizar o endereço no mapa (Nominatim).
+      // Em vez do erro cru pedindo lat/long, mostramos o bloco opcional de
+      // coordenadas para o usuário conseguir concluir mesmo assim.
+      if (/latitude|localizar o endere/i.test(msg)) {
+        setMostrarCoords(true);
+        setErrorMsg('Não localizamos esse endereço no mapa automaticamente. Confira o CEP e a rua acima — ou, se preferir, informe a localização manualmente no bloco abaixo (opcional) e publique novamente.');
+      } else {
+        setErrorMsg(msg);
+      }
     } finally {
       setSaving(false);
     }
@@ -122,6 +180,17 @@ export default function CriarAnuncio() {
   function onFilesSelected(event) {
     setFilesToUpload(Array.from(event.target.files ?? []));
   }
+
+  function removerPendente(index) {
+    setFilesToUpload((current) => current.filter((_, i) => i !== index));
+  }
+
+  // Gera (e libera) as URLs de prévia sempre que a seleção de fotos muda.
+  useEffect(() => {
+    const urls = filesToUpload.map((file) => URL.createObjectURL(file));
+    setPreviews(urls);
+    return () => urls.forEach((url) => URL.revokeObjectURL(url));
+  }, [filesToUpload]);
 
   async function enviarFotos() {
     if (!filesToUpload.length) return;
@@ -233,7 +302,10 @@ export default function CriarAnuncio() {
                 <div className="form-grid">
                   <div className="form-group">
                     <label className="form-label">CEP</label>
-                    <input type="text" className="form-input" value={form.cep} onChange={(e) => update('cep', e.target.value)} placeholder="58400-000" />
+                    <input type="text" className="form-input" value={form.cep} onChange={(e) => onCepChange(e.target.value)} onBlur={(e) => buscarEnderecoPorCep(e.target.value)} placeholder="58400-000" />
+                    {cepLoading && <span className="form-hint">Buscando endereço...</span>}
+                    {cepErro && <span className="form-hint" style={{ color: '#991b1b' }}>{cepErro}</span>}
+                    {!cepLoading && !cepErro && <span className="form-hint">Digite o CEP para preencher rua, bairro e cidade automaticamente.</span>}
                   </div>
                   <div className="form-group">
                     <label className="form-label">Rua / Avenida</label>
@@ -260,6 +332,22 @@ export default function CriarAnuncio() {
                     <input type="text" className="form-input" maxLength={2} value={form.estado} onChange={(e) => update('estado', e.target.value.toUpperCase())} placeholder="PB" />
                   </div>
                 </div>
+                {mostrarCoords && (
+                  <div className="form-group">
+                    <label className="form-label">Localização manual (opcional)</label>
+                    <span className="form-hint">Só é necessário se não localizarmos o endereço no mapa. No Google Maps, clique com o botão direito sobre o local e copie os dois números que aparecem.</span>
+                    <div className="form-grid" style={{ marginTop: 8 }}>
+                      <div className="form-group">
+                        <label className="form-label">Latitude</label>
+                        <input type="text" className="form-input" value={form.latitude} onChange={(e) => update('latitude', e.target.value)} placeholder="-7.2296" />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Longitude</label>
+                        <input type="text" className="form-input" value={form.longitude} onChange={(e) => update('longitude', e.target.value)} placeholder="-35.8810" />
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="form-group">
                   <label className="form-label">Comodidades</label>
                   <div className="fp-checks">
@@ -289,8 +377,22 @@ export default function CriarAnuncio() {
                 </div>
                 <div className="photo-upload-grid">
                   {imagens.map((imagem, index) => (
-                    <div key={imagem.id} className={`photo-slot filled ${index === 0 ? 'main-photo' : ''}`}>
+                    <div key={imagem.id} className={`photo-slot filled ${index === 0 && !previews.length ? 'main-photo' : ''}`}>
                       <img src={imagem.url} alt="" />
+                    </div>
+                  ))}
+                  {previews.map((url, index) => (
+                    <div key={`preview-${index}`} className="photo-slot filled" style={{ position: 'relative' }}>
+                      <img src={url} alt={`Prévia da foto ${index + 1}`} />
+                      <span style={{ position: 'absolute', bottom: 4, left: 4, fontSize: 10, fontWeight: 700, background: 'rgba(0,0,0,.6)', color: '#fff', padding: '2px 6px', borderRadius: 4 }}>Não enviada</span>
+                      <button
+                        type="button"
+                        aria-label="Remover foto"
+                        onClick={() => removerPendente(index)}
+                        style={{ position: 'absolute', top: 4, right: 4, width: 22, height: 22, borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,.6)', color: '#fff', cursor: 'pointer', display: 'grid', placeItems: 'center', lineHeight: 1 }}
+                      >
+                        <i className="fa-solid fa-xmark" style={{ fontSize: 11 }} />
+                      </button>
                     </div>
                   ))}
                   <div className="photo-slot" onClick={abrirSeletorFotos}>
