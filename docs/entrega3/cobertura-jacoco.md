@@ -1,75 +1,63 @@
 # Cobertura de Testes — JaCoCo (Entrega 3)
 
-**Suíte:** JUnit 5 + Testcontainers (PostGIS). **86 testes**, 0 falhas. **97 classes** analisadas.
+**Medição atualizada (T5.10):** JUnit 5 + Testcontainers (PostGIS). **163
+testes**, **0 falhas**, **0 erros**. **97 classes** analisadas.
+
+Os números foram gerados por `mvn clean test` em 15/07/2026. O relatório HTML
+fica em `target/site/jacoco/index.html` e o CSV completo desta medição está em
+[`jacoco.csv`](jacoco.csv).
 
 A estratégia priorizou o **núcleo de negócio (camada `service`)**, onde estão as regras críticas (autenticação, autorização, avaliação, roommate, moderação).
+
+## Atualização T5.10 — suítes adicionadas
+
+Os novos testes são unitários, com JUnit 5 e Mockito, e isolam dependências de
+persistência, auditoria, e-mail, JWT e geocodificação. As integrações já
+existentes continuam responsáveis por validar PostGIS e o schema real.
+
+| Serviço | Principais cenários cobertos |
+|---|---|
+| `AnuncioService` | publicação, distância/fallback, autorização, status, edição, detalhe, mapa, paginação, filtros e texto |
+| `ImovelService` | criação, autorização, coordenadas explícitas/geocodificadas e falha de geocodificação |
+| `AuthService` | cadastro/LGPD/role, login e refresh token válido, ausente, inválido ou revogado |
+| `PasswordResetService` / `EmailVerificationService` | emissão, expiração, consumo de token e auditoria |
+| `DenunciaService` | validação, duplicidade e ocultação automática na 5ª denúncia |
+| `NotificacaoService` | listagem, contagem, leitura individual/em lote e isolamento por usuário |
 
 ## Visão geral
 
 | Escopo | Instruções | Branches |
 |---|---|---|
-| **Projeto todo** | **41.2%** | **36.7%** |
-| **Camada `service` (núcleo)** | **37.0%** | **39.9%** |
+| **Projeto todo** | **67.0%** | **55.2%** |
+| **Camada `service` (núcleo)** | **73.5%** | **61.2%** |
 
 ## Por pacote
 
-| Pacote | Instruções | Branches |
+| Pacote `service` | Instruções | Branches |
 |---|---|---|
-| `service.imovel` | 20.8% | 20.8% |
+| `service.imovel` | 78.3% | 53.0% |
 | `service.usuario` | 60.0% | 59.3% |
 | `service.roommate` | 91.6% | 67.4% |
-| `service.auth` | 0.0% | 0.0% |
+| `service.auth` | 87.2% | 80.0% |
 | `service.admin` | 26.0% | 37.5% |
 | `service.avaliacao` | 97.7% | 93.3% |
-| `config.security` | 15.3% | 22.2% |
-| `service.denuncia` | 0.0% | 0.0% |
-| `model.imovel` | 100.0% | 0% |
-| `controller.imovel` | 18.0% | 0.0% |
-| `utilities.security` | 100.0% | 0% |
-| `controller.usuario` | 6.1% | 0.0% |
-| `service.geocoding` | 26.3% | 0.0% |
+| `service.denuncia` | 100.0% | 91.7% |
+| `service.notificacao` | 100.0% | 100.0% |
+| `service.geocoding` | 32.8% | 0.0% |
 | `service.interacao` | 60.2% | 50.0% |
-| `model.usuario` | 51.7% | 0.0% |
-| `controller.auth` | 0.0% | 0.0% |
-| `exception` | 9.0% | 0.0% |
-| `dto.usuario` | 100.0% | 100.0% |
 | `service.email` | 9.3% | 0.0% |
-| `dto.roommate` | 99.0% | 50.0% |
-| `model.denuncia` | 100.0% | 0% |
-| `service.notificacao` | 8.7% | 0.0% |
-| `controller.admin` | 0.0% | 0.0% |
-| `controller.roommate` | 9.8% | 0.0% |
-| `controller.avaliacao` | 11.8% | 0.0% |
-| `controller.notificacao` | 12.2% | 0.0% |
-| `model.roommate` | 100.0% | 0% |
-| `config` | 100.0% | 0% |
-| `dto.notificacao` | 0.0% | 0.0% |
-| `dto.interacao` | 100.0% | 0% |
-| `dto.avaliacao` | 100.0% | 0% |
 | `service.audit` | 0.0% | 0% |
-| `model.notificacao` | 100.0% | 0% |
-| `exception.usuario` | 64.5% | 0% |
-| `controller.denuncia` | 0.0% | 0% |
-| `dto.imovel` | 100.0% | 0% |
-| `exception.roommate` | 100.0% | 0% |
-| `exception.avaliacao` | 100.0% | 0% |
-| `controller.interacao` | 27.3% | 0.0% |
-| `model.interacao` | 100.0% | 0% |
-| `exception.imovel` | 50.0% | 0% |
-| `dto.admin` | 100.0% | 0% |
-| `exception.interacao` | 100.0% | 0% |
-| `com.campusliving` | 37.5% | 0% |
-| `controller.audit` | 0.0% | 0% |
 
 ## Classes de serviço mais cobertas
 
 | Classe | Instruções |
 |---|---|
-| `ImageStorageService.StoredImage` | 100.0% |
-| `PalavraoFilter` | 100.0% |
+| `AuthService` | 100.0% |
+| `DenunciaService` | 100.0% |
+| `ImovelService` | 100.0% |
+| `NotificacaoService` | 100.0% |
 | `AvaliacaoServiceImpl` | 95.9% |
+| `PasswordResetService` | 95.7% |
+| `AnuncioService` | 95.2% |
+| `EmailVerificationService` | 94.3% |
 | `RoommateServiceImpl` | 91.6% |
-| `UserServiceImpl` | 69.1% |
-| `ContatoServiceImpl` | 60.2% |
-| `ImagemAnuncioService` | 58.6% |
-| `NominatimGeocodingService` | 30.3% |
