@@ -169,10 +169,19 @@ public class UserServiceImpl implements UserService{
                 && repository.findById(requesterId)
                         .map(u -> u.getTipoConta() == User.Tipo.ADMIN)
                         .orElse(false);
+        // Sentido normal (RNF/LEG-03): o requerente (estudante) já registrou
+        // interesse em algum anúncio do dono do perfil (locador) — libera o
+        // contato do LOCADOR para o estudante.
         boolean contatoPrevio = !ehOProprio && !ehAdmin && requesterId != null
                 && contatoRepository.existeContatoEntre(requesterId, id);
 
-        boolean contatoLiberado = ehOProprio || ehAdmin || contatoPrevio;
+        // Sentido inverso: o dono do perfil (estudante) liberou o próprio
+        // contato ao requerente (locador) ao mandar uma mensagem marcando a
+        // opção de liberar — libera o contato do ESTUDANTE para o locador.
+        boolean estudanteLiberouContato = !ehOProprio && !ehAdmin && requesterId != null
+                && contatoRepository.existeContatoLiberadoEntre(id, requesterId);
+
+        boolean contatoLiberado = ehOProprio || ehAdmin || contatoPrevio || estudanteLiberouContato;
         return UserPublicProfileDTO.of(alvo, contatoLiberado);
     }
 

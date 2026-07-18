@@ -41,8 +41,7 @@ export default function MeusAnuncios() {
   }), [anuncios]);
   const totalVisualizacoes = useMemo(() => anuncios.reduce((sum, anuncio) => sum + (anuncio.visualizacoes ?? 0), 0), [anuncios]);
 
-  async function alternarStatus(anuncio) {
-    const novoStatus = anuncio.status === 'ATIVO' ? 'INATIVO' : 'ATIVO';
+  async function definirStatus(anuncio, novoStatus) {
     setUpdatingId(anuncio.id);
     setError(null);
     try {
@@ -131,9 +130,30 @@ export default function MeusAnuncios() {
                           type="button"
                           title={anuncio.status === 'ATIVO' ? 'Desativar' : 'Reativar'}
                           disabled={updatingId === anuncio.id}
-                          onClick={() => alternarStatus(anuncio)}
+                          onClick={() => definirStatus(anuncio, anuncio.status === 'ATIVO' ? 'INATIVO' : 'ATIVO')}
                         >
                           <i className={`fa-solid ${anuncio.status === 'ATIVO' ? 'fa-pause' : 'fa-play'}`} />
+                        </button>
+                      )}
+                      {anuncio.status !== 'ALUGADO' ? (
+                        <button
+                          className="btn-sm btn-outline"
+                          type="button"
+                          title="Marcar como alugado"
+                          disabled={updatingId === anuncio.id}
+                          onClick={() => definirStatus(anuncio, 'ALUGADO')}
+                        >
+                          <i className="fa-solid fa-handshake" />
+                        </button>
+                      ) : (
+                        <button
+                          className="btn-sm btn-outline"
+                          type="button"
+                          title="Marcar como disponível novamente"
+                          disabled={updatingId === anuncio.id}
+                          onClick={() => definirStatus(anuncio, 'ATIVO')}
+                        >
+                          <i className="fa-solid fa-rotate-left" />
                         </button>
                       )}
                       <Link to={`/imoveis/${anuncio.id}`} className="btn-sm btn-primary">Ver</Link>

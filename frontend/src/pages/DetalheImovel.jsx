@@ -22,6 +22,7 @@ export default function DetalheImovel() {
 
   const [locador, setLocador] = useState(null);
   const [mensagem, setMensagem] = useState('');
+  const [liberarContato, setLiberarContato] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [interesseEnviado, setInteresseEnviado] = useState(false);
   const [contatoErro, setContatoErro] = useState(null);
@@ -81,7 +82,7 @@ export default function DetalheImovel() {
     setEnviando(true);
     setContatoErro(null);
     try {
-      await contatoApi.registrarInteresse({ adId: anuncio.id, mensagem });
+      await contatoApi.registrarInteresse({ adId: anuncio.id, mensagem, liberarContato });
       setInteresseEnviado(true);
       setMensagem('');
       userApi.publico(anuncio.locadorId).then(setLocador).catch(() => {});
@@ -186,6 +187,15 @@ export default function DetalheImovel() {
                   <span className="detail-type-tag">{TIPO_IMOVEL_LABELS[anuncio.tipoImovel] ?? anuncio.tipoImovel}</span>
                   <span className="detail-type-tag">{TIPO_OFERTA_LABELS[anuncio.tipoOferta] ?? anuncio.tipoOferta}</span>
                   <span className={`detail-avail ${availClass}`}><span className="avail-dot" /> {availLabel}</span>
+                  {user?.id === anuncio.locadorId && (
+                    <Link
+                      to={`/editar-anuncio/${anuncio.id}`}
+                      className="btn-ghost-sm"
+                      style={{ marginLeft: 'auto', textDecoration: 'none' }}
+                    >
+                      <i className="fa-solid fa-pen" style={{ marginRight: 6 }} />Editar anúncio
+                    </Link>
+                  )}
                   {favoritosHabilitado && (
                     <button
                       type="button"
@@ -359,6 +369,10 @@ export default function DetalheImovel() {
                   ) : (
                     <form className="contact-form" onSubmit={enviarInteresse}>
                       <textarea value={mensagem} onChange={(e) => setMensagem(e.target.value)} placeholder="Escreva uma mensagem pro locador (ex: horários pra visitar, dúvidas sobre o imóvel...)" required />
+                      <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: 'var(--text-2)', cursor: 'pointer', margin: '4px 0 2px' }}>
+                        <input type="checkbox" checked={liberarContato} onChange={(e) => setLiberarContato(e.target.checked)} style={{ marginTop: 2 }} />
+                        <span>Liberar meu contato (e-mail e telefone) para este locador poder me responder diretamente.</span>
+                      </label>
                       {contatoErro && <p className="sidebar-note" style={{ color: '#991b1b' }}>{contatoErro}</p>}
                       <button className="btn-contact" type="submit" disabled={enviando}>
                         <i className="fa-brands fa-whatsapp" /> {enviando ? 'Enviando...' : 'Enviar interesse'}

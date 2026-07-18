@@ -38,4 +38,20 @@ public interface ContatoRepository extends JpaRepository<Contato, UUID> {
             )
             """, nativeQuery = true)
     boolean existeContatoEntre(@Param("estudanteId") UUID estudanteId, @Param("locadorId") UUID locadorId);
+
+    // RNF/LEG-03 (sentido inverso): o estudante liberou o próprio contato ao
+    // locador ao registrar interesse (contato_liberado = TRUE) em algum anúncio
+    // DESTE locador. É o que autoriza o locador a ver e-mail/telefone do
+    // estudante no perfil público.
+    @Query(value = """
+            SELECT EXISTS(
+                SELECT 1
+                FROM contacts c
+                JOIN ads a ON a.id = c.ad_id
+                WHERE c.estudante_id = :estudanteId
+                  AND a.locador_id = :locadorId
+                  AND c.contato_liberado = TRUE
+            )
+            """, nativeQuery = true)
+    boolean existeContatoLiberadoEntre(@Param("estudanteId") UUID estudanteId, @Param("locadorId") UUID locadorId);
 }

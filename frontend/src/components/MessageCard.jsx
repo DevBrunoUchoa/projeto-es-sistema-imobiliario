@@ -36,7 +36,14 @@ export default function MessageCard({ contato, mostrarAutor }) {
           <p style={{ margin: '6px 0 0', fontSize: 11.5, color: 'var(--text-3)' }}>{formatarData(contato.dataCriacao)}</p>
         </div>
       </div>
-      <Link to={`/imoveis/${contato.adId}`} className="btn-sm btn-outline" style={{ marginTop: 10, textDecoration: 'none', display: 'inline-block' }}>Ver anúncio</Link>
+      <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+        <Link to={`/imoveis/${contato.adId}`} className="btn-sm btn-outline" style={{ textDecoration: 'none' }}>Ver anúncio</Link>
+        {mostrarAutor && (
+          <Link to={`/usuarios/${contato.estudanteId}`} className="btn-sm btn-outline" style={{ textDecoration: 'none' }}>
+            <i className="fa-solid fa-user" style={{ marginRight: 6 }} />Ver perfil
+          </Link>
+        )}
+      </div>
     </div>
   );
 }

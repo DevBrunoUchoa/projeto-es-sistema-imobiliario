@@ -60,4 +60,11 @@ public class Contato {
     @JsonProperty("dataCriacao")
     @Column(name = "data_criacao", nullable = false, insertable = false, updatable = false)
     private OffsetDateTime dataCriacao;
+
+    // RNF/LEG-03: consentimento do estudante para expor o próprio contato
+    // (e-mail/telefone) ao locador do anúncio. Default false.
+    @JsonProperty("contatoLiberado")
+    @Column(name = "contato_liberado", nullable = false)
+    @Builder.Default
+    private boolean contatoLiberado = false;
 }

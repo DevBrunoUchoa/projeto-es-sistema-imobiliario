@@ -27,4 +27,9 @@ public class InteresseRequestDTO {
     @JsonProperty("mensagem")
     @NotBlank(message = "mensagem e obrigatoria")
     private String mensagem;
+
+    // Opcional (default false): estudante consente em liberar o próprio
+    // contato (e-mail/telefone) ao locador do anúncio. RNF/LEG-03.
+    @JsonProperty("liberarContato")
+    private boolean liberarContato;
 }

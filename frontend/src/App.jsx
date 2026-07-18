@@ -3,6 +3,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Cadastro from './pages/Cadastro';
 import Perfil from './pages/Perfil';
+import PerfilPublico from './pages/PerfilPublico';
 import RecuperarSenha from './pages/RecuperarSenha';
 import RedefinirSenha from './pages/RedefinirSenha';
 import VerificarEmail from './pages/VerificarEmail';
@@ -31,6 +32,7 @@ export default function App() {
       <Route path="/redefinir-senha" element={user ? <Navigate to="/" replace /> : <RedefinirSenha />} />
       <Route path="/verificar-email/:token" element={<VerificarEmail />} />
       <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
+      <Route path="/usuarios/:id" element={<ProtectedRoute><PerfilPublico /></ProtectedRoute>} />
       <Route path="/roommates" element={<ProtectedRoute roles={PODE_BUSCAR_MORADIA}><Roommates /></ProtectedRoute>} />
       <Route path="/imoveis/:id" element={<DetalheImovel />} />
       <Route path="/criar-anuncio" element={<ProtectedRoute roles={PODE_ANUNCIAR}><CriarAnuncio /></ProtectedRoute>} />
