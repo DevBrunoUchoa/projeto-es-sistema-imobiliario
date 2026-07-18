@@ -5,6 +5,8 @@ import com.campusliving.exception.ProjectException;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -19,6 +21,8 @@ import java.util.ArrayList;
 
 @ControllerAdvice
 public class ErrorHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(ErrorHandler.class);
 
     private CustomErrorType defaultCustomErrorTypeConstruct(String message) {
         return CustomErrorType.builder()
@@ -65,10 +69,16 @@ public class ErrorHandler {
                 .body(defaultCustomErrorTypeConstruct(e.getMessage()));
     }
 
+    // Último recurso: qualquer exceção que não seja um dos tipos de negócio
+    // acima é mesmo inesperada (bug, falha de infra, etc.) — por isso loga
+    // o stack trace inteiro. Exceções de negócio (senha errada, e-mail já
+    // cadastrado, ...) devem usar ProjectException/subclasses para cair nos
+    // handlers de cima com o status HTTP correto, não vir parar aqui.
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public CustomErrorType onUnhandledException(Exception e) {
+        log.error("Exceção não tratada", e);
         return defaultCustomErrorTypeConstruct("Ocorreu um erro inesperado. Tente novamente.");
     }
 

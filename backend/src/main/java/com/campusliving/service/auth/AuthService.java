@@ -33,11 +33,11 @@ public class AuthService {
         //Verifica se email já existe
         List<User> existingUsers = userRepository.findByEmail(request.getEmail());
         if (!existingUsers.isEmpty()) {
-            throw new RuntimeException("Email já cadastrado");
+            throw new ProjectException("Email já cadastrado", HttpStatus.CONFLICT);
         }
 
         if (!Boolean.TRUE.equals(request.getAceiteLgpd())) {
-            throw new RuntimeException("Aceite do LGPD é obrigatório");
+            throw new ProjectException("Aceite do LGPD é obrigatório", HttpStatus.BAD_REQUEST);
         }
 
         //Define role padrão (ESTUDANTE)
@@ -46,7 +46,7 @@ public class AuthService {
             try {
                 tipo = User.Tipo.valueOf(request.getRole().toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new RuntimeException("Role inválida. Valores permitidos: ESTUDANTE, LOCADOR, MISTO, ADMIN");
+                throw new ProjectException("Role inválida. Valores permitidos: ESTUDANTE, LOCADOR, MISTO, ADMIN", HttpStatus.BAD_REQUEST);
             }
         }
 
@@ -89,16 +89,16 @@ public class AuthService {
     public LoginResponseDTO login(LoginRequestDTO request) {
         List<User> users = userRepository.findByEmail(request.getEmail());
         if (users.isEmpty()) {
-            throw new RuntimeException("Usuário não encontrado");
+            throw new ProjectException("Usuário não encontrado", HttpStatus.UNAUTHORIZED);
         }
         User user = users.get(0);
 
         if (!user.isAtivo()) {
-            throw new RuntimeException("Conta desativada");
+            throw new ProjectException("Conta desativada", HttpStatus.UNAUTHORIZED);
         }
 
         if (!passwordEncoder.matches(request.getSenha(), user.getSenhaHash())) {
-            throw new RuntimeException("Senha inválida");
+            throw new ProjectException("Senha inválida", HttpStatus.UNAUTHORIZED);
         }
 
         //Registrar log de login
