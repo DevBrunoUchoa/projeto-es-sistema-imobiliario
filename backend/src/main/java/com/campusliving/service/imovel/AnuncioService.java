@@ -434,6 +434,25 @@ public class AnuncioService {
                 .build();
     }
 
+    // Converte o parâmetro de query (String) para o enum da entidade. O JPQL
+    // de findByFiltros compara diretamente com o campo `a.tipoOferta`, que é
+    // do tipo Anuncio.TipoOferta — passar uma String "crua" nesse bind faz o
+    // Hibernate lançar IllegalArgumentException em tempo de execução (o tipo
+    // do parâmetro não bate com o tipo esperado pelo path da query), o que
+    // vira um 500 sem handler dedicado e, por ser um forward interno para
+    // /error, acaba sendo barrado pelo Spring Security como 401 antes de
+    // chegar à resposta real. Valor inválido/nulo apenas ignora o filtro.
+    private Anuncio.TipoOferta parseTipoOferta(String tipoOferta) {
+        if (tipoOferta == null || tipoOferta.isBlank()) {
+            return null;
+        }
+        try {
+            return Anuncio.TipoOferta.valueOf(tipoOferta.trim());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
     private Sort getSort(String sortBy) {
         if (sortBy == null) {
             return Sort.by(Sort.Direction.DESC, "dataPublicacao");
@@ -475,7 +494,7 @@ public class AnuncioService {
                 permitePets,
                 permiteFumantes,
                 incluiAlimentacao,
-                tipoOferta,
+                parseTipoOferta(tipoOferta),
                 pageable
         );
 
@@ -529,7 +548,7 @@ public class AnuncioService {
                     permitePets,
                     permiteFumantes,
                     incluiAlimentacao,
-                    tipoOferta,
+                    parseTipoOferta(tipoOferta),
                     pageable
             );
         }

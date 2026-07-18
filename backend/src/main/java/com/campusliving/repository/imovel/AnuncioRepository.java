@@ -57,7 +57,7 @@ public interface AnuncioRepository extends JpaRepository<Anuncio, UUID> {
             @Param("permitePets") Boolean permitePets,
             @Param("permiteFumantes") Boolean permiteFumantes,
             @Param("incluiAlimentacao") Boolean incluiAlimentacao,
-            @Param("tipoOferta") String tipoOferta,
+            @Param("tipoOferta") Anuncio.TipoOferta tipoOferta,
             Pageable pageable
     );
 

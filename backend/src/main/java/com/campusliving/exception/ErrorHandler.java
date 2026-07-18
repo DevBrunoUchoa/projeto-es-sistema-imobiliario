@@ -65,4 +65,11 @@ public class ErrorHandler {
                 .body(defaultCustomErrorTypeConstruct(e.getMessage()));
     }
 
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public CustomErrorType onUnhandledException(Exception e) {
+        return defaultCustomErrorTypeConstruct("Ocorreu um erro inesperado. Tente novamente.");
+    }
+
 }
