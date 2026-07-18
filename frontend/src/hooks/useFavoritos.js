@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { favoritoApi } from '../api/favoritoApi';
+import { podeBuscarMoradia } from '../utils/roles';
 
 export function useFavoritos() {
   const { user } = useAuth();
+  // Favoritar é uma ação de quem busca moradia; LOCADOR puro não participa.
+  const habilitado = Boolean(user) && podeBuscarMoradia(user?.role);
   const [favoritos, setFavoritos] = useState(new Set());
   const favoritosRef = useRef(new Set());
   const operacoesPendentes = useRef(new Set());
@@ -16,7 +19,7 @@ export function useFavoritos() {
   useEffect(() => {
     let ativo = true;
 
-    if (!user) {
+    if (!habilitado) {
       atualizarFavoritos(new Set());
       return () => { ativo = false; };
     }
@@ -30,10 +33,10 @@ export function useFavoritos() {
       });
 
     return () => { ativo = false; };
-  }, [user, atualizarFavoritos]);
+  }, [user, habilitado, atualizarFavoritos]);
 
   const toggle = useCallback(async (adId) => {
-    if (!user || operacoesPendentes.current.has(adId)) return;
+    if (!habilitado || operacoesPendentes.current.has(adId)) return;
 
     const jaFavoritado = favoritosRef.current.has(adId);
     const otimista = new Set(favoritosRef.current);
@@ -59,7 +62,7 @@ export function useFavoritos() {
     } finally {
       operacoesPendentes.current.delete(adId);
     }
-  }, [user, atualizarFavoritos]);
+  }, [user, habilitado, atualizarFavoritos]);
 
-  return { favoritos, toggle, habilitado: Boolean(user) };
+  return { favoritos, toggle, habilitado };
 }

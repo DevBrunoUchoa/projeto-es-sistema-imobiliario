@@ -214,10 +214,17 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public FavoritoResponseDTO adicionarFavorito(UUID id, UUID adId, UUID requesterId) {
-        repository.findById(id).orElseThrow(UserNotFoundException::new);
+        User usuario = repository.findById(id).orElseThrow(UserNotFoundException::new);
         // Só faz sentido favoritar em nome de si mesmo; ADMIN não precisa
         // gerenciar favoritos de terceiros, então exigimos o próprio dono.
         exigirDono(requesterId, id);
+
+        // RF-26: favoritar é uma ação de quem busca moradia. LOCADOR puro não
+        // aluga para si mesmo, então não mantém lista de favoritos — bloqueamos
+        // no backend, não só escondendo o botão no frontend.
+        if (usuario.getTipoConta() == User.Tipo.LOCADOR) {
+            throw new AcessoNegadoException();
+        }
 
         if (!favoritoRepository.anuncioExiste(adId)) {
             throw new AnuncioNaoEncontradoException();
