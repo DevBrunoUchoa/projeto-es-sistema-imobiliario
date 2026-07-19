@@ -7,6 +7,7 @@ import PerfilPublico from './pages/PerfilPublico';
 import RecuperarSenha from './pages/RecuperarSenha';
 import RedefinirSenha from './pages/RedefinirSenha';
 import VerificarEmail from './pages/VerificarEmail';
+import GoogleLoginSuccess from './pages/GoogleLoginSuccess';
 import Roommates from './pages/Roommates';
 import DetalheImovel from './pages/DetalheImovel';
 import CriarAnuncio from './pages/CriarAnuncio';
@@ -31,6 +32,7 @@ export default function App() {
       <Route path="/recuperar-senha" element={user ? <Navigate to="/" replace /> : <RecuperarSenha />} />
       <Route path="/redefinir-senha" element={user ? <Navigate to="/" replace /> : <RedefinirSenha />} />
       <Route path="/verificar-email/:token" element={<VerificarEmail />} />
+      <Route path="/google-login/success" element={<GoogleLoginSuccess />} />
       <Route path="/perfil" element={<ProtectedRoute><Perfil /></ProtectedRoute>} />
       <Route path="/usuarios/:id" element={<ProtectedRoute><PerfilPublico /></ProtectedRoute>} />
       <Route path="/roommates" element={<ProtectedRoute roles={PODE_BUSCAR_MORADIA}><Roommates /></ProtectedRoute>} />

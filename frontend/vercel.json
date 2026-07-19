@@ -25,6 +25,9 @@
 
     { "source": "/admin/:p+",        "destination": "https://campus-living-api.onrender.com/admin/:p+" },
 
+    { "source": "/oauth2/:p+",       "destination": "https://campus-living-api.onrender.com/oauth2/:p+" },
+    { "source": "/login/oauth2/:p+", "destination": "https://campus-living-api.onrender.com/login/oauth2/:p+" },
+
     { "source": "/(.*)",             "destination": "/index.html" }
   ]
 }

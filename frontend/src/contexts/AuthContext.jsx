@@ -16,8 +16,7 @@ function readStoredUser() {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(readStoredUser);
 
-  async function login(credentials) {
-    const data = await authApi.login(credentials);
+  function armazenarUsuario(data) {
     const authenticatedUser = {
       id: data.id,
       nome: data.nome,
@@ -27,6 +26,18 @@ export function AuthProvider({ children }) {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(authenticatedUser));
     setUser(authenticatedUser);
     return authenticatedUser;
+  }
+
+  async function login(credentials) {
+    const data = await authApi.login(credentials);
+    return armazenarUsuario(data);
+  }
+
+  // Usado após o redirect do login com Google: os cookies de sessão já foram
+  // setados pelo backend, só falta descobrir quem é o usuário autenticado.
+  async function restoreSession() {
+    const data = await authApi.refresh();
+    return armazenarUsuario(data);
   }
 
   function updateLocalUser(changes) {
@@ -42,7 +53,7 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
-  const value = useMemo(() => ({ user, login, updateLocalUser, clearLocalSession }), [user]);
+  const value = useMemo(() => ({ user, login, restoreSession, updateLocalUser, clearLocalSession }), [user]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
