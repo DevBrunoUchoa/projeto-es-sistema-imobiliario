@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,12 +55,17 @@ class AnuncioServiceTest {
     private UserRepository userRepository;
     @Mock
     private AuditLogService auditLogService;
+    @Mock
+    private ImagemAnuncioService imagemAnuncioService;
+    @Mock
+    private com.campusliving.repository.avaliacao.AvaliacaoRepository avaliacaoRepository;
 
     private AnuncioService service;
 
     @BeforeEach
     void setUp() {
-        service = new AnuncioService(anuncioRepository, imovelRepository, userRepository, auditLogService);
+        service = new AnuncioService(anuncioRepository, imovelRepository, userRepository,
+                auditLogService, imagemAnuncioService, avaliacaoRepository);
     }
 
     // ------------------------------------------------------------------
@@ -141,7 +147,7 @@ class AnuncioServiceTest {
 
         assertThatThrownBy(() -> service.publicarAnuncio(requestPara(imovelId), "estudante@campusliving.com"))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessage("Apenas LOCADOR ou ADMIN podem publicar anúncios");
+                .hasMessage("Apenas LOCADOR, MISTO ou ADMIN podem publicar anúncios");
 
         verify(imovelRepository, never()).findById(any());
         verify(anuncioRepository, never()).save(any());
@@ -345,6 +351,9 @@ class AnuncioServiceTest {
         when(anuncioRepository.findById(anuncioId)).thenReturn(Optional.of(anuncio));
         when(imovelRepository.findById(imovelId)).thenReturn(Optional.of(imovel));
         when(anuncioRepository.save(anuncio)).thenReturn(anuncio);
+        // Cenário sem avaliações: média nula e contagem zero.
+        when(avaliacaoRepository.mediaNotaPorAnuncio(anuncioId)).thenReturn(null);
+        when(avaliacaoRepository.countByAdId(anuncioId)).thenReturn(0L);
 
         AnuncioDetalhesResponseDTO resultado = service.buscarDetalhes(anuncioId);
 
@@ -491,7 +500,7 @@ class AnuncioServiceTest {
         Page<Anuncio> pagina = new PageImpl<>(List.of(anuncio), PageRequest.of(1, 20), 1);
         when(anuncioRepository.findByFiltros(
                 eq(Anuncio.Status.ATIVO), eq(precoMax), eq(2500), eq(true), eq(false), eq(false), eq(true),
-                eq("VAGA_COMPARTILHADA"), any(Pageable.class))).thenReturn(pagina);
+                eq(Anuncio.TipoOferta.VAGA_COMPARTILHADA), isNull(), any(Pageable.class))).thenReturn(pagina);
 
         AnuncioPaginadoResponseDTO resultado = service.buscarAnunciosComFiltros(
                 1, 20, "distancia_asc", precoMax, 2500, true, false, false, true, "VAGA_COMPARTILHADA");
@@ -499,7 +508,7 @@ class AnuncioServiceTest {
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         verify(anuncioRepository).findByFiltros(
                 eq(Anuncio.Status.ATIVO), eq(precoMax), eq(2500), eq(true), eq(false), eq(false), eq(true),
-                eq("VAGA_COMPARTILHADA"), pageableCaptor.capture());
+                eq(Anuncio.TipoOferta.VAGA_COMPARTILHADA), isNull(), pageableCaptor.capture());
         assertThat(pageableCaptor.getValue().getSort().getOrderFor("distanciaUfcgMetros").getDirection())
                 .isEqualTo(Sort.Direction.ASC);
         assertThat(resultado.getItems()).hasSize(1);
@@ -509,15 +518,18 @@ class AnuncioServiceTest {
     void buscarAnunciosComTexto_comConsultaNaoVazia_removeEspacosEUsaBuscaTextual() {
         Anuncio anuncio = anuncio(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID());
         Page<Anuncio> pagina = new PageImpl<>(List.of(anuncio), PageRequest.of(0, 10), 1);
-        when(anuncioRepository.buscarPorTexto(eq(Anuncio.Status.ATIVO), eq("perto da UFCG"), any(Pageable.class)))
-                .thenReturn(pagina);
+        // Texto e filtros vão combinados na mesma query (findByFiltros), com o
+        // termo de busca já sem espaços nas pontas no parâmetro `query`.
+        when(anuncioRepository.findByFiltros(
+                eq(Anuncio.Status.ATIVO), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(),
+                isNull(), eq("perto da UFCG"), any(Pageable.class))).thenReturn(pagina);
 
         AnuncioPaginadoResponseDTO resultado = service.buscarAnunciosComTexto(
                 0, 10, "preco_desc", "  perto da UFCG  ", null, null, null, null, null, null, null);
 
-        verify(anuncioRepository).buscarPorTexto(eq(Anuncio.Status.ATIVO), eq("perto da UFCG"), any(Pageable.class));
-        verify(anuncioRepository, never()).findByFiltros(
-                any(), any(), any(), any(), any(), any(), any(), any(), any(Pageable.class));
+        verify(anuncioRepository).findByFiltros(
+                eq(Anuncio.Status.ATIVO), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(),
+                isNull(), eq("perto da UFCG"), any(Pageable.class));
         assertThat(resultado.getItems()).hasSize(1);
     }
 
@@ -526,15 +538,14 @@ class AnuncioServiceTest {
         Page<Anuncio> pagina = new PageImpl<>(List.of(), PageRequest.of(0, 10), 0);
         when(anuncioRepository.findByFiltros(
                 eq(Anuncio.Status.ATIVO), eq(new BigDecimal("900.00")), eq(1000), eq(true), eq(true), eq(false),
-                eq(false), eq("IMOVEL_COMPLETO"), any(Pageable.class))).thenReturn(pagina);
+                eq(false), eq(Anuncio.TipoOferta.IMOVEL_COMPLETO), isNull(), any(Pageable.class))).thenReturn(pagina);
 
         AnuncioPaginadoResponseDTO resultado = service.buscarAnunciosComTexto(
                 0, 10, null, "   ", new BigDecimal("900.00"), 1000, true, true, false, false, "IMOVEL_COMPLETO");
 
         verify(anuncioRepository).findByFiltros(
                 eq(Anuncio.Status.ATIVO), eq(new BigDecimal("900.00")), eq(1000), eq(true), eq(true), eq(false),
-                eq(false), eq("IMOVEL_COMPLETO"), any(Pageable.class));
-        verify(anuncioRepository, never()).buscarPorTexto(any(), anyString(), any(Pageable.class));
+                eq(false), eq(Anuncio.TipoOferta.IMOVEL_COMPLETO), isNull(), any(Pageable.class));
         assertThat(resultado.getItems()).isEmpty();
     }
 
