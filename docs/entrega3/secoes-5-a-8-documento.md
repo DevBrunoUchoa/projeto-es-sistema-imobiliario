@@ -112,23 +112,23 @@ em [`plano-testes-testlink.xml`](plano-testes-testlink.xml) (importável no Test
 
 ### 8.2. Análise Estática
 
-- **Checkstyle** (ruleset Sun): **2.235** ocorrências em **153** arquivos,
+- **Checkstyle** (ruleset Sun): **2.435** ocorrências em **154** arquivos,
   majoritariamente Javadoc/`final`/formatação (não afetam a lógica) —
   ver [`analise-estatica-checkstyle.md`](analise-estatica-checkstyle.md).
 - **SonarQube/SonarCloud**: *(a executar pela equipe — requer conta/token).*
 
 ### 8.3. Testes Automatizados e Cobertura
 
-Após a T5.10, a suíte com **JUnit 5** e **Testcontainers** (PostGIS real)
-possui **163 testes** automatizados, executados com **0 falhas** e **0 erros**.
-A cobertura foi medida com **JaCoCo**, priorizando o núcleo de negócio (camada
-`service`):
+Com as suítes da T5.10 integradas ao build, a bateria com **JUnit 5**,
+**Testcontainers** (PostGIS real) e **Mockito** possui **168 testes**
+automatizados, executados com **0 falhas** e **0 erros**. A cobertura foi medida
+com **JaCoCo**, priorizando o núcleo de negócio (camada `service`):
 
-- Projeto: **67,0%** de instruções / **55,2%** de *branches*.
-- Camada `service`: **73,5%** de instruções / **61,2%** de *branches*.
-- Destaques: `AuthService`, `DenunciaService`, `ImovelService` e
-  `NotificacaoService` com **100%** de instruções; `AnuncioService` com
-  **95,2%** e `PasswordResetService` com **95,7%**.
+- Projeto: **64,7%** de instruções / **53,5%** de *branches*.
+- Camada `service`: **71,8%** de instruções / **60,3%** de *branches*.
+- Destaques: `ImovelService`, `DenunciaService` e `NotificacaoService` com
+  **100%** de instruções; `AuthService` **98,0%**, `AnuncioService` **92,5%**,
+  `AvaliacaoServiceImpl` **89,5%** e `RoommateServiceImpl` **86,2%**.
 
 Na T5.10 foram adicionadas suítes unitárias para `AnuncioService`,
 `ImovelService`, `AuthService`, `PasswordResetService`,
