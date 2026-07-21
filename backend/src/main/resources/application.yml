@@ -56,6 +56,10 @@ app:
     enabled: ${GEOCODING_ENABLED:true}
     nominatim-url: ${NOMINATIM_URL:https://nominatim.openstreetmap.org}
     user-agent: ${GEOCODING_USER_AGENT:CampusLiving/1.0 (contato@campusliving.app)}
+    # Chave de API para provedores compatíveis com Nominatim (ex.: LocationIQ).
+    # Vazio = Nominatim público (só funciona fora de nuvem; em nuvem dá 429).
+    # Em produção: NOMINATIM_URL=https://us1.locationiq.com/v1 + GEOCODING_API_KEY=<chave>
+    api-key: ${GEOCODING_API_KEY:}
     # Coordenadas do campus da UFCG em Campina Grande-PB (portão principal).
     ufcg-lat: ${UFCG_LAT:-7.21528}
     ufcg-lon: ${UFCG_LON:-35.90894}
