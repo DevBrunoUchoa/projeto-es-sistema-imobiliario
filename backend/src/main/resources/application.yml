@@ -28,6 +28,23 @@ spring:
     multipart:
       max-file-size: 5MB
       max-request-size: 55MB
+  # SMTP para o envio real de e-mail (RF-04/05/38). Só é efetivamente usado
+  # quando app.mail.enabled=true (ver abaixo); sem isso configurado, o
+  # EmailService cai no log e nunca chega a chamar o JavaMailSender.
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
 server:
   # Provedores como o Render injetam a porta na variável PORT. Preferimos ela;
@@ -50,6 +67,8 @@ app:
   # configurado, os links são apenas logados (nunca devolvidos na resposta).
   mail:
     enabled: ${MAIL_ENABLED:false}
+    # Precisa ser um remetente verificado no provedor SMTP (ex.: no Brevo, a
+    # conta/domínio cadastrado em "Senders & IP"), senão o envio é rejeitado.
     from: ${MAIL_FROM:no-reply@campusliving.app}
   # Geocodificação de endereços e distância até a UFCG (RF-16).
   geocoding:
