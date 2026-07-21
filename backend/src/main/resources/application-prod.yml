@@ -37,6 +37,22 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: false
+  # Login social (Google). Assim como JWT_SECRET/SPRING_DATASOURCE_* acima,
+  # sem valor padrão: GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET passam a ser
+  # OBRIGATÓRIAS a partir desta seção existir — a aplicação falha ao subir se
+  # não forem fornecidas (mesmo padrão "fail fast" do restante deste arquivo).
+  # Sem esta seção, a rota /oauth2/authorization/google não existe no backend
+  # e o botão "Entrar com Google" responde 404 "Rota não encontrada".
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
 
 logging:
   level:

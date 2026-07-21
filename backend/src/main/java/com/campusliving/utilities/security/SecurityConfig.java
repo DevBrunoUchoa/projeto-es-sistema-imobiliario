@@ -33,8 +33,9 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
-    // Só existe quando há um provedor OAuth2 configurado (dev/test têm Google;
-    // prod não). Usamos ObjectProvider para não falhar na ausência do bean.
+    // Só existe quando há um provedor OAuth2 configurado (GOOGLE_CLIENT_ID/
+    // GOOGLE_CLIENT_SECRET em dev/test/prod). ObjectProvider evita falhar caso
+    // algum profile específico não tenha essa seção configurada.
     private final ObjectProvider<ClientRegistrationRepository> clientRegistrationRepository;
 
     @Bean
@@ -78,8 +79,8 @@ public class SecurityConfig {
                                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Nao autenticado")));
 
         // Login com Google só é ativado quando existe um provedor OAuth2
-        // configurado. Em produção (sem GOOGLE_CLIENT_ID) esse bean não existe,
-        // e configurar oauth2Login sem ele quebra o contexto da aplicação.
+        // configurado — configurar oauth2Login sem esse bean quebraria o
+        // contexto da aplicação em qualquer profile que não defina Google.
         if (clientRegistrationRepository.getIfAvailable() != null) {
             http.oauth2Login(oauth2 -> oauth2
                     .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization"))
