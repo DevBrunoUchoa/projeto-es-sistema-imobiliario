@@ -1,13 +1,19 @@
 package com.campusliving.service.email;
 
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 
 /**
  * Envio de e-mails transacionais (verificação de cadastro, reset de senha e
@@ -18,13 +24,23 @@ import org.springframework.stereotype.Service;
  * o conteúdo — incluindo o link — é apenas registrado em log. Assim o fluxo
  * continua testável localmente e, principalmente, o token nunca é devolvido no
  * corpo da resposta HTTP.</p>
+ *
+ * <p>Em produção (Render), o envio via SMTP (portas 25/465/587) é preferível
+ * evitar: provedores de hospedagem gratuitos costumam bloquear essas portas de
+ * saída para conter spam, o que faz qualquer SMTP (Brevo, Gmail, etc.) travar
+ * por timeout. Quando {@code app.mail.brevo-api-key} está definido, o envio usa
+ * a API HTTP do Brevo ({@code https://api.brevo.com/v3/smtp/email}, porta 443)
+ * em vez de SMTP.</p>
  */
 @Service
 public class EmailService {
 
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+    private static final int CONNECT_TIMEOUT_MS = 5000;
+    private static final int READ_TIMEOUT_MS = 8000;
 
     private final ObjectProvider<JavaMailSender> mailSenderProvider;
+    private final RestClient brevoRestClient;
 
     @Value("${app.mail.enabled:false}")
     private boolean enabled;
@@ -32,11 +48,21 @@ public class EmailService {
     @Value("${app.mail.from:no-reply@campusliving.app}")
     private String remetente;
 
+    @Value("${app.mail.brevo-api-key:}")
+    private String brevoApiKey;
+
     @Value("${app.frontend-url:http://localhost:8080}")
     private String frontendUrl;
 
     public EmailService(ObjectProvider<JavaMailSender> mailSenderProvider) {
         this.mailSenderProvider = mailSenderProvider;
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(CONNECT_TIMEOUT_MS);
+        factory.setReadTimeout(READ_TIMEOUT_MS);
+        this.brevoRestClient = RestClient.builder()
+                .requestFactory(factory)
+                .baseUrl("https://api.brevo.com/v3")
+                .build();
     }
 
     /** RF-05: link de verificação de e-mail (expira em 24h). */
@@ -71,8 +97,16 @@ public class EmailService {
     }
 
     private void enviar(String destino, String assunto, String corpo) {
+        if (!enabled) {
+            log.info("[e-mail desabilitado] destino={} assunto=\"{}\"\n{}", destino, assunto, corpo);
+            return;
+        }
+        if (!brevoApiKey.isBlank()) {
+            enviarViaBrevoApi(destino, assunto, corpo);
+            return;
+        }
         JavaMailSender sender = mailSenderProvider.getIfAvailable();
-        if (!enabled || sender == null) {
+        if (sender == null) {
             log.info("[e-mail desabilitado] destino={} assunto=\"{}\"\n{}", destino, assunto, corpo);
             return;
         }
@@ -83,11 +117,30 @@ public class EmailService {
             msg.setSubject(assunto);
             msg.setText(corpo);
             sender.send(msg);
-            log.info("E-mail enviado para {} (assunto: {})", destino, assunto);
+            log.info("E-mail enviado (SMTP) para {} (assunto: {})", destino, assunto);
         } catch (Exception e) {
             // RF-38 (fluxo secundário): falha de entrega é registrada em log,
             // sem quebrar a operação principal que disparou o e-mail.
             log.error("Falha ao enviar e-mail para {}: {}", destino, e.getMessage());
+        }
+    }
+
+    private void enviarViaBrevoApi(String destino, String assunto, String corpo) {
+        try {
+            brevoRestClient.post()
+                    .uri("/smtp/email")
+                    .header("api-key", brevoApiKey)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of(
+                            "sender", Map.of("email", remetente),
+                            "to", List.of(Map.of("email", destino)),
+                            "subject", assunto,
+                            "textContent", corpo))
+                    .retrieve()
+                    .toBodilessEntity();
+            log.info("E-mail enviado (Brevo API) para {} (assunto: {})", destino, assunto);
+        } catch (Exception e) {
+            log.error("Falha ao enviar e-mail via Brevo API para {}: {}", destino, e.getMessage());
         }
     }
 }

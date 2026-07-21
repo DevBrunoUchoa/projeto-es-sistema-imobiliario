@@ -67,9 +67,13 @@ app:
   # configurado, os links são apenas logados (nunca devolvidos na resposta).
   mail:
     enabled: ${MAIL_ENABLED:false}
-    # Precisa ser um remetente verificado no provedor SMTP (ex.: no Brevo, a
+    # Precisa ser um remetente verificado no provedor (ex.: no Brevo, a
     # conta/domínio cadastrado em "Senders & IP"), senão o envio é rejeitado.
     from: ${MAIL_FROM:no-reply@campusliving.app}
+    # Se definido, o envio usa a API HTTP do Brevo (porta 443) em vez de SMTP
+    # (spring.mail.* acima). Necessário em produção: hosts free-tier (Render)
+    # bloqueiam as portas SMTP de saída (25/465/587), mas não HTTPS.
+    brevo-api-key: ${BREVO_API_KEY:}
   # Geocodificação de endereços e distância até a UFCG (RF-16).
   geocoding:
     enabled: ${GEOCODING_ENABLED:true}
