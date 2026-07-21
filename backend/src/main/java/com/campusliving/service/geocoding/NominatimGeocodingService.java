@@ -28,12 +28,15 @@ public class NominatimGeocodingService implements GeocodingService {
 
     private final RestClient restClient;
     private final boolean enabled;
+    private final String apiKey;
 
     public NominatimGeocodingService(
             @Value("${app.geocoding.enabled:true}") boolean enabled,
             @Value("${app.geocoding.nominatim-url:https://nominatim.openstreetmap.org}") String baseUrl,
-            @Value("${app.geocoding.user-agent:CampusLiving/1.0 (contato@campusliving.app)}") String userAgent) {
+            @Value("${app.geocoding.user-agent:CampusLiving/1.0 (contato@campusliving.app)}") String userAgent,
+            @Value("${app.geocoding.api-key:}") String apiKey) {
         this.enabled = enabled;
+        this.apiKey = apiKey == null ? "" : apiKey.trim();
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(3000);
         factory.setReadTimeout(5000);
@@ -51,11 +54,19 @@ public class NominatimGeocodingService implements GeocodingService {
         }
         try {
             NominatimResult[] resultados = restClient.get()
-                    .uri(uri -> uri.path("/search")
-                            .queryParam("format", "json")
-                            .queryParam("limit", "1")
-                            .queryParam("q", enderecoCompleto)
-                            .build())
+                    .uri(uri -> {
+                        uri.path("/search")
+                                .queryParam("format", "json")
+                                .queryParam("limit", "1")
+                                .queryParam("q", enderecoCompleto);
+                        // Provedores compatíveis com a API do Nominatim que exigem
+                        // chave (ex.: LocationIQ) — necessário em produção, pois o
+                        // Nominatim público bloqueia IPs de nuvem (HTTP 429).
+                        if (!apiKey.isEmpty()) {
+                            uri.queryParam("key", apiKey);
+                        }
+                        return uri.build();
+                    })
                     .retrieve()
                     .body(NominatimResult[].class);
 
