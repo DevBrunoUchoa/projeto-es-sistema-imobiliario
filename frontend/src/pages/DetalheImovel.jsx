@@ -26,10 +26,18 @@ export default function DetalheImovel() {
   const [enviando, setEnviando] = useState(false);
   const [interesseEnviado, setInteresseEnviado] = useState(false);
   const [contatoErro, setContatoErro] = useState(null);
+  // Anúncios em que EU já registrei interesse (por adId) — não confundir com
+  // locador.contatoLiberado, que é por locador (vale pra todos os anúncios
+  // dele) e serve só para liberar telefone/e-mail (RNF/LEG-03).
+  const [anunciosComInteresse, setAnunciosComInteresse] = useState(null);
 
   useEffect(() => {
     setLoading(true);
     setError(null);
+    // Reseta o estado de "acabei de enviar interesse" ao trocar de anúncio —
+    // sem isso, navegar (client-side, sem reload) de um anúncio pro outro
+    // manteria o formulário escondido no anúncio seguinte.
+    setInteresseEnviado(false);
     anuncioApi.detalhes(id)
       .then(setAnuncio)
       .catch(() => setError('Não encontramos esse imóvel. Ele pode ter sido removido ou o link está incorreto.'))
@@ -40,6 +48,15 @@ export default function DetalheImovel() {
     if (!anuncio?.locadorId) return;
     userApi.publico(anuncio.locadorId).then(setLocador).catch(() => {});
   }, [anuncio?.locadorId]);
+
+  useEffect(() => {
+    if (!user) { setAnunciosComInteresse(new Set()); return; }
+    contatoApi.listarEnviados()
+      .then((lista) => setAnunciosComInteresse(new Set(lista.map((c) => c.adId))))
+      .catch(() => setAnunciosComInteresse(new Set()));
+  }, [user]);
+
+  const jaInteressadoNesteAnuncio = interesseEnviado || (anuncio && anunciosComInteresse?.has(anuncio.id));
 
   const [avaliacoes, setAvaliacoes] = useState([]);
   const [avaliacoesCarregando, setAvaliacoesCarregando] = useState(true);
@@ -84,6 +101,7 @@ export default function DetalheImovel() {
     try {
       await contatoApi.registrarInteresse({ adId: anuncio.id, mensagem, liberarContato });
       setInteresseEnviado(true);
+      setAnunciosComInteresse((current) => new Set(current).add(anuncio.id));
       setMensagem('');
       userApi.publico(anuncio.locadorId).then(setLocador).catch(() => {});
     } catch (err) {
@@ -371,36 +389,47 @@ export default function DetalheImovel() {
                     <Link to="/login" className="btn-contact" style={{ textDecoration: 'none', display: 'flex' }}>
                       <i className="fa-brands fa-whatsapp" /> Entrar para contatar
                     </Link>
-                  ) : locador?.contatoLiberado ? (
-                    <>
-                      {locador.telefone && (
-                        <div className="contact-info-row">
-                          <div className="contact-info-icon"><i className="fa-solid fa-phone" /></div>
-                          <div><p className="contact-info-label">Telefone / WhatsApp</p><p className="contact-info-val">{locador.telefone}</p></div>
-                        </div>
-                      )}
-                      {locador.email && (
-                        <div className="contact-info-row">
-                          <div className="contact-info-icon"><i className="fa-solid fa-envelope" /></div>
-                          <div><p className="contact-info-label">E-mail</p><p className="contact-info-val">{locador.email}</p></div>
-                        </div>
-                      )}
-                      <p className="sidebar-note"><i className="fa-solid fa-circle-check" /> Contato liberado — você já demonstrou interesse neste anúncio.</p>
-                    </>
-                  ) : interesseEnviado ? (
-                    <p className="contact-success"><i className="fa-solid fa-circle-check" /> Interesse enviado! O locador foi notificado por e-mail.</p>
                   ) : (
-                    <form className="contact-form" onSubmit={enviarInteresse}>
-                      <textarea value={mensagem} onChange={(e) => setMensagem(e.target.value)} placeholder="Escreva uma mensagem pro locador (ex: horários pra visitar, dúvidas sobre o imóvel...)" required />
-                      <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: 'var(--text-2)', cursor: 'pointer', margin: '4px 0 2px' }}>
-                        <input type="checkbox" checked={liberarContato} onChange={(e) => setLiberarContato(e.target.checked)} style={{ marginTop: 2 }} />
-                        <span>Liberar meu contato (e-mail e telefone) para este locador poder me responder diretamente.</span>
-                      </label>
-                      {contatoErro && <p className="sidebar-note" style={{ color: '#991b1b' }}>{contatoErro}</p>}
-                      <button className="btn-contact" type="submit" disabled={enviando}>
-                        <i className="fa-brands fa-whatsapp" /> {enviando ? 'Enviando...' : 'Enviar interesse'}
-                      </button>
-                    </form>
+                    <>
+                      {/* locador.contatoLiberado é por locador (vale para qualquer
+                          anúncio dele, RNF/LEG-03) — mostrar o contato aqui não
+                          depende de ter interesse registrado NESTE anúncio específico. */}
+                      {locador?.contatoLiberado && (
+                        <>
+                          {locador.telefone && (
+                            <div className="contact-info-row">
+                              <div className="contact-info-icon"><i className="fa-solid fa-phone" /></div>
+                              <div><p className="contact-info-label">Telefone / WhatsApp</p><p className="contact-info-val">{locador.telefone}</p></div>
+                            </div>
+                          )}
+                          {locador.email && (
+                            <div className="contact-info-row">
+                              <div className="contact-info-icon"><i className="fa-solid fa-envelope" /></div>
+                              <div><p className="contact-info-label">E-mail</p><p className="contact-info-val">{locador.email}</p></div>
+                            </div>
+                          )}
+                          <p className="sidebar-note"><i className="fa-solid fa-circle-check" /> Contato liberado — você já demonstrou interesse com este locador.</p>
+                        </>
+                      )}
+
+                      {/* Já enviei interesse NESTE anúncio (adId), não em outro
+                          anúncio qualquer do mesmo locador. */}
+                      {jaInteressadoNesteAnuncio ? (
+                        <p className="contact-success"><i className="fa-solid fa-circle-check" /> Interesse enviado! O locador foi notificado por e-mail.</p>
+                      ) : (
+                        <form className="contact-form" onSubmit={enviarInteresse}>
+                          <textarea value={mensagem} onChange={(e) => setMensagem(e.target.value)} placeholder="Escreva uma mensagem pro locador (ex: horários pra visitar, dúvidas sobre o imóvel...)" required />
+                          <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: 'var(--text-2)', cursor: 'pointer', margin: '4px 0 2px' }}>
+                            <input type="checkbox" checked={liberarContato} onChange={(e) => setLiberarContato(e.target.checked)} style={{ marginTop: 2 }} />
+                            <span>Liberar meu contato (e-mail e telefone) para este locador poder me responder diretamente.</span>
+                          </label>
+                          {contatoErro && <p className="sidebar-note" style={{ color: '#991b1b' }}>{contatoErro}</p>}
+                          <button className="btn-contact" type="submit" disabled={enviando}>
+                            <i className="fa-brands fa-whatsapp" /> {enviando ? 'Enviando...' : 'Enviar interesse'}
+                          </button>
+                        </form>
+                      )}
+                    </>
                   )}
 
                   {user && anuncio.locadorId !== user.id && (
