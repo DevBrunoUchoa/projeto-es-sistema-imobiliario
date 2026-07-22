@@ -10,6 +10,12 @@ const QUICK_FILTERS = [
   ['permitePets', 'fa-paw', 'Pet friendly'],
   ['permiteFumantes', 'fa-smoking', 'Aceita fumantes'],
   ['incluiAlimentacao', 'fa-utensils', 'Alimentação inclusa'],
+  ['seguranca24h', 'fa-shield-halved', 'Segurança 24h'],
+  ['lavanderia', 'fa-shirt', 'Lavanderia'],
+  ['internetInclusa', 'fa-wifi', 'Internet inclusa'],
+  ['mercadinhoProximo', 'fa-cart-shopping', 'Mercadinho próximo'],
+  ['gasIncluso', 'fa-fire-burner', 'Gás incluso'],
+  ['vagaGaragem', 'fa-square-parking', 'Vaga de garagem'],
 ];
 
 export default function Home() {
@@ -17,6 +23,7 @@ export default function Home() {
   const [search, setSearch] = useState('');
   const [tipoOferta, setTipoOferta] = useState('');
   const [maxPrice, setMaxPrice] = useState('9999');
+  const [mesesDesejados, setMesesDesejados] = useState('');
   const [activeFilters, setActiveFilters] = useState([]);
   const [anuncios, setAnuncios] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
@@ -64,6 +71,7 @@ export default function Home() {
         q: search || undefined,
         tipoOferta: tipoOferta || undefined,
         precoMax: maxPrice !== '9999' ? maxPrice : undefined,
+        mesesDesejados: mesesDesejados || undefined,
       };
       activeFilters.forEach((filter) => { params[filter] = true; });
 
@@ -77,7 +85,7 @@ export default function Home() {
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [search, tipoOferta, maxPrice, activeFilters]);
+  }, [search, tipoOferta, maxPrice, mesesDesejados, activeFilters]);
 
   function toggleFilter(filter) {
     setActiveFilters((current) => current.includes(filter) ? current.filter((item) => item !== filter) : [...current, filter]);
@@ -115,6 +123,11 @@ export default function Home() {
                 <select id="home-price" className="sb-select" value={maxPrice} onChange={(event) => setMaxPrice(event.target.value)}>
                   <option value="9999">Qualquer valor</option><option value="500">Até R$ 500</option><option value="800">Até R$ 800</option><option value="1200">Até R$ 1.200</option>
                 </select>
+              </div>
+              <div className="sb-divider" />
+              <div className="sb-field">
+                <label className="sb-label" htmlFor="home-meses">Quero ficar (meses)</label>
+                <input id="home-meses" type="number" min="1" className="sb-input" value={mesesDesejados} onChange={(event) => setMesesDesejados(event.target.value)} placeholder="Ex: 6" />
               </div>
               <button className="sb-btn" type="button" aria-label="Buscar"><i className="fa-solid fa-magnifying-glass" /></button>
             </div>
