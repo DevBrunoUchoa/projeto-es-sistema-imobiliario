@@ -7,8 +7,8 @@ do código real da `main`.
 |---|---|---|
 | Especificação Formal (Alloy) | [`campusliving.als`](campusliving.als) · [guia](especificacao-formal.md) | Rodar no Alloy Analyzer (prints ficam com a equipe) |
 | Diagrama de classes | [`modelagem-classes.png`](modelagem-classes.png) · [`.mmd`](modelagem-classes.mmd) | Fonte editável em Mermaid |
-| Cobertura de testes (JaCoCo) | [`cobertura-jacoco.md`](cobertura-jacoco.md) · [`jacoco.csv`](jacoco.csv) | 67,0% instr. / 55,2% branches (163 testes, T5.10) |
-| Análise estática (Checkstyle) | [`analise-estatica-checkstyle.md`](analise-estatica-checkstyle.md) | 2.235 ocorrências (ruleset Sun) |
+| Cobertura de testes (JaCoCo) | [`cobertura-jacoco.md`](cobertura-jacoco.md) · [`jacoco.csv`](jacoco.csv) | 64,9% instr. / 53,7% branches (176 testes, T5.10) |
+| Análise estática (Checkstyle) | [`analise-estatica-checkstyle.md`](analise-estatica-checkstyle.md) | 2.543 ocorrências (ruleset Sun) |
 | Documentação da API | [`api-docs.html`](api-docs.html) · [`openapi.json`](openapi.json) | Redoc (abra o HTML no navegador) |
 | Plano de testes (TestLink) | [`plano-testes-testlink.xml`](plano-testes-testlink.xml) | XML importável no TestLink |
 | Seções 5–8 do documento | [`secoes-5-a-8-documento.md`](secoes-5-a-8-documento.md) | Rascunho pronto p/ o documento |

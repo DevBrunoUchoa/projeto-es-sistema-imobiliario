@@ -173,7 +173,7 @@ class AuthServiceTest {
 
         assertThatThrownBy(() -> service.cadastrar(request))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessage("Role inválida. Valores permitidos: ESTUDANTE, LOCADOR, MISTO, ADMIN");
+                .hasMessage("Role inválida. Valores permitidos: ESTUDANTE, LOCADOR, MISTO");
 
         verify(userRepository, never()).save(any(User.class));
         verifyNoInteractions(passwordEncoder, emailVerificationService, auditLogService, emailService);

@@ -164,7 +164,7 @@ class ImovelServiceTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = User.Tipo.class, names = {"ESTUDANTE", "MISTO"})
+    @EnumSource(value = User.Tipo.class, names = {"ESTUDANTE"})
     void criarImovel_quandoTipoDeContaNaoTemPermissao_rejeitaAntesDeGeocodificarOuPersistir(
             User.Tipo tipoConta) {
         UUID usuarioId = UUID.randomUUID();
@@ -172,7 +172,7 @@ class ImovelServiceTest {
 
         assertThatThrownBy(() -> service.criarImovel(requestValido(), "usuario@campusliving.com"))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessage("Apenas LOCADOR ou ADMIN podem criar imóveis");
+                .hasMessage("Apenas LOCADOR, MISTO ou ADMIN podem criar imóveis");
 
         verifyNoInteractions(geocodingService, imovelRepository, auditLogService);
     }
