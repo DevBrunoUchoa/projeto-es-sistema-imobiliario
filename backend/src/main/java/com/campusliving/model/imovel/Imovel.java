@@ -115,4 +115,28 @@ public class Imovel {
     @JsonProperty("incluiAlimentacao")
     @Column(name = "inclui_alimentacao", nullable = false)
     private boolean incluiAlimentacao;
+
+    @JsonProperty("seguranca24h")
+    @Column(name = "seguranca_24h", nullable = false)
+    private boolean seguranca24h;
+
+    @JsonProperty("lavanderia")
+    @Column(nullable = false)
+    private boolean lavanderia;
+
+    @JsonProperty("internetInclusa")
+    @Column(name = "internet_inclusa", nullable = false)
+    private boolean internetInclusa;
+
+    @JsonProperty("mercadinhoProximo")
+    @Column(name = "mercadinho_proximo", nullable = false)
+    private boolean mercadinhoProximo;
+
+    @JsonProperty("gasIncluso")
+    @Column(name = "gas_incluso", nullable = false)
+    private boolean gasIncluso;
+
+    @JsonProperty("vagaGaragem")
+    @Column(name = "vaga_garagem", nullable = false)
+    private boolean vagaGaragem;
 }

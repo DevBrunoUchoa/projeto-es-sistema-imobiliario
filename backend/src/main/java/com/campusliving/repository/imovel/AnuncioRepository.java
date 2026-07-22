@@ -52,7 +52,19 @@ public interface AnuncioRepository extends JpaRepository<Anuncio, UUID> {
            "AND (:permitePets IS NULL OR i.permitePets = :permitePets) " +
            "AND (:permiteFumantes IS NULL OR i.permiteFumantes = :permiteFumantes) " +
            "AND (:incluiAlimentacao IS NULL OR i.incluiAlimentacao = :incluiAlimentacao) " +
+           "AND (:seguranca24h IS NULL OR i.seguranca24h = :seguranca24h) " +
+           "AND (:lavanderia IS NULL OR i.lavanderia = :lavanderia) " +
+           "AND (:internetInclusa IS NULL OR i.internetInclusa = :internetInclusa) " +
+           "AND (:mercadinhoProximo IS NULL OR i.mercadinhoProximo = :mercadinhoProximo) " +
+           "AND (:gasIncluso IS NULL OR i.gasIncluso = :gasIncluso) " +
+           "AND (:vagaGaragem IS NULL OR i.vagaGaragem = :vagaGaragem) " +
            "AND (:tipoOferta IS NULL OR a.tipoOferta = :tipoOferta) " +
+           // Duração variável (RF de período de locação): o anúncio só entra
+           // no resultado se aceitar a quantidade de meses desejada pelo
+           // aluno — min/max nulos no anúncio significam "sem restrição".
+           "AND (:mesesDesejados IS NULL OR (" +
+           "   (a.periodoMinMeses IS NULL OR a.periodoMinMeses <= :mesesDesejados) AND " +
+           "   (a.periodoMaxMeses IS NULL OR a.periodoMaxMeses >= :mesesDesejados))) " +
            // CAST(:query AS String) é obrigatório: com :query nulo, o Hibernate 6
            // bindaria o parâmetro como bytea dentro do CONCAT e o PostgreSQL
            // falharia no plan-time com "function lower(bytea) does not exist"
@@ -68,7 +80,14 @@ public interface AnuncioRepository extends JpaRepository<Anuncio, UUID> {
             @Param("permitePets") Boolean permitePets,
             @Param("permiteFumantes") Boolean permiteFumantes,
             @Param("incluiAlimentacao") Boolean incluiAlimentacao,
+            @Param("seguranca24h") Boolean seguranca24h,
+            @Param("lavanderia") Boolean lavanderia,
+            @Param("internetInclusa") Boolean internetInclusa,
+            @Param("mercadinhoProximo") Boolean mercadinhoProximo,
+            @Param("gasIncluso") Boolean gasIncluso,
+            @Param("vagaGaragem") Boolean vagaGaragem,
             @Param("tipoOferta") Anuncio.TipoOferta tipoOferta,
+            @Param("mesesDesejados") Integer mesesDesejados,
             @Param("query") String query,
             Pageable pageable
     );

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Data
 public class AnuncioUpdateRequestDTO {
@@ -38,4 +39,15 @@ public class AnuncioUpdateRequestDTO {
     @NotNull(message = "Vagas disponíveis é obrigatório")
     @PositiveOrZero(message = "Vagas disponíveis deve ser maior ou igual a zero")
     private Integer vagasDisponiveis;
+
+    @NotNull(message = "Data de disponibilidade é obrigatória")
+    private LocalDate dataDisponivelDe;
+
+    private LocalDate dataDisponivelAte;
+
+    @Positive(message = "Mínimo de meses deve ser maior que zero")
+    private Integer periodoMinMeses;
+
+    @Positive(message = "Máximo de meses deve ser maior que zero")
+    private Integer periodoMaxMeses;
 }

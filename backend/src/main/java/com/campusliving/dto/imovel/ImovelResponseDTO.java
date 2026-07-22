@@ -26,6 +26,12 @@ public class ImovelResponseDTO {
     private boolean permitePets;
     private boolean permiteFumantes;
     private boolean incluiAlimentacao;
+    private boolean seguranca24h;
+    private boolean lavanderia;
+    private boolean internetInclusa;
+    private boolean mercadinhoProximo;
+    private boolean gasIncluso;
+    private boolean vagaGaragem;
     private OffsetDateTime dataCriacao;
     private String mensagem;
 }

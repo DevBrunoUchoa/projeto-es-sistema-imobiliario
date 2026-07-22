@@ -1,6 +1,7 @@
 package com.campusliving.model.imovel;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -137,4 +138,23 @@ public class Anuncio {
     @JsonProperty("dataAtualizacao")
     @Column(name = "data_atualizacao", nullable = false, insertable = false, updatable = false)
     private OffsetDateTime dataAtualizacao;
+
+    // Período de locação (RF de duração variável, não fixa): janela de
+    // disponibilidade do anúncio e mínimo/máximo de meses aceitos pelo
+    // locador. O aluno filtra por "quero ficar X meses" contra min/max.
+    @JsonProperty("dataDisponivelDe")
+    @Column(name = "data_disponivel_de", nullable = false)
+    private LocalDate dataDisponivelDe;
+
+    @JsonProperty("dataDisponivelAte")
+    @Column(name = "data_disponivel_ate")
+    private LocalDate dataDisponivelAte;
+
+    @JsonProperty("periodoMinMeses")
+    @Column(name = "periodo_min_meses")
+    private Integer periodoMinMeses;
+
+    @JsonProperty("periodoMaxMeses")
+    @Column(name = "periodo_max_meses")
+    private Integer periodoMaxMeses;
 }

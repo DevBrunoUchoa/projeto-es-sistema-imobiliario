@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +26,10 @@ public class AnuncioDetalhesResponseDTO {
     private Integer vagasDisponiveis;
     private Integer visualizacoes;
     private OffsetDateTime dataPublicacao;
+    private LocalDate dataDisponivelDe;
+    private LocalDate dataDisponivelAte;
+    private Integer periodoMinMeses;
+    private Integer periodoMaxMeses;
 
     // Dados do imóvel
     private UUID imovelId;
@@ -42,6 +47,12 @@ public class AnuncioDetalhesResponseDTO {
     private boolean permitePets;
     private boolean permiteFumantes;
     private boolean incluiAlimentacao;
+    private boolean seguranca24h;
+    private boolean lavanderia;
+    private boolean internetInclusa;
+    private boolean mercadinhoProximo;
+    private boolean gasIncluso;
+    private boolean vagaGaragem;
 
     // Distância até a UFCG
     private Integer distanciaUfcgMetros;

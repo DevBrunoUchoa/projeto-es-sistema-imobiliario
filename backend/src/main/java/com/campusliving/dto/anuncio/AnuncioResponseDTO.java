@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -24,5 +25,9 @@ public class AnuncioResponseDTO {
     private Integer vagasDisponiveis;
     private Integer visualizacoes;
     private OffsetDateTime dataPublicacao;
+    private LocalDate dataDisponivelDe;
+    private LocalDate dataDisponivelAte;
+    private Integer periodoMinMeses;
+    private Integer periodoMaxMeses;
     private String mensagem;
 }
