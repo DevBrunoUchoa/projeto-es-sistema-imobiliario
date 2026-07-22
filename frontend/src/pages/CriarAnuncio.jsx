@@ -57,6 +57,19 @@ export default function CriarAnuncio() {
     permitePets: false,
     permiteFumantes: false,
     incluiAlimentacao: false,
+    seguranca24h: false,
+    lavanderia: false,
+    internetInclusa: false,
+    mercadinhoProximo: false,
+    gasIncluso: false,
+    vagaGaragem: false,
+    // Período de locação: duração variável, não um contrato fixo — data de
+    // início é obrigatória (default hoje); data fim e mín./máx. de meses são
+    // opcionais.
+    dataDisponivelDe: new Date().toISOString().slice(0, 10),
+    dataDisponivelAte: '',
+    periodoMinMeses: '',
+    periodoMaxMeses: '',
   });
 
   function update(field, value) {
@@ -104,6 +117,13 @@ export default function CriarAnuncio() {
     if (!form.titulo.trim()) return 'Informe um título para o anúncio.';
     if (!form.precoAluguel || Number(form.precoAluguel) <= 0) return 'Informe um valor de aluguel maior que zero.';
     if (Number(form.vagasDisponiveis) > Number(form.vagasTotal)) return 'Vagas disponíveis não pode ser maior que o total de vagas.';
+    if (!form.dataDisponivelDe) return 'Informe a partir de quando o imóvel está disponível.';
+    if (form.dataDisponivelAte && form.dataDisponivelAte < form.dataDisponivelDe) {
+      return 'A data final de disponibilidade não pode ser anterior à data inicial.';
+    }
+    if (form.periodoMinMeses && form.periodoMaxMeses && Number(form.periodoMaxMeses) < Number(form.periodoMinMeses)) {
+      return 'O máximo de meses não pode ser menor que o mínimo.';
+    }
     return null;
   }
 
@@ -145,6 +165,12 @@ export default function CriarAnuncio() {
         permitePets: form.permitePets,
         permiteFumantes: form.permiteFumantes,
         incluiAlimentacao: form.incluiAlimentacao,
+        seguranca24h: form.seguranca24h,
+        lavanderia: form.lavanderia,
+        internetInclusa: form.internetInclusa,
+        mercadinhoProximo: form.mercadinhoProximo,
+        gasIncluso: form.gasIncluso,
+        vagaGaragem: form.vagaGaragem,
       });
 
       const anuncio = await anuncioApi.criar({
@@ -157,6 +183,10 @@ export default function CriarAnuncio() {
         descricao: form.descricao,
         vagasTotal: Number(form.vagasTotal),
         vagasDisponiveis: Number(form.vagasDisponiveis),
+        dataDisponivelDe: form.dataDisponivelDe,
+        dataDisponivelAte: form.dataDisponivelAte || undefined,
+        periodoMinMeses: form.periodoMinMeses !== '' ? Number(form.periodoMinMeses) : undefined,
+        periodoMaxMeses: form.periodoMaxMeses !== '' ? Number(form.periodoMaxMeses) : undefined,
       });
 
       setAnuncioId(anuncio.id);
@@ -284,6 +314,28 @@ export default function CriarAnuncio() {
                     <input type="number" min="0" className="form-input" value={form.vagasDisponiveis} onChange={(e) => update('vagasDisponiveis', e.target.value)} />
                   </div>
                 </div>
+                <div className="form-group">
+                  <label className="form-label">Período de locação</label>
+                  <span className="form-hint">Duração variável, sob demanda do aluno — informe uma janela de disponibilidade e, se quiser, um mínimo/máximo de meses.</span>
+                  <div className="form-grid" style={{ marginTop: 8 }}>
+                    <div className="form-group">
+                      <label className="form-label">Disponível a partir de</label>
+                      <input type="date" className="form-input" value={form.dataDisponivelDe} onChange={(e) => update('dataDisponivelDe', e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Disponível até (opcional)</label>
+                      <input type="date" className="form-input" value={form.dataDisponivelAte} onChange={(e) => update('dataDisponivelAte', e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Mínimo de meses (opcional)</label>
+                      <input type="number" min="1" className="form-input" value={form.periodoMinMeses} onChange={(e) => update('periodoMinMeses', e.target.value)} placeholder="Ex: 3" />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Máximo de meses (opcional)</label>
+                      <input type="number" min="1" className="form-input" value={form.periodoMaxMeses} onChange={(e) => update('periodoMaxMeses', e.target.value)} placeholder="Sem limite se vazio" />
+                    </div>
+                  </div>
+                </div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <button className="btn-primary" type="button" onClick={irParaStep2}>Próximo <i className="fa-solid fa-arrow-right" style={{ marginLeft: 6, fontSize: 13 }} /></button>
                 </div>
@@ -355,6 +407,12 @@ export default function CriarAnuncio() {
                     <label className="fp-check-item"><input type="checkbox" checked={form.permitePets} onChange={(e) => update('permitePets', e.target.checked)} /><span className="check-box" /><i className="fa-solid fa-paw" /> Pet friendly</label>
                     <label className="fp-check-item"><input type="checkbox" checked={form.permiteFumantes} onChange={(e) => update('permiteFumantes', e.target.checked)} /><span className="check-box" /><i className="fa-solid fa-smoking" /> Aceita fumantes</label>
                     <label className="fp-check-item"><input type="checkbox" checked={form.incluiAlimentacao} onChange={(e) => update('incluiAlimentacao', e.target.checked)} /><span className="check-box" /><i className="fa-solid fa-utensils" /> Alimentação inclusa</label>
+                    <label className="fp-check-item"><input type="checkbox" checked={form.seguranca24h} onChange={(e) => update('seguranca24h', e.target.checked)} /><span className="check-box" /><i className="fa-solid fa-shield-halved" /> Segurança 24h</label>
+                    <label className="fp-check-item"><input type="checkbox" checked={form.lavanderia} onChange={(e) => update('lavanderia', e.target.checked)} /><span className="check-box" /><i className="fa-solid fa-shirt" /> Lavanderia</label>
+                    <label className="fp-check-item"><input type="checkbox" checked={form.internetInclusa} onChange={(e) => update('internetInclusa', e.target.checked)} /><span className="check-box" /><i className="fa-solid fa-wifi" /> Internet inclusa</label>
+                    <label className="fp-check-item"><input type="checkbox" checked={form.mercadinhoProximo} onChange={(e) => update('mercadinhoProximo', e.target.checked)} /><span className="check-box" /><i className="fa-solid fa-cart-shopping" /> Mercadinho próximo</label>
+                    <label className="fp-check-item"><input type="checkbox" checked={form.gasIncluso} onChange={(e) => update('gasIncluso', e.target.checked)} /><span className="check-box" /><i className="fa-solid fa-fire-burner" /> Gás incluso</label>
+                    <label className="fp-check-item"><input type="checkbox" checked={form.vagaGaragem} onChange={(e) => update('vagaGaragem', e.target.checked)} /><span className="check-box" /><i className="fa-solid fa-square-parking" /> Vaga de garagem</label>
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>

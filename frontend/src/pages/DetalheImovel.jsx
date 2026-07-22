@@ -146,7 +146,23 @@ export default function DetalheImovel() {
     anuncio.permitePets && ['fa-paw', 'Pet friendly'],
     anuncio.permiteFumantes && ['fa-smoking', 'Aceita fumantes'],
     anuncio.incluiAlimentacao && ['fa-utensils', 'Alimentação inclusa'],
+    anuncio.seguranca24h && ['fa-shield-halved', 'Segurança 24h'],
+    anuncio.lavanderia && ['fa-shirt', 'Lavanderia'],
+    anuncio.internetInclusa && ['fa-wifi', 'Internet inclusa'],
+    anuncio.mercadinhoProximo && ['fa-cart-shopping', 'Mercadinho próximo'],
+    anuncio.gasIncluso && ['fa-fire-burner', 'Gás incluso'],
+    anuncio.vagaGaragem && ['fa-square-parking', 'Vaga de garagem'],
   ].filter(Boolean);
+
+  const periodoTexto = (() => {
+    if (!anuncio.dataDisponivelDe) return null;
+    const de = new Date(anuncio.dataDisponivelDe).toLocaleDateString('pt-BR');
+    const ate = anuncio.dataDisponivelAte ? new Date(anuncio.dataDisponivelAte).toLocaleDateString('pt-BR') : null;
+    const meses = anuncio.periodoMinMeses || anuncio.periodoMaxMeses
+      ? ` · ${anuncio.periodoMinMeses ? `mín. ${anuncio.periodoMinMeses}` : 'sem mínimo'}${anuncio.periodoMaxMeses ? ` a máx. ${anuncio.periodoMaxMeses} meses` : ' meses'}`
+      : '';
+    return `Disponível a partir de ${de}${ate ? ` até ${ate}` : ''}${meses}`;
+  })();
 
   const endereco = [
     [anuncio.rua, anuncio.numero].filter(Boolean).join(', '),
@@ -241,6 +257,13 @@ export default function DetalheImovel() {
                 <div className="detail-block">
                   <h2 className="detail-block-title">Sobre o imóvel</h2>
                   <p className="description-text">{anuncio.descricao}</p>
+                </div>
+              )}
+
+              {periodoTexto && (
+                <div className="detail-block">
+                  <h2 className="detail-block-title">Período de locação</h2>
+                  <p className="description-text"><i className="fa-solid fa-calendar-days" style={{ marginRight: 8 }} />{periodoTexto}</p>
                 </div>
               )}
 
