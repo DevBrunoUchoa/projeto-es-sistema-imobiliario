@@ -112,27 +112,30 @@ em [`plano-testes-testlink.xml`](plano-testes-testlink.xml) (importável no Test
 
 ### 8.2. Análise Estática
 
-- **Checkstyle** (ruleset Sun): **2.235** ocorrências em **153** arquivos,
+- **Checkstyle** (ruleset Sun): **2.543** ocorrências em **154** arquivos,
   majoritariamente Javadoc/`final`/formatação (não afetam a lógica) —
   ver [`analise-estatica-checkstyle.md`](analise-estatica-checkstyle.md).
 - **SonarQube/SonarCloud**: *(a executar pela equipe — requer conta/token).*
 
 ### 8.3. Testes Automatizados e Cobertura
 
-Após a T5.10, a suíte com **JUnit 5** e **Testcontainers** (PostGIS real)
-possui **163 testes** automatizados, executados com **0 falhas** e **0 erros**.
-A cobertura foi medida com **JaCoCo**, priorizando o núcleo de negócio (camada
-`service`):
+Com as suítes da T5.10 integradas ao build (estavam commitadas fora do
+diretório que o Maven compila e por isso nunca eram executadas), a bateria com
+**JUnit 5**, **Testcontainers** (PostGIS real) e **Mockito** possui **176
+testes** automatizados, executados com **0 falhas** e **0 erros**. A cobertura
+foi medida com **JaCoCo**, priorizando o núcleo de negócio (camada `service`):
 
-- Projeto: **67,0%** de instruções / **55,2%** de *branches*.
-- Camada `service`: **73,5%** de instruções / **61,2%** de *branches*.
-- Destaques: `AuthService`, `DenunciaService`, `ImovelService` e
-  `NotificacaoService` com **100%** de instruções; `AnuncioService` com
-  **95,2%** e `PasswordResetService` com **95,7%**.
+- Projeto: **64,9%** de instruções / **53,7%** de *branches*.
+- Camada `service`: **71,6%** de instruções / **60,3%** de *branches*.
+- Destaques: `ImovelService`, `DenunciaService` e `NotificacaoService` com
+  **100%** de instruções; `AuthService` **98,0%**, `AnuncioService` **93,3%**
+  e `AvaliacaoServiceImpl` **89,5%**.
 
-Na T5.10 foram adicionadas suítes unitárias para `AnuncioService`,
-`ImovelService`, `AuthService`, `PasswordResetService`,
-`EmailVerificationService`, `DenunciaService` e `NotificacaoService`, cobrindo
-os fluxos críticos de publicação, autenticação, recuperação de senha,
-moderação e notificações. Os valores acima foram gerados por `mvn clean test`;
-detalhes estão em [`cobertura-jacoco.md`](cobertura-jacoco.md).
+As suítes cobrem `AnuncioService`, `ImovelService`, `AuthService`,
+`PasswordResetService`, `EmailVerificationService`, `DenunciaService`,
+`NotificacaoService`, `AvaliacaoServiceImpl` e `RoommateServiceImpl`, além de
+integrações com PostGIS real (distância à UFCG, trigger de nota média,
+filtros e acesso protegido), cobrindo os fluxos críticos de publicação,
+autenticação, recuperação de senha, moderação e notificações. Os valores acima
+foram gerados por `mvn clean test`; detalhes estão em
+[`cobertura-jacoco.md`](cobertura-jacoco.md).
