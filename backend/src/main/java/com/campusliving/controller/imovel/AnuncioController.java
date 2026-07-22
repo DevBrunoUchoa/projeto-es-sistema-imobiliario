@@ -124,13 +124,21 @@ public class AnuncioController {
             @RequestParam(required = false) Boolean permitePets,
             @RequestParam(required = false) Boolean permiteFumantes,
             @RequestParam(required = false) Boolean incluiAlimentacao,
-            @RequestParam(required = false) String tipoOferta
+            @RequestParam(required = false) Boolean seguranca24h,
+            @RequestParam(required = false) Boolean lavanderia,
+            @RequestParam(required = false) Boolean internetInclusa,
+            @RequestParam(required = false) Boolean mercadinhoProximo,
+            @RequestParam(required = false) Boolean gasIncluso,
+            @RequestParam(required = false) Boolean vagaGaragem,
+            @RequestParam(required = false) String tipoOferta,
+            @RequestParam(required = false) Integer mesesDesejados
     ) {
         AnuncioPaginadoResponseDTO response = anuncioService.buscarAnunciosComTexto(
                 page, limit, sortBy, q,
                 precoMax, distanciaMaxMetros,
                 mobiliado, permitePets, permiteFumantes, incluiAlimentacao,
-                tipoOferta
+                seguranca24h, lavanderia, internetInclusa, mercadinhoProximo, gasIncluso, vagaGaragem,
+                tipoOferta, mesesDesejados
         );
         return ResponseEntity.ok(response);
     }

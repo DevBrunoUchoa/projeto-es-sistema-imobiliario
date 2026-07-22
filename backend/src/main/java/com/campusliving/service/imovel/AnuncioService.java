@@ -95,6 +95,9 @@ public class AnuncioService {
         Integer tempoPeMin = geoFallback ? null : Math.max(1, (int) Math.round(distanciaUfcg / METROS_POR_MIN_PE));
         Integer tempoOnibusMin = geoFallback ? null : Math.max(1, (int) Math.round(distanciaUfcg / METROS_POR_MIN_ONIBUS));
 
+        validarPeriodoLocacao(request.getDataDisponivelDe(), request.getDataDisponivelAte(),
+                request.getPeriodoMinMeses(), request.getPeriodoMaxMeses());
+
         // 6. Criar o anúncio
         Anuncio anuncio = Anuncio.builder()
                 .imovelId(imovelId)
@@ -115,6 +118,10 @@ public class AnuncioService {
                 .tempoPeMin(tempoPeMin)
                 .tempoOnibusMin(tempoOnibusMin)
                 .geoFallback(geoFallback)
+                .dataDisponivelDe(request.getDataDisponivelDe())
+                .dataDisponivelAte(request.getDataDisponivelAte())
+                .periodoMinMeses(request.getPeriodoMinMeses())
+                .periodoMaxMeses(request.getPeriodoMaxMeses())
                 .build();
 
         Anuncio savedAnuncio = anuncioRepository.save(anuncio);
@@ -142,6 +149,10 @@ public class AnuncioService {
                 .vagasDisponiveis(savedAnuncio.getVagasDisponiveis())
                 .visualizacoes(savedAnuncio.getVisualizacoes())
                 .dataPublicacao(savedAnuncio.getDataPublicacao())
+                .dataDisponivelDe(savedAnuncio.getDataDisponivelDe())
+                .dataDisponivelAte(savedAnuncio.getDataDisponivelAte())
+                .periodoMinMeses(savedAnuncio.getPeriodoMinMeses())
+                .periodoMaxMeses(savedAnuncio.getPeriodoMaxMeses())
                 .mensagem("Anúncio publicado com sucesso!")
                 .build();
     }
@@ -215,6 +226,10 @@ public class AnuncioService {
             .vagasDisponiveis(anuncio.getVagasDisponiveis())
             .visualizacoes(anuncio.getVisualizacoes())
             .dataPublicacao(anuncio.getDataPublicacao())
+            .dataDisponivelDe(anuncio.getDataDisponivelDe())
+            .dataDisponivelAte(anuncio.getDataDisponivelAte())
+            .periodoMinMeses(anuncio.getPeriodoMinMeses())
+            .periodoMaxMeses(anuncio.getPeriodoMaxMeses())
             .build();
     }
 
@@ -237,6 +252,9 @@ public class AnuncioService {
             throw new ProjectException("Você não tem permissão para editar este anúncio", HttpStatus.FORBIDDEN);
         }
 
+        validarPeriodoLocacao(request.getDataDisponivelDe(), request.getDataDisponivelAte(),
+                request.getPeriodoMinMeses(), request.getPeriodoMaxMeses());
+
         // 4. Atualizar os campos
         anuncio.setTitulo(request.getTitulo());
         anuncio.setDescricao(request.getDescricao());
@@ -246,6 +264,10 @@ public class AnuncioService {
         anuncio.setPrecoIptu(request.getPrecoIptu());
         anuncio.setVagasTotal(request.getVagasTotal());
         anuncio.setVagasDisponiveis(request.getVagasDisponiveis());
+        anuncio.setDataDisponivelDe(request.getDataDisponivelDe());
+        anuncio.setDataDisponivelAte(request.getDataDisponivelAte());
+        anuncio.setPeriodoMinMeses(request.getPeriodoMinMeses());
+        anuncio.setPeriodoMaxMeses(request.getPeriodoMaxMeses());
 
         Anuncio savedAnuncio = anuncioRepository.save(anuncio);
 
@@ -299,6 +321,10 @@ public class AnuncioService {
                 .vagasDisponiveis(anuncio.getVagasDisponiveis())
                 .visualizacoes(anuncio.getVisualizacoes())
                 .dataPublicacao(anuncio.getDataPublicacao())
+                .dataDisponivelDe(anuncio.getDataDisponivelDe())
+                .dataDisponivelAte(anuncio.getDataDisponivelAte())
+                .periodoMinMeses(anuncio.getPeriodoMinMeses())
+                .periodoMaxMeses(anuncio.getPeriodoMaxMeses())
                 // Dados do imóvel
                 .imovelId(imovel.getId())
                 .tipoImovel(imovel.getTipo().name())
@@ -315,6 +341,12 @@ public class AnuncioService {
                 .permitePets(imovel.isPermitePets())
                 .permiteFumantes(imovel.isPermiteFumantes())
                 .incluiAlimentacao(imovel.isIncluiAlimentacao())
+                .seguranca24h(imovel.isSeguranca24h())
+                .lavanderia(imovel.isLavanderia())
+                .internetInclusa(imovel.isInternetInclusa())
+                .mercadinhoProximo(imovel.isMercadinhoProximo())
+                .gasIncluso(imovel.isGasIncluso())
+                .vagaGaragem(imovel.isVagaGaragem())
                 // Distâncias
                 .distanciaUfcgMetros(anuncio.getDistanciaUfcgMetros())
                 .tempoPeMin(anuncio.getTempoPeMin())
@@ -455,6 +487,24 @@ public class AnuncioService {
         }
     }
 
+    // Período de locação variável (não um contrato de duração fixa): a data
+    // final de disponibilidade, quando informada, não pode ser anterior à
+    // inicial; e o máximo de meses, quando informado, não pode ser menor que
+    // o mínimo. O CHECK equivalente na migration V25 é a rede de segurança
+    // no banco — esta validação só existe para devolver 400 com mensagem
+    // clara em vez de deixar o banco rejeitar com um erro genérico.
+    private void validarPeriodoLocacao(LocalDate dataDisponivelDe, LocalDate dataDisponivelAte,
+            Integer periodoMinMeses, Integer periodoMaxMeses) {
+        if (dataDisponivelAte != null && dataDisponivelDe != null && dataDisponivelAte.isBefore(dataDisponivelDe)) {
+            throw new ProjectException(
+                    "Data final de disponibilidade não pode ser anterior à data inicial", HttpStatus.BAD_REQUEST);
+        }
+        if (periodoMinMeses != null && periodoMaxMeses != null && periodoMaxMeses < periodoMinMeses) {
+            throw new ProjectException(
+                    "Máximo de meses não pode ser menor que o mínimo", HttpStatus.BAD_REQUEST);
+        }
+    }
+
     private Sort getSort(String sortBy) {
         if (sortBy == null) {
             return Sort.by(Sort.Direction.DESC, "dataPublicacao");
@@ -478,7 +528,14 @@ public class AnuncioService {
             Boolean permitePets,
             Boolean permiteFumantes,
             Boolean incluiAlimentacao,
-            String tipoOferta
+            Boolean seguranca24h,
+            Boolean lavanderia,
+            Boolean internetInclusa,
+            Boolean mercadinhoProximo,
+            Boolean gasIncluso,
+            Boolean vagaGaragem,
+            String tipoOferta,
+            Integer mesesDesejados
     ) {
         if (page < 0) page = 0;
         if (limit < 1) limit = 10;
@@ -496,7 +553,14 @@ public class AnuncioService {
                 permitePets,
                 permiteFumantes,
                 incluiAlimentacao,
+                seguranca24h,
+                lavanderia,
+                internetInclusa,
+                mercadinhoProximo,
+                gasIncluso,
+                vagaGaragem,
                 parseTipoOferta(tipoOferta),
+                mesesDesejados,
                 null,
                 pageable
         );
@@ -523,7 +587,14 @@ public class AnuncioService {
             Boolean permitePets,
             Boolean permiteFumantes,
             Boolean incluiAlimentacao,
-            String tipoOferta
+            Boolean seguranca24h,
+            Boolean lavanderia,
+            Boolean internetInclusa,
+            Boolean mercadinhoProximo,
+            Boolean gasIncluso,
+            Boolean vagaGaragem,
+            String tipoOferta,
+            Integer mesesDesejados
     ) {
         if (page < 0) page = 0;
         if (limit < 1) limit = 10;
@@ -544,7 +615,14 @@ public class AnuncioService {
                 permitePets,
                 permiteFumantes,
                 incluiAlimentacao,
+                seguranca24h,
+                lavanderia,
+                internetInclusa,
+                mercadinhoProximo,
+                gasIncluso,
+                vagaGaragem,
                 parseTipoOferta(tipoOferta),
+                mesesDesejados,
                 textoBusca,
                 pageable
         );

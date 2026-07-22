@@ -75,6 +75,12 @@ public class ImovelService {
                 .permitePets(request.isPermitePets())
                 .permiteFumantes(request.isPermiteFumantes())
                 .incluiAlimentacao(request.isIncluiAlimentacao())
+                .seguranca24h(request.isSeguranca24h())
+                .lavanderia(request.isLavanderia())
+                .internetInclusa(request.isInternetInclusa())
+                .mercadinhoProximo(request.isMercadinhoProximo())
+                .gasIncluso(request.isGasIncluso())
+                .vagaGaragem(request.isVagaGaragem())
                 .build();
 
         Imovel savedImovel = imovelRepository.save(imovel);
@@ -105,6 +111,12 @@ public class ImovelService {
                 .permitePets(savedImovel.isPermitePets())
                 .permiteFumantes(savedImovel.isPermiteFumantes())
                 .incluiAlimentacao(savedImovel.isIncluiAlimentacao())
+                .seguranca24h(savedImovel.isSeguranca24h())
+                .lavanderia(savedImovel.isLavanderia())
+                .internetInclusa(savedImovel.isInternetInclusa())
+                .mercadinhoProximo(savedImovel.isMercadinhoProximo())
+                .gasIncluso(savedImovel.isGasIncluso())
+                .vagaGaragem(savedImovel.isVagaGaragem())
                 .dataCriacao(savedImovel.getDataCriacao())
                 .mensagem("Imóvel criado com sucesso!")
                 .build();

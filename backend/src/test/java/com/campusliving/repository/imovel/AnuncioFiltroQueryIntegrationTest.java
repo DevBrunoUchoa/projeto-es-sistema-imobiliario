@@ -47,7 +47,14 @@ class AnuncioFiltroQueryIntegrationTest {
                     null,          // permitePets
                     null,          // permiteFumantes
                     null,          // incluiAlimentacao
+                    null,          // seguranca24h
+                    null,          // lavanderia
+                    null,          // internetInclusa
+                    null,          // mercadinhoProximo
+                    null,          // gasIncluso
+                    null,          // vagaGaragem
                     null,          // tipoOferta
+                    null,          // mesesDesejados
                     null,          // query nula
                     PageRequest.of(0, 10));
             assertThat(page).isNotNull();
@@ -59,8 +66,25 @@ class AnuncioFiltroQueryIntegrationTest {
         assertThatCode(() -> {
             Page<Anuncio> page = anuncioRepository.findByFiltros(
                     Anuncio.Status.ATIVO,
-                    null, null, null, null, null, null, null,
+                    null, null, null, null, null, null,
+                    null, null, null, null, null, null,
+                    null, null,
                     "casa",
+                    PageRequest.of(0, 10));
+            assertThat(page).isNotNull();
+        }).doesNotThrowAnyException();
+    }
+
+    @Test
+    void filtroPorMesesDesejados_executaSemErro() {
+        assertThatCode(() -> {
+            Page<Anuncio> page = anuncioRepository.findByFiltros(
+                    Anuncio.Status.ATIVO,
+                    null, null, null, null, null, null,
+                    null, null, null, null, null, null,
+                    null,
+                    6,     // mesesDesejados
+                    null,
                     PageRequest.of(0, 10));
             assertThat(page).isNotNull();
         }).doesNotThrowAnyException();
