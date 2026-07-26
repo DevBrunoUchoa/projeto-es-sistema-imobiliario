@@ -49,7 +49,17 @@ ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError"
 # management.endpoints.web.exposure.include=health,info). O orquestrador
 # (docker-compose, Render, ECS, k8s...) usa isso para saber quando o container
 # está pronto para receber tráfego e para reiniciá-lo se travar.
-HEALTHCHECK --interval=30s --timeout=5s --start-period=45s --retries=3 \
+#
+# start-period=280s: em CPU compartilhada/limitada (ex.: Render free tier),
+# o boot completo (Hibernate + Spring Security + Tomcat) medido em produção
+# levou entre 210s e 230s — bem acima do start-period antigo de 45s. Falhas
+# de HEALTHCHECK durante o start-period não contam para os `retries` (Docker
+# as ignora); com 45s, o healthcheck já declarava o container "unhealthy"
+# antes do boot terminar de verdade, o que pode levar o orquestrador a matar
+# e reiniciar um processo que só precisava de mais alguns segundos —
+# indisponibilidade que parece "trava" mas é, na origem, boot legítimo sendo
+# interrompido no meio.
+HEALTHCHECK --interval=15s --timeout=5s --start-period=280s --retries=3 \
     CMD curl -f http://localhost:8080/actuator/health || exit 1
 
 # Forma shell + `exec` de propósito: permite expandir $JAVA_OPTS (variável de

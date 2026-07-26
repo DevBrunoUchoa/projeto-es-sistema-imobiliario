@@ -103,7 +103,8 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
 
-# Endpoints de observabilidade (usados por Docker/CI e operação)
+# Endpoints de observabilidade (usados por Docker/CI e operação, e como
+# healthcheck do Render).
 management:
   endpoints:
     web:
@@ -112,3 +113,14 @@ management:
   endpoint:
     health:
       show-details: when_authorized
+  health:
+    # O JavaMailSender é criado sempre que spring.mail.host existe como
+    # propriedade (mesmo vazia — ver EmailService), mas em produção o envio
+    # real de e-mail passa pela API HTTP do Brevo, não por esse bean. Sem
+    # este flag, o MailHealthIndicator tenta abrir uma conexão SMTP a cada
+    # checagem de saúde e falha (host vazio), derrubando o /actuator/health
+    # inteiro para DOWN/503 mesmo com a aplicação funcionando normalmente —
+    # se o Render usa esse endpoint como healthcheck, isso explica reinícios
+    # e períodos de indisponibilidade sem nenhuma causa real na aplicação.
+    mail:
+      enabled: false
